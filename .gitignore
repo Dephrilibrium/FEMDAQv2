@@ -1,0 +1,14 @@
+# Ignored folders
+.vs
+_AutoUpdaterVersions
+FEMDAQ/.vs
+FEMDAQ/_Klassendiagramme
+FEMDAQ/obj
+FEMDAQ/Service References
+
+# Ignored files (wildcard)
+*.user
+*.pdb
+*.cd
+
+# Ignored files (specific)

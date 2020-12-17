@@ -1,0 +1,390 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9F7E02FC-9D16-4618-9414-CBE362612DFA}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FEMDAQ</RootNamespace>
+    <AssemblyName>FEMDAQ</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vsF978.tmp\Debug\</IntermediateOutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Debug\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vsF978.tmp\Release\</IntermediateOutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputPath>..\Debug\</OutputPath>
+    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vsF978.tmp\x64\Debug\</IntermediateOutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputPath>..\Debug\</OutputPath>
+    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vsF978.tmp\x64\Release\</IntermediateOutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Agilent.AgInfiniiVision.Interop, Version=2.5.8.0, Culture=neutral, PublicKeyToken=ced78d295d1e0f2b, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>C:\Program Files\IVI Foundation\IVI\Bin\Primary Interop Assemblies\Agilent.AgInfiniiVision.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="Ivi.Driver, Version=1.4.0.0, Culture=neutral, PublicKeyToken=a128c98f1d7717c1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\IVI Foundation\IVI\Microsoft.NET\Framework64\v2.0.50727\IviFoundationSharedComponents 1.4.1\Ivi.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="Ivi.Driver.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=a128c98f1d7717c1, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>C:\Program Files\IVI Foundation\IVI\Bin\Primary Interop Assemblies\Ivi.Driver.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="Ivi.Scope, Version=1.4.0.0, Culture=neutral, PublicKeyToken=a128c98f1d7717c1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\IVI Foundation\IVI\Microsoft.NET\Framework64\v2.0.50727\IviFoundationSharedComponents 1.4.1\Ivi.Scope.dll</HintPath>
+    </Reference>
+    <Reference Include="Ivi.Scope.Interop, Version=3.0.0.0, Culture=neutral, PublicKeyToken=a128c98f1d7717c1, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>C:\Program Files\IVI Foundation\IVI\Bin\Primary Interop Assemblies\Ivi.Scope.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ExtendedLinguisticServices, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.ExtendedLinguisticServices.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Sensors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.Sensors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NationalInstruments.Common, Version=15.1.40.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\National Instruments\MeasurementStudioVS2012\DotNET\Assemblies\Current\NationalInstruments.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="NationalInstruments.NI4882, Version=13.0.45.161, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\National Instruments\MeasurementStudioVS2012\DotNET\Assemblies\Current\NationalInstruments.NI4882.dll</HintPath>
+    </Reference>
+    <Reference Include="RohdeSchwarz.RsScope.Fx40, Version=3.65.1.0, Culture=neutral, PublicKeyToken=21acc6a002277cd7, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\IVI Foundation\IVI\Microsoft.NET\Framework64\v4.0.30319\RohdeSchwarz.RsScope 3.65.1.0\RohdeSchwarz.RsScope.Fx40.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ziDotNET-win64">
+      <HintPath>C:\Program Files\Zurich Instruments\LabOne\API\DotNET\ziDotNET-win64.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\_SC_Library\Dummy_Devs\DmyMU.cs">
+      <Link>Instruments\Dummies\DmyMU.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_SC_Library\Dummy_Devs\DmySMU.cs">
+      <Link>Instruments\Dummies\DmySMU.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_SC_Library\Dummy_Devs\DmySU.cs">
+      <Link>Instruments\Dummies\DmySU.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_SC_Library\Ext_Langer\Serial_Devs\SerialInterface.cs">
+      <Link>Instruments\ExternLanger\SerialInterface.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_SC_Library\GPIB_Devs\KE6517B.cs">
+      <Link>Instruments\KE6517B.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_SC_Library\Serial_Devs\MOVE1250.cs">
+      <Link>Instruments\MOVE1250.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_SC_Library\Serial_Devs\VD9x.cs">
+      <Link>Instruments\VD9x.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_SC_Library\USB_Devs\DSOX3000WavGen.cs">
+      <Link>Instruments\DSOX3000WavGen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_SC_Library\USB_Devs\DSOX3034T.cs">
+      <Link>Instruments\DSOX3034T.cs</Link>
+    </Compile>
+    <Compile Include="Chart\HaumChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Chart\HaumChart.designer.cs">
+      <DependentUpon>HaumChart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Chart\HaumChartDataHelper.cs" />
+    <Compile Include="Files\DeviceInfoStructure.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockDmyMU.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockDmySMU.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockDmySU.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockHP4145B.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockKE6517B.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockDSOX3034T.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockSR785.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockDSOX3000WavGen.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockVD9x.cs" />
+    <Compile Include="Files\SpecialParser\InfoBlockSweepInfo.cs" />
+    <Compile Include="Files\SubParser\CommonParser.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockVSH8x.cs" />
+    <Compile Include="Files\SubParser\ComParser.cs" />
+    <Compile Include="Files\SubParser\GaugeParser.cs" />
+    <Compile Include="Files\SubParser\GpibParser.cs" />
+    <Compile Include="Files\SpecialParser\InfoBlockChart.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockDMM7510.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockFUGHCP350.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockMOVE1250.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockRTO2034.cs" />
+    <Compile Include="Files\SpecialParser\InfoBlockTiming.cs" />
+    <Compile Include="Files\SpecialParser\InfoBlockToolInfo.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockWavGen33511B.cs" />
+    <Compile Include="Files\SubParser\IpParser.cs" />
+    <Compile Include="Files\SubParser\SourceParser.cs" />
+    <Compile Include="Files\SubParser\UsbParser.cs" />
+    <Compile Include="InstrumentOverlays\DMM7510Layer.cs" />
+    <Compile Include="InstrumentOverlays\DmyMULayer.cs" />
+    <Compile Include="InstrumentOverlays\DmySMULayer.cs" />
+    <Compile Include="InstrumentOverlays\DmySULayer.cs" />
+    <Compile Include="InstrumentOverlays\Enumerates\ResultIndicies.cs" />
+    <Compile Include="InstrumentOverlays\FUGHCP350Layer.cs" />
+    <Compile Include="InstrumentOverlays\HP4145BLayer.cs" />
+    <Compile Include="InstrumentOverlays\Interfaces\InstrumentLogicalLayer.cs" />
+    <Compile Include="InstrumentOverlays\KE6485Layer.cs" />
+    <Compile Include="InstrumentOverlays\KE6487Layer.cs" />
+    <Compile Include="InstrumentOverlays\KE6517BLayer.cs" />
+    <Compile Include="InstrumentOverlays\DSOX3034TLayer.cs" />
+    <Compile Include="InstrumentOverlays\MOVE1250Layer.cs" />
+    <Compile Include="InstrumentOverlays\RTO2034Layer.cs" />
+    <Compile Include="InstrumentOverlays\SR785Layer.cs" />
+    <Compile Include="InstrumentOverlays\Static\AssignSweep.cs" />
+    <Compile Include="InstrumentOverlays\VD9xLayer.cs" />
+    <Compile Include="InstrumentOverlays\VSH8xLayer.cs" />
+    <Compile Include="InstrumentOverlays\DSOX3000WavGenLayer.cs" />
+    <Compile Include="InstrumentOverlays\WavGen33511BLayer.cs" />
+    <Compile Include="JobQueue\JobQueueFrame.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="JobQueue\JobQueueFrame.designer.cs">
+      <DependentUpon>JobQueueFrame.cs</DependentUpon>
+    </Compile>
+    <Compile Include="JobQueue\JobQueueRobertDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="JobQueue\JobQueueRobertDialog.Designer.cs">
+      <DependentUpon>JobQueueRobertDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="JobQueue\JobQueueStatus.cs" />
+    <Compile Include="Measurement\Enumeration\MeasurementStatus.cs" />
+    <Compile Include="Measurement\OperationStatus.cs" />
+    <Compile Include="SavingPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SavingPopup.Designer.cs">
+      <DependentUpon>SavingPopup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SplashScreen\SplashScreen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SplashScreen\SplashScreen.Designer.cs">
+      <DependentUpon>SplashScreen.cs</DependentUpon>
+    </Compile>
+    <Compile Include="StaticHelper\DeriveFromObject.cs" />
+    <Compile Include="Files\iniContent.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockKE6487.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockKE6485.cs" />
+    <Compile Include="StaticHelper\ParseHelper.cs" />
+    <Compile Include="StaticHelper\StringHelper.cs" />
+    <Compile Include="Files\swpContent.cs" />
+    <Compile Include="ManageInit\ManageInit.cs" />
+    <Compile Include="mainFrame.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="mainFrame.Designer.cs">
+      <DependentUpon>mainFrame.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\GPIB_Devs\FUGHCP350.cs">
+      <Link>Instruments\ExternLanger\FUGHCP350.cs</Link>
+    </Compile>
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\GPIB_Devs\HP4145B.cs">
+      <Link>Instruments\ExternLanger\HP4145B.cs</Link>
+    </Compile>
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\GPIB_Devs\KE6485.cs">
+      <Link>Instruments\ExternLanger\KE6485.cs</Link>
+    </Compile>
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\GPIB_Devs\KE6487.cs">
+      <Link>Instruments\ExternLanger\KE6487.cs</Link>
+    </Compile>
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\Serial_Devs\MKS909AR.cs">
+      <Link>Instruments\ExternLanger\MKS909AR.cs</Link>
+    </Compile>
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\Serial_Devs\VSH8x.cs">
+      <Link>Instruments\ExternLanger\VSH8x.cs</Link>
+    </Compile>
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\GPIB_Devs\DigMultDMM7510.cs">
+      <Link>Instruments\DigMultDMM7510.cs</Link>
+    </Compile>
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\GPIB_Devs\SR785.cs">
+      <Link>Instruments\SR785.cs</Link>
+    </Compile>
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\GPIB_Devs\WavGen33511B.cs">
+      <Link>Instruments\WavGen33511B.cs</Link>
+    </Compile>
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\IVI_Devs\RTO2034.cs">
+      <Link>Instruments\RTO2034.cs</Link>
+    </Compile>
+    <EmbeddedResource Include="Chart\HaumChart.resx">
+      <DependentUpon>HaumChart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="JobQueue\JobQueueFrame.resx">
+      <DependentUpon>JobQueueFrame.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="JobQueue\JobQueueRobertDialog.resx">
+      <DependentUpon>JobQueueRobertDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="mainFrame.resx">
+      <DependentUpon>mainFrame.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="SavingPopup.resx">
+      <DependentUpon>SavingPopup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SplashScreen\SplashScreen.resx">
+      <DependentUpon>SplashScreen.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="_Klassendiagramme\DeviceParser.cd" />
+    <None Include="_Klassendiagramme\Files.cd" />
+    <None Include="_Klassendiagramme\InstrumentOverlays.cd" />
+    <None Include="_Klassendiagramme\JobQueue.cd" />
+    <None Include="_Klassendiagramme\MainFrame.cd" />
+    <None Include="_Klassendiagramme\SpecialParser.cd" />
+    <None Include="_Klassendiagramme\SubParser.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Chart\Pinned16.png" />
+    <Content Include="Chart\Unpinned16.png" />
+    <Content Include="Icon.ico" />
+    <Content Include="Properties\Changelog.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\ColorTable.png" />
+    <None Include="Resources\FakANK_Logo.png" />
+    <None Include="Resources\DummyBMP-Pixel.bmp" />
+    <Content Include="Resources\Pinned16.png" />
+    <Content Include="Resources\Unpinned16.png" />
+    <None Include="Resources\FakAM_Logo.png" />
+    <None Include="Resources\SplashScreen.png" />
+    <None Include="Resources\power-button-off.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 und x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,60 @@
+﻿using FEMDAQ.StaticHelper;
+using System;
+using System.Collections.Generic;
+
+namespace Files.Parser
+{
+    public class GaugeParser
+    {
+        public int MeasureInstantly { get; private set; }
+        public double Range { get; private set; }
+        public double Nplc { get; private set; }
+
+
+        public GaugeParser(IEnumerable<string> infoBlock, string measureInstantlyToken = "MeasureInstantly=", string yRangeToken = "Range=", string nplcToken = "Nplc=")
+        {
+            if (infoBlock == null) throw new ArgumentNullException("infoBlock");
+
+            ParseMeasureInstantly(StringHelper.FindStringWhichStartsWith(infoBlock, measureInstantlyToken));
+            ParseRange(StringHelper.FindStringWhichStartsWith(infoBlock, yRangeToken));
+            ParseNplc(StringHelper.FindStringWhichStartsWith(infoBlock, nplcToken));
+        }
+
+
+
+        private void ParseMeasureInstantly(string info)
+        {
+            if (info == null)
+            {
+                MeasureInstantly = 0; // Default
+                return; // Ignore range
+            }
+            MeasureInstantly = (int)ParseHelper.ParseDoubleValueFromLineInfo(info);
+        }
+
+
+
+        private void ParseRange(string info)
+        {
+            if (info == null)
+            {
+                Range = 0; // Default
+                return; // Ignore range, if it is not given
+            }
+            Range = ParseHelper.ParseDoubleValueFromLineInfo(info);
+        }
+
+
+
+        private void ParseNplc(string info)
+        {
+            if (info == null)
+            {
+                Nplc = 1; // Default
+                return; // Ignore this
+            }
+
+            Nplc = ParseHelper.ParseDoubleValueFromLineInfo(info);
+        }
+    }
+}
