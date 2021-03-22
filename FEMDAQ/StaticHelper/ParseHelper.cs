@@ -38,7 +38,7 @@ namespace FEMDAQ.StaticHelper
         }
 
 
-        public static bool ParseBooLValueFromLineInfo(string info, bool valueOnNullInfo)
+        public static bool ParseBoolValueFromLineInfo(string info, bool valueOnNullInfo)
         {
             if (info == null)
                 return valueOnNullInfo;

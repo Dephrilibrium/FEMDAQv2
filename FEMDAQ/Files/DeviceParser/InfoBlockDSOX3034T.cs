@@ -45,10 +45,10 @@ namespace Files.Parser
             XDivScale = ParseHelper.ParseDoubleValueFromLineInfo(lineInfo);
 
             lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "TriggerOnWaveform=");
-            TriggerOnWaveform = ParseHelper.ParseBooLValueFromLineInfo(lineInfo, true);
+            TriggerOnWaveform = ParseHelper.ParseBoolValueFromLineInfo(lineInfo, true);
 
             lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "ForceTrigger=");
-            ForceTrigger = ParseHelper.ParseBooLValueFromLineInfo(lineInfo, false);
+            ForceTrigger = ParseHelper.ParseBoolValueFromLineInfo(lineInfo, false);
 
             lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "TriggerLevel=");
             TriggerLevel = ParseHelper.ParseDoubleValueFromLineInfo(lineInfo);

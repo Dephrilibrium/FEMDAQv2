@@ -185,6 +185,7 @@
     <Compile Include="Files\DeviceParser\InfoBlockDSOX3000WavGen.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockVD9x.cs" />
     <Compile Include="Files\SpecialParser\InfoBlockSweepInfo.cs" />
+    <Compile Include="Files\SpecialParser\InfoBlockToolInfo.cs" />
     <Compile Include="Files\SubParser\CommonParser.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockVSH8x.cs" />
     <Compile Include="Files\SubParser\ComParser.cs" />
@@ -196,7 +197,7 @@
     <Compile Include="Files\DeviceParser\InfoBlockMOVE1250.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockRTO2034.cs" />
     <Compile Include="Files\SpecialParser\InfoBlockTiming.cs" />
-    <Compile Include="Files\SpecialParser\InfoBlockToolInfo.cs" />
+    <Compile Include="Files\SpecialParser\InfoBlockToolSettings.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockWavGen33511B.cs" />
     <Compile Include="Files\SubParser\IpParser.cs" />
     <Compile Include="Files\SubParser\SourceParser.cs" />

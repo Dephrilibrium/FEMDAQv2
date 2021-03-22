@@ -23,6 +23,7 @@ namespace Files
         // Infoblocks
         private List<List<string>> _infoBlocks = null;
         public InfoBlockToolInfo ToolInfo { get; private set; }
+        public InfoBlockToolSettings ToolSettings { get; private set; }
         public InfoBlockSweepInfo SweepInfo { get; private set; }
         public InfoBlockTiming TimingInfo { get; private set; }
         public List<DeviceInfoStructure> DeviceInfoStructures { get; private set; }
@@ -38,6 +39,11 @@ namespace Files
             // Decoding configuration-blocks from ini and try to instanciate the InfoBlocks for later use on devices!
             DecodeIni();
             ParseInfoBlocks();
+
+           // Error-handling
+            CheckForMissingBasicBlocks(); // Can throw exceptions
+            CheckForDuplicateDeviceEntries(); // Can throw exceptions
+            CheckForDuplicateChartEntries(); // Can throw exceptions
         }
 
 
@@ -91,6 +97,9 @@ namespace Files
                 blockIdentifier = infoBlock[0];
                 if (blockIdentifier == "[ToolInfo]")
                     ToolInfo = new InfoBlockToolInfo(infoBlock);
+
+                else if (blockIdentifier == "[ToolSettings]")
+                    ToolSettings = new InfoBlockToolSettings(infoBlock);
 
                 else if (blockIdentifier == "[SweepInfo]")
                     SweepInfo = new InfoBlockSweepInfo(infoBlock);
@@ -184,6 +193,103 @@ namespace Files
                 {
                     ChartInfo.Add(new InfoBlockChart(infoBlock));
                 }
+            }
+        }
+
+        private void CheckForMissingBasicBlocks()
+        {
+            if (ToolInfo == null)
+                throw new FormatException("No [ToolInfo] block were found");
+            if (ToolSettings == null)
+                ToolSettings = new InfoBlockToolSettings(); // Don't throw exception. Use default-settings instead!
+            if (SweepInfo == null)
+                throw new FormatException("No [SweepInfo] block were found");
+            if (TimingInfo == null)
+                throw new FormatException("No [Timing] block were found");
+
+        }
+
+        private void CheckForDuplicateDeviceEntries()
+        {
+            var devIdentifierCollection = new List<string>();
+
+            foreach (var info in DeviceInfoStructures)
+            {
+                devIdentifierCollection.Add(info.DeviceIdentifier);
+            }
+
+            if (devIdentifierCollection.Count == 0)
+                MessageBox.Show("No [Dev...] blocks were found. The process will continue, but maybe you should check your ini", "No [Dev...] blocks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            CheckForDuplicatesInStringList(devIdentifierCollection);
+        }
+
+        private void CheckForDuplicateChartEntries()
+        {
+            var devIdentifierCollection = new List<string>();
+
+            foreach (var info in ChartInfo)
+            {
+                devIdentifierCollection.Add(info.ChartInfo.Name);
+            }
+
+            if (devIdentifierCollection.Count == 0)
+                MessageBox.Show("No [Chart...] blocks were found. The process will continue, but maybe you should check your ini", "No [Chart...] blocks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            CheckForDuplicatesInStringList(devIdentifierCollection);
+        }
+
+        private void CheckForDuplicatesInStringList(List<string> stringListToCheck)
+        {
+            var duplicateStrings = new List<string>();
+            var duplicateCounters = new List<int>();
+
+            string currentIdentifier = null;
+            string comparismIdentifier = null;
+            int duplicateCounter = 0;
+            bool duplicateAlreadyInList = false;
+            for (int devCompIndex1 = 0; devCompIndex1 < stringListToCheck.Count - 1; devCompIndex1++)
+            {
+                currentIdentifier = stringListToCheck[devCompIndex1];
+
+                // Look if that identifier was already marked as duplicate
+                duplicateAlreadyInList = false;
+                foreach (var duplicateIdentifier in duplicateStrings)
+                {
+                    if (duplicateIdentifier == currentIdentifier)
+                    {
+                        duplicateAlreadyInList = true; // Mark as already found+counted
+                        break;
+                    }
+                }
+                if (duplicateAlreadyInList)
+                    continue;
+
+                // Search for duplicates
+                duplicateCounter = 0;
+                for (int devCompIndex2 = devCompIndex1 + 1; devCompIndex2 < stringListToCheck.Count; devCompIndex2++)
+                {
+                    comparismIdentifier = stringListToCheck[devCompIndex2];
+                    if (currentIdentifier == comparismIdentifier)
+                        duplicateCounter++;
+                }
+
+
+                if (duplicateCounter != 0) // Check if duplicate of currentIdentifier were found
+                {
+                    duplicateStrings.Add(currentIdentifier);
+                    duplicateCounters.Add(duplicateCounter + 1); // 1 duplicate found -> 2x the same identifier!
+                }
+            }
+
+            if (duplicateStrings.Count != 0) // Check if duplicates of any device were found
+            {
+                // Build message and throw exception
+                var message = "Identifier-duplicates found: " + Environment.NewLine;
+                for (var listIndex = 0; listIndex < duplicateStrings.Count; listIndex++)
+                    message += "- " + duplicateCounters[listIndex] + "x " + duplicateStrings[listIndex] + Environment.NewLine;
+
+                throw new FormatException(message);
             }
         }
     }
