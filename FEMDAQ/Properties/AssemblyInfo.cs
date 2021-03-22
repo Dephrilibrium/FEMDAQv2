@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("OTH Regensburg")]
 [assembly: AssemblyProduct("FEMDAQ V2")]
-[assembly: AssemblyCopyright("Copyright © Matthias Hausladen (HAUM, OTH Regensburg) 2017-2019")]
+[assembly: AssemblyCopyright("Copyright © Matthias Hausladen (HAUM, OTH Regensburg) 2017-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
