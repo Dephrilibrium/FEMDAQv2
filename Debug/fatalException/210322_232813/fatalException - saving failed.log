@@ -1,0 +1,12 @@
+System.FormatException: Wrong Job-Queue-List format. Can't parse job-queue-entry 1!
+   bei FEMDAQ.JobQueue.JobQueueFrame.loadJobQueueListToolStripMenuItem_Click(Object sender, EventArgs e) in \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\JobQueue\JobQueueFrame.cs:Zeile 826.
+   bei System.Windows.Forms.ToolStripItem.RaiseEvent(Object key, EventArgs e)
+   bei System.Windows.Forms.ToolStripMenuItem.OnClick(EventArgs e)
+   bei System.Windows.Forms.ToolStripItem.HandleClick(EventArgs e)
+   bei System.Windows.Forms.ToolStripMenuItem.ProcessCmdKey(Message& m, Keys keyData)
+   bei System.Windows.Forms.ToolStripManager.ProcessShortcut(Message& m, Keys shortcut)
+   bei System.Windows.Forms.Form.ProcessCmdKey(Message& msg, Keys keyData)
+   bei System.Windows.Forms.Control.ProcessCmdKey(Message& msg, Keys keyData)
+   bei System.Windows.Forms.Control.PreProcessMessage(Message& msg)
+   bei System.Windows.Forms.Control.PreProcessControlMessageInternal(Control target, Message& msg)
+   bei System.Windows.Forms.Application.ThreadContext.PreTranslateMessage(MSG& msg)

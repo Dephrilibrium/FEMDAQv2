@@ -1,6 +1,5 @@
 ﻿//#define NO_DEVICES_ALLOWED  // Used for debugging JobQueue!
 
-
 using FEMDAQ.Initialization;
 using FEMDAQ.Measurement;
 using FEMDAQ.SplashScreen;
@@ -19,7 +18,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 namespace FEMDAQ
 {
     public partial class FEMDAQ : Form
@@ -49,6 +47,7 @@ namespace FEMDAQ
         // Time
         private DateTime _startTime;
         private List<double> _diffTimeStamps;
+        private string _timestampFormat = "yyMMdd_HHmmss";
 
         // Jobqueue
         private JobQueue.JobQueueFrame _jobQueueFrame = null;
@@ -78,8 +77,8 @@ namespace FEMDAQ
             splashScreen.Show();
 
             OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
-            //if (_ini.SweepInfo.FullFilename != null)
-            //    OpenSweep(_ini.SweepInfo.FullFilename);
+            if (_ini.SweepInfo.FullFilename != null)
+                OpenSweep(_ini.SweepInfo.FullFilename);
             //OpenSweep(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\LFES-TRI-PA-03 33L-1000mms\UA200_0--400-0-10VS_200Hz50DuCy.swp");
         }
 
@@ -621,10 +620,10 @@ namespace FEMDAQ
             UpdateUI();
             if (SaveFolderFullPath != null) // In case of using jobqueue
             {
-                SaveResultsToFolder(SaveFolderFullPath, CurrentJobDone);
+                SaveResultsFromQueue(SaveFolderFullPath, CurrentJobDone);
             }
             else // No jobqueue!
-                SaveResults();
+                SaveResultsFromUser();
         }
 
 
@@ -701,7 +700,7 @@ namespace FEMDAQ
         /// <summary>
         /// Saves the results after the measurement is stopped.
         /// </summary>
-        private void SaveResults()
+        private void SaveResultsFromUser()
         {
             var folderDialog = new CommonOpenFileDialog("Select folder...");
             folderDialog.IsFolderPicker = true;
@@ -711,25 +710,63 @@ namespace FEMDAQ
             if (folderDialogResult != CommonFileDialogResult.Ok)
                 return;
 
-            var folderFiles = Directory.GetFiles(folderDialog.FileName);
-            var dialogResult = DialogResult.None;
-            if (folderFiles.Length > 0)
-                dialogResult = MessageBox.Show("The folder already contains some files. It's possible that some files will be overwritten.\n\nHit \"Yes\" if you want to choose this folder anyway. Otherwise hit \"No\".",
-                                               "Folder already exists...",
-                                               MessageBoxButtons.YesNo,
-                                               MessageBoxIcon.Exclamation);
+            // Check grouped results
+            var scanFolder = folderDialog.FileName;
+            var timestamp = DateTime.Now;
+            if(_ini.ToolSettings.SaveResultsGrouped)
+                scanFolder = Path.Combine(scanFolder, timestamp.ToString(_timestampFormat));
 
-            if (dialogResult == DialogResult.No)
-                return;
+            if (Directory.Exists(scanFolder))
+            {
+                var folderFiles = Directory.GetFiles(scanFolder);
+                var dialogResult = DialogResult.None;
+                if (folderFiles.Length > 0)
+                    dialogResult = MessageBox.Show("The folder already contains some files. It's possible that some files will be overwritten.\n\nHit \"Yes\" if you want to choose this folder anyway. Otherwise hit \"No\".",
+                                                   "Folder already exists...",
+                                                   MessageBoxButtons.YesNo,
+                                                   MessageBoxIcon.Exclamation);
+                if (dialogResult == DialogResult.No)
+                    return;
+            }
 
-            LastSavePath = folderDialog.FileName;
-            SaveResultsToFolder(folderDialog.FileName);
+            LastSavePath = folderDialog.FileName; // Last savepath should be always the parent directory!
+            if (_ini.ToolSettings.SaveResultsGrouped) 
+                SaveResultsToFolder(scanFolder, ""); // Save in subfolder 
+            else
+                SaveResultsToFolder(folderDialog.FileName, timestamp.ToString(_timestampFormat)+"_"); // Or with timestamp as prefix
         }
 
 
 
-        public void SaveResultsToFolder(string folderPath, Action jobDoneCallback = null)
+        public void SaveResultsFromQueue(string folderPath, Action jobDoneCallback = null)
         {
+            var timestamp = DateTime.Now;
+
+            if (folderPath == null)
+                folderPath = Path.Combine(Application.StartupPath, @"\FolderPathWasNull\", DateTime.Now.ToString("yyMMdd_HHmm"));
+
+            var filePrefix = timestamp.ToString(_timestampFormat) + "_"; // Predefine filePrefix (no grouping is standard!)
+            if (_ini.ToolSettings.SaveResultsGrouped)
+            {
+                folderPath = Path.Combine(folderPath, timestamp.ToString(_timestampFormat));
+                filePrefix = ""; // Clear filePrefix!
+            }
+
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath); // Create directory if not exists
+
+            SaveResultsToFolder(folderPath, filePrefix, jobDoneCallback); // Execute save: folderPath and filePrefix manipulated above
+        }
+
+
+        private void SaveResultsToFolder(string folderPath, string filePrefix, Action jobDoneCallback = null)
+        {
+            // Guard clauses
+            if (folderPath == null)
+                throw new NullReferenceException("No savepath given");
+            if (filePrefix == null)
+                filePrefix = "";
+
 #if !NO_DEVICES_ALLOWED // Used for debugging JobQueue!
             if (_devices == null)
             {
@@ -741,18 +778,15 @@ namespace FEMDAQ
             }
 #endif
 
-            if (folderPath == null)
-                folderPath = Path.Combine(Application.StartupPath, @"\FolderPathWasNull\", DateTime.Now.ToString("yyMMdd_HHmm"));
-
+            // Create directory if not exists
             if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath); // Create directory if not exists
+                Directory.CreateDirectory(folderPath);
 
             // Fast stuff can be done in GUI-Thread
-            var now = DateTime.Now;
-            SaveTimeStamps(folderPath, now);
-            CopyIniAndSweepFiles(folderPath, now);
-            SaveLog(folderPath, now);
-            SaveChartCapturePng(folderPath, now);
+            SaveTimeStamps(folderPath, filePrefix);
+            CopyIniAndSweepFiles(folderPath, filePrefix);
+            SaveLog(folderPath, filePrefix);
+            SaveChartCapturePng(folderPath, filePrefix);
 
 
             // Saving files
@@ -769,7 +803,7 @@ namespace FEMDAQ
                 {
                     foreach (var devLayer in _devices)
                     {
-                        devLayer.SaveResultsToFolder(folderPath, now);
+                        devLayer.SaveResultsToFolder(folderPath, filePrefix);
                         Invoke(new Action(
                                             () =>
                                             {
@@ -793,13 +827,19 @@ namespace FEMDAQ
 
 
 
-        private void SaveTimeStamps(string folderPath)
-        {
-            SaveTimeStamps(folderPath, DateTime.Now);
-        }
+        //private void SaveTimeStamps(string folderPath)
+        //{
+        //    SaveTimeStamps(folderPath, DateTime.Now.ToString("yyMMdd_HHmmss");
+        //}
 
-        private void SaveTimeStamps(string folderPath, DateTime timeStamp)
+        private void SaveTimeStamps(string folderPath, string filePrefix)
         {
+            // Guard clauses
+            if (folderPath == null)
+                throw new NullReferenceException("No savepath given");
+            if (filePrefix == null)
+                filePrefix = "";
+
             var deviceName = string.Format("TimestampsAfterSourceSetup");
             var output = new StringBuilder("# [Timestamps after sourcesetup] in [s]\n");
             double diffTimeStamp;
@@ -813,7 +853,7 @@ namespace FEMDAQ
                     output.AppendLine(string.Format("{0}", Convert.ToString(diffTimeStamp)));
                 }
             }
-            var filename = Path.Combine(folderPath, timeStamp.ToString("yyMMdd_HHmm") + "_" + deviceName + ".dat");
+            var filename = Path.Combine(folderPath, filePrefix + deviceName + ".dat");
             var fileWriter = new StreamWriter(filename, false);
             fileWriter.Write(output);
             fileWriter.Dispose();
@@ -821,42 +861,61 @@ namespace FEMDAQ
 
 
 
-        private void CopyIniAndSweepFiles(string folderPath)
-        {
-            CopyIniAndSweepFiles(folderPath, DateTime.Now);
-        }
+        //private void CopyIniAndSweepFiles(string folderPath)
+        //{
+        //    CopyIniAndSweepFiles(folderPath, DateTime.Now);
+        //}
 
-        private void CopyIniAndSweepFiles(string folderPath, DateTime timeStamp)
+        private void CopyIniAndSweepFiles(string folderPath, string filePrefix)
         {
-            var targetIniPath = Path.Combine(folderPath, timeStamp.ToString("yyMMdd_HHmm") + "_" + _ini.Filename);
-            var targetSwpPath = Path.Combine(folderPath, timeStamp.ToString("yyMMdd_HHmm") + "_" + _sweep.Filename);
+            // Guard clauses
+            if (folderPath == null)
+                throw new NullReferenceException("No savepath given");
+            if (filePrefix == null)
+                filePrefix = "";
+
+            var targetIniPath = Path.Combine(folderPath, filePrefix + _ini.Filename);
+            var targetSwpPath = Path.Combine(folderPath, filePrefix + _sweep.Filename);
             File.Copy(_ini.Fullfilename, targetIniPath, true);
             File.Copy(_sweep.FullFilename, targetSwpPath, true);
         }
 
 
-        private void SaveChartCapturePng(string folderPath)
+        //private void SaveChartCapturePng(string folderPath)
+        //{
+        //    SaveChartCapturePng(folderPath, DateTime.Now);
+        //}
+
+        private void SaveChartCapturePng(string folderPath, string filePrefix)
         {
-            SaveChartCapturePng(folderPath, DateTime.Now);
+            // Guard clauses
+            if (folderPath == null)
+                throw new NullReferenceException("No savepath given");
+            if (filePrefix == null)
+                filePrefix = "";
+
+            Chart.SaveChartCapture(Path.Combine(folderPath, filePrefix + "ChartScreen.png"), ImageFormat.Png);
         }
 
-        private void SaveChartCapturePng(string folderPath, DateTime timeStamp)
+
+
+        //private void SaveLog(string folderPath)
+        //{
+        //    SaveLog(folderPath, DateTime.Now);
+        //}
+
+        private void SaveLog(string folderPath, string filePrefix)
         {
-            Chart.SaveChartCapture(Path.Combine(folderPath, timeStamp.ToString("yyMMdd_HHmm") + "_" + "ChartScreen.png"), ImageFormat.Png);
-        }
+            // Guard clauses
+            if (folderPath == null)
+                throw new NullReferenceException("No savepath given");
+            if (filePrefix == null)
+                filePrefix = "";
 
 
-
-        private void SaveLog(string folderPath)
-        {
-            SaveLog(folderPath, DateTime.Now);
-        }
-
-        private void SaveLog(string folderPath, DateTime timeStamp)
-        {
             var logOutput = "Original ini-File location: " + _ini.Fullfilename + "\n"
                           + "Original sweep-File location: " + _sweep.FullFilename + "\n";
-            var targetLogPath = Path.Combine(folderPath, timeStamp.ToString("yyMMdd_HHmm") + "_log.log");
+            var targetLogPath = Path.Combine(folderPath, filePrefix + "log.log");
 
             var logStream = new StreamWriter(targetLogPath);
             logStream.Write(logOutput);
@@ -920,7 +979,7 @@ namespace FEMDAQ
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveResults();
+            SaveResultsFromUser();
         }
 
 

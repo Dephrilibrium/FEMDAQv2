@@ -72,10 +72,10 @@ namespace Instrument.LogicalLayer
 
 
 
-        public void SaveResultsToFolder(string folderPath)
-        {
-        }
-        public void SaveResultsToFolder(string folderPath, DateTime timeStamp)
+        //public void SaveResultsToFolder(string folderPath)
+        //{
+        //}
+        public void SaveResultsToFolder(string folderPath, string filePrefix)
         {
         }
 

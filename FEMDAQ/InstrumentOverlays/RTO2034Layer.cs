@@ -181,23 +181,29 @@ namespace Instrument.LogicalLayer
 
 
 
-        public void SaveResultsToFolder(string folderPath)
-        {
-        }
+        //public void SaveResultsToFolder(string folderPath)
+        //{
+        //}
 
-        public void SaveResultsToFolder(string folderPath, DateTime timeStamp)
+        public void SaveResultsToFolder(string folderPath, string filePrefix)
         {
+            // Guard clauses
+            if (folderPath == null)
+                throw new NullReferenceException("No savepath given");
+            if (filePrefix == null)
+                filePrefix = "";
+
             if (InfoBlock.Gauge.MeasureInstantly < 0) // No measurements
                 return;
 
-            SaveWaveform(folderPath, timeStamp);
+            SaveWaveform(folderPath, filePrefix);
             if (InfoBlock.CommonFft != null) // Is not null when 0 < UseFftOnMathWindow < 5
-                SaveFFT(folderPath, timeStamp);
+                SaveFFT(folderPath, filePrefix);
         }
 
 
 
-        private void SaveWaveform(string folderPath, DateTime timeStamp)
+        private void SaveWaveform(string folderPath, string filePrefix)
         {
             var deviceName = string.Format("{0}_{1}",
                                            InfoBlock.CommonWaveform.DeviceIdentifier,
@@ -213,7 +219,7 @@ namespace Instrument.LogicalLayer
             output.AppendLine("# X, Y");
 
             // Write header (create new file)
-            var filename = folderPath + "\\" + timeStamp.ToString("yyMMdd_HHmm") + "_" + deviceName + "_Waveform.dat";
+            var filename = folderPath + "\\" + filePrefix + deviceName + "_Waveform.dat";
             var fileWriter = new StreamWriter(filename, false);
             fileWriter.Write(output);
             fileWriter.Close();
@@ -241,7 +247,7 @@ namespace Instrument.LogicalLayer
 
 
 
-        private void SaveFFT(string folderPath, DateTime timeStamp)
+        private void SaveFFT(string folderPath, string filePrefix)
         {
             var deviceName = string.Format("{0}_{1}",
                                InfoBlock.CommonFft.DeviceIdentifier,
@@ -264,7 +270,7 @@ namespace Instrument.LogicalLayer
                     output.AppendLine(string.Format("{0}, {1}", Convert.ToString(x), Convert.ToString(y)));
                 }
             }
-            var filename = folderPath + "\\" + timeStamp.ToString("yyMMdd_HHmm") + "_" + deviceName + "_FFT.dat";
+            var filename = folderPath + "\\" + filePrefix + deviceName + "_FFT.dat";
             var fileWriter = new StreamWriter(filename, false);
             fileWriter.Write(output);
             fileWriter.Dispose();

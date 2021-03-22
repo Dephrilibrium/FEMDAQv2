@@ -112,13 +112,19 @@ namespace Instrument.LogicalLayer
 
 
 
-        public void SaveResultsToFolder(string folderPath)
-        {
-            SaveResultsToFolder(folderPath, DateTime.Now);
-        }
+        //public void SaveResultsToFolder(string folderPath)
+        //{
+        //    SaveResultsToFolder(folderPath, DateTime.Now);
+        //}
 
-        public void SaveResultsToFolder(string folderPath, DateTime timeStamp)
+        public void SaveResultsToFolder(string folderPath, string filePrefix = null)
         {
+            // Guard clauses
+            if (folderPath == null)
+                throw new NullReferenceException("No savepath given");
+            if (filePrefix == null)
+                filePrefix = "";
+
             if (InfoBlock.Gauge.MeasureInstantly < 0) // Hadn't done measurements!
                 return; // Do nothing
 
@@ -141,7 +147,7 @@ namespace Instrument.LogicalLayer
                     output.Append(xResults[xIndex][line] + ", ");
                 output.AppendLine(yResults[0][line].ToString());
             }
-            var filename = folderPath + "\\" + timeStamp.ToString("yyMMdd_HHmm") + "_" + deviceName + ".dat";
+            var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
             var fileWriter = new StreamWriter(filename, false);
             fileWriter.Write(output);
             fileWriter.Dispose();

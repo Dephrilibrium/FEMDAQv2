@@ -11,7 +11,7 @@ namespace Files.Parser
     public class InfoBlockToolSettings
     {
         public string BlockIdentifier { get; private set; }
-        public bool SaveResultsGrouped { get;}
+        public bool SaveResultsGrouped { get; private set; }
 
 
         // Initiate with default parameters

@@ -24,8 +24,8 @@ namespace Instrument.LogicalLayer
 
         // Gauge
         void Measure(double[] drawnOver);
-        void SaveResultsToFolder(string folderPath);
-        void SaveResultsToFolder(string folderPath, DateTime timeStamp);
+        //void SaveResultsToFolder(string folderPath);
+        void SaveResultsToFolder(string folderPath, string filePrefix);
         void ClearResults();
 
 

@@ -49,7 +49,7 @@ namespace FEMDAQ
             // Try to save results otherwise catch error and save as another log
             try
             {
-                mainFrame.SaveResultsToFolder(fatalExceptionSavePath);
+                mainFrame.SaveResultsFromQueue(fatalExceptionSavePath);
             }
             catch (Exception)
             {

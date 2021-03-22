@@ -137,24 +137,36 @@ namespace Instrument.LogicalLayer
 
 
 
-        public void SaveResultsToFolder(string folderPath)
-        {
-            SaveResultsToFolder(folderPath, DateTime.Now);
-        }
+        //public void SaveResultsToFolder(string folderPath)
+        //{
+        //    SaveResultsToFolder(folderPath, DateTime.Now);
+        //}
 
 
-        public void SaveResultsToFolder(string folderPath, DateTime timeStamp)
+        public void SaveResultsToFolder(string folderPath, string filePrefix = null)
         {
+            // Guard clauses
+            if (folderPath == null)
+                throw new NullReferenceException("No savepath given");
+            if (filePrefix == null)
+                filePrefix = "";
+
             if (InfoBlock.Gauge.MeasureInstantly < 0) // No measurements
                 return;
 
-            SaveWaveform(folderPath, timeStamp);
+            SaveWaveform(folderPath, filePrefix);
         }
 
 
 
-        private void SaveWaveform(string folderPath, DateTime timeStamp)
+        private void SaveWaveform(string folderPath, string filePrefix = null)
         {
+            // Guard clauses
+            if (folderPath == null)
+                throw new NullReferenceException("No savepath given");
+            if (filePrefix == null)
+                filePrefix = "";
+
             var deviceName = string.Format("{0}_{1}",
                                            InfoBlock.Common.DeviceIdentifier,
                                            (InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName)
@@ -177,7 +189,7 @@ namespace Instrument.LogicalLayer
                     output.AppendLine(string.Format("{0}, {1}", Convert.ToString(x), Convert.ToString(y)));
                 }
             }
-            var filename = folderPath + "\\" + timeStamp.ToString("yyMMdd_HHmm") + deviceName + "_Waveform.dat";
+            var filename = folderPath + "\\" + filePrefix + deviceName + "_Waveform.dat";
             var fileWriter = new StreamWriter(filename, false);
             fileWriter.Write(output);
             fileWriter.Dispose();
