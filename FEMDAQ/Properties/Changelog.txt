@@ -1,5 +1,10 @@
 ﻿Changelog:
 
+16.03.2021: V2.2.6.8
+Bugfix:
+ - Changed JobQueue-Delimiter from ',' to ';'. ',' caused problems with filenames where a ',' is within the path-string.
+ - Redone some changes from a try to use JobQueue with variable iterations of entries (Number of iterations of a line back to line on or off!). This problem will be solved in future!
+
 16.12.2020: V2.2.6.7
 Bugfix:
  - Changed hex-conversion of MOVE-driver (SetPositionAbs-Method) from upper- (X) to lowercase (x) (Thx @ Christoph Langer & Dominik Berndt)

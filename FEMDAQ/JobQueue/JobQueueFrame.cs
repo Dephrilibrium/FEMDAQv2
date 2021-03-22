@@ -31,12 +31,15 @@ namespace FEMDAQ.JobQueue
         // IsActive-Status
         private int _lastActiveJobIndex { get; set; }
         private int _skippedJobs { get; set; }
-        public string IsActive = "✓";
-        public string IsInactive = "X";
+        public const string IsActive = "✓";
+        public const string IsInactive = "X";
 
         // JobQueueList
         private string _lastFilePath { get; set; }
         private int _listErrorCount { get; set; }
+
+        // Save/Load variable
+        public const char JQLDelimiter = ';';
 
 
         // RobertMode
@@ -467,13 +470,13 @@ namespace FEMDAQ.JobQueue
             switch ((JobQueueIndicies)Cell.ColumnIndex)
             {
                 case JobQueueIndicies.Status:
-                    //var currVal = ConvertActiveState(Cell.Value as string);
-                    int currVal;
-                    var valConversionOk = int.TryParse((string)Cell.Value, out currVal);
-                    //if (currVal != IsActive && currVal != IsInactive)
-                    if (!valConversionOk && currVal <= 0)
+                    var currVal = ConvertActiveState(Cell.Value as string);
+                    //int currVal;
+                    //var valConversionOk = int.TryParse((string)Cell.Value, out currVal);
+                    //if (!valConversionOk && currVal <= 0)
+                    if (currVal != IsActive && currVal != IsInactive)
                     {
-                        Cell.Value = 0;
+                        Cell.Value = IsInactive;
                         Cell.ToolTipText = "Unknown statevalue! Using inactive by default";
                         Cell.Style.BackColor = Color.Crimson;
                         return false;
@@ -772,9 +775,9 @@ namespace FEMDAQ.JobQueue
             for (var jobQueueLineIndex = 0; jobQueueLineIndex < dgvJobQueue.RowCount - 1; jobQueueLineIndex++)
             {
                 currentItem = dgvJobQueue.Rows[jobQueueLineIndex];
-                jqlContent += currentItem.Cells[(int)JobQueueIndicies.Status].Value as string + ", "
-                             + currentItem.Cells[(int)JobQueueIndicies.IniFile].Value as string + ", "
-                             + currentItem.Cells[(int)JobQueueIndicies.SwpFile].Value as string + ", "
+                jqlContent += currentItem.Cells[(int)JobQueueIndicies.Status].Value as string + JQLDelimiter + " "
+                             + currentItem.Cells[(int)JobQueueIndicies.IniFile].Value as string + JQLDelimiter + " "
+                             + currentItem.Cells[(int)JobQueueIndicies.SwpFile].Value as string + JQLDelimiter + " "
                              + currentItem.Cells[(int)JobQueueIndicies.SavFold].Value as string + Environment.NewLine;
             }
             jqlContent += Environment.NewLine;
@@ -816,7 +819,7 @@ namespace FEMDAQ.JobQueue
                 if (jqlLines[jqlLineIndex].StartsWith("#")) // Ignore commentaries
                     continue;
 
-                jqlLineEntries = StringHelper.TrimArray(jqlLines[jqlLineIndex].Split(new char[] { ',' }));
+                jqlLineEntries = StringHelper.TrimArray(jqlLines[jqlLineIndex].Split(new char[] { JQLDelimiter }));
                 if (jqlLineEntries.Length != 4)
                     throw new FormatException(string.Format("Wrong Job-Queue-List format. Can't parse job-queue-entry {0}!", jqlLineIndex + 1));
 
