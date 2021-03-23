@@ -1,6 +1,10 @@
 ﻿Changelog:
 
-22.03.2021: V2.2.6.9:
+23.03.2021: V2.2.7.0
+Feature:
+ - Changed JobQueueStatus from boolean (on/off) to integer value (multiple iterations of a job can be executed)
+
+22.03.2021: V2.2.6.9
 Feature:
  - Added new INI-section [ToolSettings] and it's handling
  - Added INI-value "SaveResultsGrouped=" (results are saved in groups into a subfolder named by the timestamp)
