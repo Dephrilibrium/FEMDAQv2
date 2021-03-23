@@ -17,7 +17,7 @@ using System.Windows.Forms;
 
 namespace FEMDAQ.JobQueue
 {
-    enum JobQueueIndicies { JobRuns = 0, CurrentRun, IniFile, SwpFile, SavFold }
+    enum JobQueueIndicies { JobRuns = 0, FinishedRuns, IniFile, SwpFile, SavFold }
 
     public partial class JobQueueFrame : Form
     {
@@ -145,6 +145,14 @@ namespace FEMDAQ.JobQueue
             sblJobCount.Text = "Jobs: " + (dgvJobQueue.RowCount - 1);
             saveJobQueueListToolStripMenuItem.Enabled = (dgvJobQueue.RowCount > 1 ? true : false); // 1 because the empty row!
             startQueueToolStripMenuItem.Enabled = saveJobQueueListToolStripMenuItem.Enabled; // No jobs -> No Start
+        }
+
+
+
+        private void ResetFinishedRuns()
+        {
+            for(var rowIndex = 0; rowIndex < dgvJobQueue.Rows.Count - 1; rowIndex++)
+                dgvJobQueue.Rows[rowIndex].Cells[(int)JobQueueIndicies.FinishedRuns].Value = 0;
         }
 
 
@@ -329,6 +337,7 @@ namespace FEMDAQ.JobQueue
                     //if (dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex - 1].Cells[(int)JobQueueIndicies.Status].Text == _isInactive)
                     //    _skippedJobs++;
                     MessageBox.Show(string.Format("Work done\n{0} jobs skipped!", _skippedJobs), "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ResetFinishedRuns();
                     UnloadJob();
                     _jobQueueStatus.JobQueueStopped();
                     UpdateUI(_jobQueueStatus.State);
@@ -505,7 +514,7 @@ namespace FEMDAQ.JobQueue
                     Cell.Style.BackColor = Color.Empty;
                     break;
 
-                case JobQueueIndicies.CurrentRun:
+                case JobQueueIndicies.FinishedRuns:
                     break;
 
                 case JobQueueIndicies.IniFile:
@@ -592,8 +601,8 @@ namespace FEMDAQ.JobQueue
             if (e.RowIndex <= 0)
                 return;
 
-            dgvJobQueue.Rows[e.RowIndex - 1].Cells[(int)JobQueueIndicies.CurrentRun].Value = 0;
-            dgvJobQueue.Rows[e.RowIndex - 1].Cells[(int)JobQueueIndicies.CurrentRun].ToolTipText = "Current run-counter of this job";
+            dgvJobQueue.Rows[e.RowIndex - 1].Cells[(int)JobQueueIndicies.FinishedRuns].Value = 0;
+            dgvJobQueue.Rows[e.RowIndex - 1].Cells[(int)JobQueueIndicies.FinishedRuns].ToolTipText = "Current run-counter of this job";
         }
 
 
@@ -749,7 +758,8 @@ namespace FEMDAQ.JobQueue
             _lastActiveJobIndex = -1; // Reset 
             _mainFrame.CurrentJobDone += OneJobDone; // Add callback
 
-            _jobQueueStatus = new JobQueueStatus(dgvJobQueue.RowCount - 1);
+            //_jobQueueStatus = new JobQueueStatus(dgvJobQueue.RowCount - 1);
+            _jobQueueStatus = new JobQueueStatus(dgvJobQueue);
             if (_jobQueueStatus.JobIndexOverflow)
             {
                 MessageBox.Show("There have to be more than 0 jobs entered to start the jobqueue. \nStart aborted.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -791,6 +801,7 @@ namespace FEMDAQ.JobQueue
         private void stopQueueToolStripMenuItem_Click(object sender, EventArgs e)
         {
             StopJob();
+            ResetFinishedRuns();
         }
 
 
@@ -860,9 +871,9 @@ namespace FEMDAQ.JobQueue
                     throw new FormatException(string.Format("Wrong Job-Queue-List format. Can't parse job-queue-entry {0}!", jqlLineIndex + 1));
 
                 AddJob(int.Parse(jqlLineEntries[(int)JobQueueIndicies.JobRuns]),
-                       jqlLineEntries[(int)JobQueueIndicies.IniFile - (int)JobQueueIndicies.CurrentRun],  // Remove offset of CurrentRun
-                       jqlLineEntries[(int)JobQueueIndicies.SwpFile - (int)JobQueueIndicies.CurrentRun],  // Remove offset of CurrentRun
-                       jqlLineEntries[(int)JobQueueIndicies.SavFold - (int)JobQueueIndicies.CurrentRun]); // Remove offset of CurrentRun
+                       jqlLineEntries[(int)JobQueueIndicies.IniFile - (int)JobQueueIndicies.FinishedRuns],  // Remove offset of CurrentRun
+                       jqlLineEntries[(int)JobQueueIndicies.SwpFile - (int)JobQueueIndicies.FinishedRuns],  // Remove offset of CurrentRun
+                       jqlLineEntries[(int)JobQueueIndicies.SavFold - (int)JobQueueIndicies.FinishedRuns]); // Remove offset of CurrentRun
             }
         }
         #endregion

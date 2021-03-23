@@ -1,4 +1,5 @@
 # Job-Queue-List v1.1
 # Runs, Ini-Path, Swp-Path, Save-Folder
+3; \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\_JobQueueIni.ini; \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\_sweep.swp; \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\Test
 5; \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\_JobQueueIni.ini; \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\_sweep.swp; \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\Test
 

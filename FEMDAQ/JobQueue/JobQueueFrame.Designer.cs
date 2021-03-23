@@ -50,7 +50,7 @@
             this.saveJobQueueListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dgvJobQueue = new System.Windows.Forms.DataGridView();
             this.dgvRuns = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvRun = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvRunsFinished = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvIniPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvSweepPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvSavePath = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -234,7 +234,7 @@
             this.dgvJobQueue.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvJobQueue.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dgvRuns,
-            this.dgvRun,
+            this.dgvRunsFinished,
             this.dgvIniPath,
             this.dgvSweepPath,
             this.dgvSavePath});
@@ -271,15 +271,15 @@
             this.dgvRuns.Name = "dgvRuns";
             this.dgvRuns.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.dgvRuns.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.dgvRuns.Width = 45;
+            this.dgvRuns.Width = 55;
             // 
-            // dgvRun
+            // dgvRunsFinished
             // 
-            this.dgvRun.HeaderText = "Run";
-            this.dgvRun.Name = "dgvRun";
-            this.dgvRun.ReadOnly = true;
-            this.dgvRun.ToolTipText = "Current run of this job";
-            this.dgvRun.Width = 45;
+            this.dgvRunsFinished.HeaderText = "Finished";
+            this.dgvRunsFinished.Name = "dgvRunsFinished";
+            this.dgvRunsFinished.ReadOnly = true;
+            this.dgvRunsFinished.ToolTipText = "Current run of this job";
+            this.dgvRunsFinished.Width = 55;
             // 
             // dgvIniPath
             // 
@@ -346,7 +346,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripSplitButton sbb_RobertMode;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvRuns;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dgvRun;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvRunsFinished;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvIniPath;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvSweepPath;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvSavePath;
