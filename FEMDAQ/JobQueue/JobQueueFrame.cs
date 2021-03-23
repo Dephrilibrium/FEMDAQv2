@@ -31,8 +31,6 @@ namespace FEMDAQ.JobQueue
         // IsActive-Status
         private int _lastActiveJobIndex { get; set; }
         private int _skippedJobs { get; set; }
-        //public const string IsActive = "✓";
-        //public const string IsInactive = "X";
 
         // JobQueueList
         private string _lastFilePath { get; set; }
@@ -162,44 +160,11 @@ namespace FEMDAQ.JobQueue
             for (var rowIndex = 0; rowIndex < dgvJobQueue.RowCount - 1; rowIndex++)
                 dgvJobQueue.Rows[rowIndex].HeaderCell.Value = string.Format("{0}", rowIndex + 1);
         }
-
-
-        private string ConvertActiveState(string State)
-        {
-            // Check if state is given in "true/false" or "1/0" an convert them into "✓/X"
-            State = StringHelper.TrimString(State);
-            State = State.ToUpper();
-            //if (State == "TRUE" || State == "1")
-            //    return IsActive;
-            //else if (State == "FALSE" || State == "0")
-            //    return IsInactive;
-
-            return State; // Already IsActive or IsInactive!
-        }
         #endregion
 
 
 
         #region Listview-Methods
-        //public void AddJob(int Runs, string iniPath, string swpPath, string savePath)
-        //{
-        //    //AddJob(IsActive, iniPath, swpPath, savePath);
-        //    AddJob(1, iniPath, swpPath, savePath);
-        //}
-
-
-
-        //public void AddJob(bool activeState, string iniPath, string swpPath, string savePath)
-        //public void AddJob(int jobIterations, string iniPath, string swpPath, string savePath)
-        //{
-        //    // Short if decides the first argument
-        //    //AddJob((activeState ? IsActive : IsInactive), iniPath, swpPath, savePath);
-        //    AddJob(jobIterations, iniPath, swpPath, savePath);
-        //}
-
-
-
-        //public void AddJob(string activeState, string iniPath, string swpPath, string savePath)
         public void AddJob(int jobRuns, string iniPath, string swpPath, string savePath)
         {
             if (jobRuns < 0) throw new ArgumentOutOfRangeException("jobRuns negative");
@@ -208,7 +173,6 @@ namespace FEMDAQ.JobQueue
             if (savePath == null || savePath == "") throw new ArgumentNullException("savePath");
 
 
-            //dgvJobQueue.Rows.Add(activeState, iniPath, swpPath, savePath);
             dgvJobQueue.Rows.Add(jobRuns, 0, iniPath, swpPath, savePath);
             var row = dgvJobQueue.Rows[dgvJobQueue.RowCount - 2];
             foreach (DataGridViewCell cell in row.Cells)
@@ -317,21 +281,17 @@ namespace FEMDAQ.JobQueue
             else
             {
                 // Looking for the next active job to do!
-                //string cellBuffer;
                 int cellBuffer = 0;
                 while (!_jobQueueStatus.UpdateToNextJobIndex())
                 {
                     // Break from while when a active job was found
-                    //cellBuffer = dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.Status].Value as string;
                     cellBuffer = (int)dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.JobRuns].Value;
-                    //if (cellBuffer == IsActive)
                     if (cellBuffer > 0)
                         break;
                     _skippedJobs++;
                 }
 
                 // Last job was done -> Stop here
-                //if (_jobQueueStatus.UpdateToNextJobIndex())
                 if (_jobQueueStatus.JobIndexOverflow)
                 {
                     //if (dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex - 1].Cells[(int)JobQueueIndicies.Status].Text == _isInactive)
@@ -360,6 +320,15 @@ namespace FEMDAQ.JobQueue
             var swpFullFilename = dgvJobQueue.Rows[index].Cells[(int)JobQueueIndicies.SwpFile].Value as string;
             var saveFolderFullPath = dgvJobQueue.Rows[index].Cells[(int)JobQueueIndicies.SavFold].Value as string;
 
+            if (!Path.IsPathRooted(iniFullFilename))
+                iniFullFilename = Path.GetFullPath(Path.Combine(Application.StartupPath, iniFullFilename));
+            if (!Path.IsPathRooted(swpFullFilename))
+                swpFullFilename = Path.GetFullPath(Path.Combine(Application.StartupPath, swpFullFilename));
+            if (!Path.IsPathRooted(saveFolderFullPath))
+                saveFolderFullPath = Path.GetFullPath(Path.Combine(Application.StartupPath, saveFolderFullPath));
+
+
+
             _mainFrame.OpenIni(iniFullFilename);
             _mainFrame.OpenSweep(swpFullFilename);
             _mainFrame.SaveFolderFullPath = saveFolderFullPath;
@@ -380,7 +349,6 @@ namespace FEMDAQ.JobQueue
 
         private void StartJob()
         {
-            //MarkActiveJobQueueEntry(_jobQueueStatus.CurrentJobIndex);
             _stopRequested = false;
             _jobQueueStatus.JobQueueStarted();
             UpdateUI(_jobQueueStatus.State);
@@ -403,7 +371,8 @@ namespace FEMDAQ.JobQueue
             switch (queueState)
             {
                 case QueueState.Stopped:
-                    dgvJobQueue.ReadOnly = false;
+                    dgvJobQueue.ReadOnly = false; // Resets ReadOnly-Property of all columns and cells
+                    dgvJobQueue.Columns[(int)JobQueueIndicies.FinishedRuns].ReadOnly = true;
                     sbbRemoveJob.Enabled = true;
                     sbbClearAllJobs.Enabled = true;
                     sbbMoveUp.Enabled = true;
@@ -486,9 +455,9 @@ namespace FEMDAQ.JobQueue
             switch ((JobQueueIndicies)Cell.ColumnIndex)
             {
                 case JobQueueIndicies.JobRuns:
-                    int currVal = 0;
-                    bool valConvserionOk = false;
-                    try // Workaround because typed inputs are strings, but programmatically the cell-value is an int32! So try parsing user input first, and if this fails use (int) cast
+                    int currVal;
+                    bool valConvserionOk;
+                    try // Workaround because typed inputs are strings, but programmatically set cell-values are int32! So try parsing user input first, and if this fails use (int) type-cast
                     {
                         valConvserionOk = int.TryParse((string)Cell.Value, out currVal);
                     }
@@ -499,22 +468,19 @@ namespace FEMDAQ.JobQueue
                     }
 
                     if (!valConvserionOk || currVal < 0)
-                    //var currVal = ConvertActiveState(Cell.Value as string);
-                    //if (currVal != IsActive && currVal != IsInactive)
-                    //if (currVal <= 0)
                     {
                         Cell.Value = 0;
                         Cell.ToolTipText = "Unknown statevalue! Using inactive (0 runs) by default";
                         Cell.Style.BackColor = Color.Crimson;
                         return false;
                     }
-                    // else
                     Cell.Value = currVal;
                     Cell.ToolTipText = "";
                     Cell.Style.BackColor = Color.Empty;
                     break;
 
                 case JobQueueIndicies.FinishedRuns:
+                    Cell.Value = 0;
                     break;
 
                 case JobQueueIndicies.IniFile:
@@ -529,7 +495,6 @@ namespace FEMDAQ.JobQueue
                         Cell.Style.BackColor = Color.Crimson;
                         return false;
                     }
-                    // else
                     Cell.ToolTipText = "";
                     Cell.Style.BackColor = Color.Empty;
                     break;
@@ -554,7 +519,6 @@ namespace FEMDAQ.JobQueue
                             return false;
                         }
                     }
-                    // else
                     Cell.ToolTipText = "";
                     Cell.Style.BackColor = Color.Empty;
                     break;
@@ -621,12 +585,10 @@ namespace FEMDAQ.JobQueue
             switch ((JobQueueIndicies)item.ColumnIndex)
             {
                 case JobQueueIndicies.JobRuns:
-                    var currVal = (string)item.Value;
-                    if (currVal == null)
-                        currVal = "1"; // default state is active
+                    //var currVal = (string)item.Value;
+                    //if (currVal == null)
+                    //    currVal = "1"; // default state is active
 
-                    currVal = ConvertActiveState(currVal);
-                    //item.Value = (currVal == IsActive ? IsInactive : IsActive);
                     item.Value = 1;
                     break;
 
@@ -770,8 +732,6 @@ namespace FEMDAQ.JobQueue
             do
             {
                 // Break from while when a active job was found
-                //var currentJobStatus = dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.Status].Value as string;
-                //if (currentJobStatus == IsActive)
                 var currentJobStatus = (int)dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.JobRuns].Value;
                 if (currentJobStatus > 0)
                     break;

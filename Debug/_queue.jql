@@ -1,0 +1,4 @@
+# Job-Queue-List v1.1
+# Runs, Ini-Path, Swp-Path, Save-Folder
+1; ./_default.ini; .\_mySweep.swp; .\Test
+

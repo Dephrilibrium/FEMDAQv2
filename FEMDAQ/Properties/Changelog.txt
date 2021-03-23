@@ -1,5 +1,13 @@
 ﻿Changelog:
 
+23.03.2021: V2.2.7.1
+Bugfix:
+ - Fixed a problem when using relative paths in jobqueue (JobQueue forwarded non-rooted paths to FEMDAQ)
+ - Fixed ReadOnly-property-reset to false of "RunsFinished" column when queue is stopped.
+ - Fixed dispose-Exception when GPIB listeners turned off before FEMDAQ was closed.
+Misc:
+ - Cleaned up old JobQueueStatus (boolean) code snippets
+
 23.03.2021: V2.2.7.0
 Feature:
  - Changed JobQueueStatus from boolean (on/off) to integer value (multiple iterations of a job can be executed)
