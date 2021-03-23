@@ -36,6 +36,8 @@ namespace FEMDAQ.JobQueue
         /// <returns></returns>
         public bool UpdateToNextJobIndex()
         {
+            var currentRun = 
+
             CurrentJobIndex++;
             if (CurrentJobIndex >= AmountAllJobs)
                 JobIndexOverflow = true;

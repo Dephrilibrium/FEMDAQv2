@@ -49,7 +49,8 @@
             this.loadJobQueueListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveJobQueueListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dgvJobQueue = new System.Windows.Forms.DataGridView();
-            this.dgvJobRuns = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvRuns = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvRun = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvIniPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvSweepPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvSavePath = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -232,7 +233,8 @@
             this.dgvJobQueue.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dgvJobQueue.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvJobQueue.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dgvJobRuns,
+            this.dgvRuns,
+            this.dgvRun,
             this.dgvIniPath,
             this.dgvSweepPath,
             this.dgvSavePath});
@@ -258,17 +260,26 @@
             this.dgvJobQueue.Size = new System.Drawing.Size(955, 169);
             this.dgvJobQueue.TabIndex = 4;
             this.dgvJobQueue.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvJobQueue_CellEndEdit);
+            this.dgvJobQueue.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.dgvJobQueue_RowsAdded);
             this.dgvJobQueue.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.dgvJobQueue_RowsRemoved);
             this.dgvJobQueue.SelectionChanged += new System.EventHandler(this.dgvJobQueue_SelectionChanged);
             this.dgvJobQueue.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.dgvJobQueue_MouseDoubleClick);
             // 
-            // dgvJobRuns
+            // dgvRuns
             // 
-            this.dgvJobRuns.HeaderText = "Job runs";
-            this.dgvJobRuns.Name = "dgvJobRuns";
-            this.dgvJobRuns.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvJobRuns.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.dgvJobRuns.Width = 62;
+            this.dgvRuns.HeaderText = "Runs";
+            this.dgvRuns.Name = "dgvRuns";
+            this.dgvRuns.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvRuns.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.dgvRuns.Width = 45;
+            // 
+            // dgvRun
+            // 
+            this.dgvRun.HeaderText = "Run";
+            this.dgvRun.Name = "dgvRun";
+            this.dgvRun.ReadOnly = true;
+            this.dgvRun.ToolTipText = "Current run of this job";
+            this.dgvRun.Width = 45;
             // 
             // dgvIniPath
             // 
@@ -334,7 +345,8 @@
         private System.Windows.Forms.ToolStripSplitButton sbbCopyJob;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripSplitButton sbb_RobertMode;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dgvJobRuns;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvRuns;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvRun;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvIniPath;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvSweepPath;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvSavePath;

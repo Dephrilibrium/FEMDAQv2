@@ -1,0 +1,14 @@
+System.InvalidCastException: Das Objekt des Typs "System.Int32" kann nicht in Typ "System.String" umgewandelt werden.
+   bei FEMDAQ.JobQueue.JobQueueFrame.ValidateJobQueueEntryOfCell(DataGridViewCell Cell) in \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\JobQueue\JobQueueFrame.cs:Zeile 480.
+   bei FEMDAQ.JobQueue.JobQueueFrame.dgvJobQueue_CellEndEdit(Object sender, DataGridViewCellEventArgs e) in \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\JobQueue\JobQueueFrame.cs:Zeile 569.
+   bei System.Windows.Forms.DataGridView.OnCellEndEdit(DataGridViewCellEventArgs e)
+   bei System.Windows.Forms.DataGridView.EndEdit(DataGridViewDataErrorContexts context, DataGridViewValidateCellInternal validateCell, Boolean fireCellLeave, Boolean fireCellEnter, Boolean fireRowLeave, Boolean fireRowEnter, Boolean fireLeave, Boolean keepFocus, Boolean resetCurrentCell, Boolean resetAnchorCell)
+   bei System.Windows.Forms.DataGridView.CommitEditForOperation(Int32 columnIndex, Int32 rowIndex, Boolean forCurrentCellChange)
+   bei System.Windows.Forms.DataGridView.ScrollIntoView(Int32 columnIndex, Int32 rowIndex, Boolean forCurrentCellChange)
+   bei System.Windows.Forms.DataGridView.ProcessDownKeyInternal(Keys keyData, Boolean& moved)
+   bei System.Windows.Forms.DataGridView.ProcessEnterKey(Keys keyData)
+   bei System.Windows.Forms.DataGridView.ProcessDialogKey(Keys keyData)
+   bei System.Windows.Forms.TextBoxBase.ProcessDialogKey(Keys keyData)
+   bei System.Windows.Forms.Control.PreProcessMessage(Message& msg)
+   bei System.Windows.Forms.Control.PreProcessControlMessageInternal(Control target, Message& msg)
+   bei System.Windows.Forms.Application.ThreadContext.PreTranslateMessage(MSG& msg)

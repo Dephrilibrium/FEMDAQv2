@@ -1,0 +1,26 @@
+System.ArgumentOutOfRangeException: Der Index lag außerhalb des Bereichs. Er darf nicht negativ und kleiner als die Sammlung sein.
+Parametername: index
+   bei System.Collections.ArrayList.get_Item(Int32 index)
+   bei System.Windows.Forms.DataGridViewRowCollection.SharedRow(Int32 rowIndex)
+   bei System.Windows.Forms.DataGridViewRowCollection.get_Item(Int32 index)
+   bei FEMDAQ.JobQueue.JobQueueFrame.dgvJobQueue_RowsAdded(Object sender, DataGridViewRowsAddedEventArgs e) in \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\JobQueue\JobQueueFrame.cs:Zeile 590.
+   bei System.Windows.Forms.DataGridView.OnRowsAdded(DataGridViewRowsAddedEventArgs e)
+   bei System.Windows.Forms.DataGridViewRowCollection.OnCollectionChanged_PostNotification(CollectionChangeAction cca, Int32 rowIndex, Int32 rowCount, DataGridViewRow dataGridViewRow, Boolean changeIsDeletion, Boolean changeIsInsertion, Boolean recreateNewRow, Point newCurrentCell)
+   bei System.Windows.Forms.DataGridViewRowCollection.OnCollectionChanged(CollectionChangeEventArgs e, Int32 rowIndex, Int32 rowCount)
+   bei System.Windows.Forms.DataGridViewRowCollection.AddInternal(Boolean newRow, Object[] values)
+   bei System.Windows.Forms.DataGridView.AddNewRow(Boolean createdByEditing)
+   bei System.Windows.Forms.DataGridView.OnRowCollectionChanged_PostNotification(Boolean recreateNewRow, Boolean allowSettingCurrentCell, CollectionChangeAction cca, DataGridViewRow dataGridViewRow, Int32 rowIndex)
+   bei System.Windows.Forms.DataGridViewRowCollection.OnCollectionChanged_PostNotification(CollectionChangeAction cca, Int32 rowIndex, Int32 rowCount, DataGridViewRow dataGridViewRow, Boolean changeIsDeletion, Boolean changeIsInsertion, Boolean recreateNewRow, Point newCurrentCell)
+   bei System.Windows.Forms.DataGridViewRowCollection.OnCollectionChanged(CollectionChangeEventArgs e, Int32 rowIndex, Int32 rowCount, Boolean changeIsDeletion, Boolean changeIsInsertion, Boolean recreateNewRow, Point newCurrentCell)
+   bei System.Windows.Forms.DataGridViewRowCollection.ClearInternal(Boolean recreateNewRow)
+   bei FEMDAQ.JobQueue.JobQueueFrame.ClearAllJobs() in \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\JobQueue\JobQueueFrame.cs:Zeile 728.
+   bei FEMDAQ.JobQueue.JobQueueFrame.sbClearAllJobs_ButtonClick(Object sender, EventArgs e) in \\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\JobQueue\JobQueueFrame.cs:Zeile 722.
+   bei System.Windows.Forms.ToolStripSplitButton.OnButtonClick(EventArgs e)
+   bei System.Windows.Forms.ToolStripSplitButton.OnMouseUp(MouseEventArgs e)
+   bei System.Windows.Forms.ToolStripItem.HandleMouseUp(MouseEventArgs e)
+   bei System.Windows.Forms.ToolStrip.OnMouseUp(MouseEventArgs mea)
+   bei System.Windows.Forms.Control.WmMouseUp(Message& m, MouseButtons button, Int32 clicks)
+   bei System.Windows.Forms.Control.WndProc(Message& m)
+   bei System.Windows.Forms.ToolStrip.WndProc(Message& m)
+   bei System.Windows.Forms.StatusStrip.WndProc(Message& m)
+   bei System.Windows.Forms.NativeWindow.Callback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)

@@ -17,7 +17,7 @@ using System.Windows.Forms;
 
 namespace FEMDAQ.JobQueue
 {
-    enum JobQueueIndicies { Status = 0, IniFile, SwpFile, SavFold }
+    enum JobQueueIndicies { JobRuns = 0, CurrentRun, IniFile, SwpFile, SavFold }
 
     public partial class JobQueueFrame : Form
     {
@@ -31,8 +31,8 @@ namespace FEMDAQ.JobQueue
         // IsActive-Status
         private int _lastActiveJobIndex { get; set; }
         private int _skippedJobs { get; set; }
-        public const string IsActive = "✓";
-        public const string IsInactive = "X";
+        //public const string IsActive = "✓";
+        //public const string IsInactive = "X";
 
         // JobQueueList
         private string _lastFilePath { get; set; }
@@ -69,11 +69,11 @@ namespace FEMDAQ.JobQueue
 
         private void AddEntriesByDefaultForTesting()
         {
-            AddJob(@"Ini 1", @"Sweep 1", @".\bla1\");
-            AddJob(@"Ini 2", @"Sweep 2", @".\bla2\");
-            AddJob(@"Ini 3", @"Sweep 3", @".\bla3\");
-            AddJob(@"Ini 4", @"Sweep 4", @".\bla4\");
-            AddJob(@"Ini 5", @"Sweep 5", @".\bla5\");
+            AddJob(1, @"Ini 1", @"Sweep 1", @".\bla1\");
+            AddJob(1, @"Ini 2", @"Sweep 2", @".\bla2\");
+            AddJob(1, @"Ini 3", @"Sweep 3", @".\bla3\");
+            AddJob(1, @"Ini 4", @"Sweep 4", @".\bla4\");
+            AddJob(1, @"Ini 5", @"Sweep 5", @".\bla5\");
         }
 
 
@@ -161,10 +161,10 @@ namespace FEMDAQ.JobQueue
             // Check if state is given in "true/false" or "1/0" an convert them into "✓/X"
             State = StringHelper.TrimString(State);
             State = State.ToUpper();
-            if (State == "TRUE" || State == "1")
-                return IsActive;
-            else if (State == "FALSE" || State == "0")
-                return IsInactive;
+            //if (State == "TRUE" || State == "1")
+            //    return IsActive;
+            //else if (State == "FALSE" || State == "0")
+            //    return IsInactive;
 
             return State; // Already IsActive or IsInactive!
         }
@@ -173,31 +173,35 @@ namespace FEMDAQ.JobQueue
 
 
         #region Listview-Methods
-        public void AddJob(string iniPath, string swpPath, string savePath)
+        //public void AddJob(int Runs, string iniPath, string swpPath, string savePath)
+        //{
+        //    //AddJob(IsActive, iniPath, swpPath, savePath);
+        //    AddJob(1, iniPath, swpPath, savePath);
+        //}
+
+
+
+        //public void AddJob(bool activeState, string iniPath, string swpPath, string savePath)
+        //public void AddJob(int jobIterations, string iniPath, string swpPath, string savePath)
+        //{
+        //    // Short if decides the first argument
+        //    //AddJob((activeState ? IsActive : IsInactive), iniPath, swpPath, savePath);
+        //    AddJob(jobIterations, iniPath, swpPath, savePath);
+        //}
+
+
+
+        //public void AddJob(string activeState, string iniPath, string swpPath, string savePath)
+        public void AddJob(int jobRuns, string iniPath, string swpPath, string savePath)
         {
-            AddJob(IsActive, iniPath, swpPath, savePath);
-        }
-
-
-
-        public void AddJob(bool activeState, string iniPath, string swpPath, string savePath)
-        {
-            // Short if decides the first argument
-            AddJob((activeState ? IsActive : IsInactive), iniPath, swpPath, savePath);
-        }
-
-
-
-        public void AddJob(string activeState, string iniPath, string swpPath, string savePath)
-        {
-            if (activeState == null || activeState == "") throw new ArgumentNullException("activeState");
+            if (jobRuns < 0) throw new ArgumentOutOfRangeException("jobRuns negative");
             if (iniPath == null || iniPath == "") throw new ArgumentNullException("iniPath");
             if (swpPath == null || swpPath == "") throw new ArgumentNullException("swpPath");
             if (savePath == null || savePath == "") throw new ArgumentNullException("savePath");
 
 
-            activeState = ConvertActiveState(activeState);
-            dgvJobQueue.Rows.Add(activeState, iniPath, swpPath, savePath);
+            //dgvJobQueue.Rows.Add(activeState, iniPath, swpPath, savePath);
+            dgvJobQueue.Rows.Add(jobRuns, 0, iniPath, swpPath, savePath);
             var row = dgvJobQueue.Rows[dgvJobQueue.RowCount - 2];
             foreach (DataGridViewCell cell in row.Cells)
                 ValidateJobQueueEntryOfCell(cell);
@@ -305,12 +309,15 @@ namespace FEMDAQ.JobQueue
             else
             {
                 // Looking for the next active job to do!
-                string cellBuffer;
+                //string cellBuffer;
+                int cellBuffer = 0;
                 while (!_jobQueueStatus.UpdateToNextJobIndex())
                 {
                     // Break from while when a active job was found
-                    cellBuffer = dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.Status].Value as string;
-                    if (cellBuffer == IsActive)
+                    //cellBuffer = dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.Status].Value as string;
+                    cellBuffer = (int)dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.JobRuns].Value;
+                    //if (cellBuffer == IsActive)
+                    if (cellBuffer > 0)
                         break;
                     _skippedJobs++;
                 }
@@ -469,15 +476,26 @@ namespace FEMDAQ.JobQueue
 
             switch ((JobQueueIndicies)Cell.ColumnIndex)
             {
-                case JobQueueIndicies.Status:
-                    var currVal = ConvertActiveState(Cell.Value as string);
-                    //int currVal;
-                    //var valConversionOk = int.TryParse((string)Cell.Value, out currVal);
-                    //if (!valConversionOk && currVal <= 0)
-                    if (currVal != IsActive && currVal != IsInactive)
+                case JobQueueIndicies.JobRuns:
+                    int currVal = 0;
+                    bool valConvserionOk = false;
+                    try // Workaround because typed inputs are strings, but programmatically the cell-value is an int32! So try parsing user input first, and if this fails use (int) cast
                     {
-                        Cell.Value = IsInactive;
-                        Cell.ToolTipText = "Unknown statevalue! Using inactive by default";
+                        valConvserionOk = int.TryParse((string)Cell.Value, out currVal);
+                    }
+                    catch
+                    {
+                        currVal = (int)Cell.Value;
+                        valConvserionOk = true;
+                    }
+
+                    if (!valConvserionOk || currVal < 0)
+                    //var currVal = ConvertActiveState(Cell.Value as string);
+                    //if (currVal != IsActive && currVal != IsInactive)
+                    //if (currVal <= 0)
+                    {
+                        Cell.Value = 0;
+                        Cell.ToolTipText = "Unknown statevalue! Using inactive (0 runs) by default";
                         Cell.Style.BackColor = Color.Crimson;
                         return false;
                     }
@@ -485,6 +503,9 @@ namespace FEMDAQ.JobQueue
                     Cell.Value = currVal;
                     Cell.ToolTipText = "";
                     Cell.Style.BackColor = Color.Empty;
+                    break;
+
+                case JobQueueIndicies.CurrentRun:
                     break;
 
                 case JobQueueIndicies.IniFile:
@@ -565,26 +586,39 @@ namespace FEMDAQ.JobQueue
 
 
 
+        private void dgvJobQueue_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            // Guard clauses
+            if (e.RowIndex <= 0)
+                return;
+
+            dgvJobQueue.Rows[e.RowIndex - 1].Cells[(int)JobQueueIndicies.CurrentRun].Value = 0;
+            dgvJobQueue.Rows[e.RowIndex - 1].Cells[(int)JobQueueIndicies.CurrentRun].ToolTipText = "Current run-counter of this job";
+        }
+
+
+
         private void dgvJobQueue_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (dgvJobQueue.ReadOnly)
                 return;
 
             var item = dgvJobQueue.CurrentCell;
-            if (item == null)
+            if (item == null || item.ColumnIndex == 1)
                 return;
 
             var picker = new CommonOpenFileDialog();
             CommonFileDialogResult pickerResult = CommonFileDialogResult.None;
             switch ((JobQueueIndicies)item.ColumnIndex)
             {
-                case JobQueueIndicies.Status:
+                case JobQueueIndicies.JobRuns:
                     var currVal = (string)item.Value;
                     if (currVal == null)
                         currVal = "1"; // default state is active
 
                     currVal = ConvertActiveState(currVal);
-                    item.Value = (currVal == IsActive ? IsInactive : IsActive);
+                    //item.Value = (currVal == IsActive ? IsInactive : IsActive);
+                    item.Value = 1;
                     break;
 
                 case JobQueueIndicies.IniFile:
@@ -651,7 +685,7 @@ namespace FEMDAQ.JobQueue
                 return;
 
             foreach (DataGridViewRow row in rows) // Create a copy of each row and attach to list
-                AddJob(row.Cells[(int)JobQueueIndicies.Status].Value as string,
+                AddJob((int)row.Cells[(int)JobQueueIndicies.JobRuns].Value,
                        row.Cells[(int)JobQueueIndicies.IniFile].Value as string,
                        row.Cells[(int)JobQueueIndicies.SwpFile].Value as string,
                        row.Cells[(int)JobQueueIndicies.SavFold].Value as string);
@@ -726,8 +760,10 @@ namespace FEMDAQ.JobQueue
             do
             {
                 // Break from while when a active job was found
-                var currentJobStatus = dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.Status].Value as string;
-                if (currentJobStatus == IsActive)
+                //var currentJobStatus = dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.Status].Value as string;
+                //if (currentJobStatus == IsActive)
+                var currentJobStatus = (int)dgvJobQueue.Rows[_jobQueueStatus.CurrentJobIndex].Cells[(int)JobQueueIndicies.JobRuns].Value;
+                if (currentJobStatus > 0)
                     break;
                 _skippedJobs++;
             } while (!_jobQueueStatus.UpdateToNextJobIndex());
@@ -769,13 +805,13 @@ namespace FEMDAQ.JobQueue
             if (result != DialogResult.OK)
                 return;
 
-            var jqlContent = "# Job-Queue-List v1.0" + Environment.NewLine;
-            jqlContent += "# Active, Ini-Path, Swp-Path, Save-Folder" + Environment.NewLine;
+            var jqlContent = "# Job-Queue-List v1.1" + Environment.NewLine;
+            jqlContent += "# Runs, Ini-Path, Swp-Path, Save-Folder" + Environment.NewLine;
             DataGridViewRow currentItem = null;
             for (var jobQueueLineIndex = 0; jobQueueLineIndex < dgvJobQueue.RowCount - 1; jobQueueLineIndex++)
             {
                 currentItem = dgvJobQueue.Rows[jobQueueLineIndex];
-                jqlContent += currentItem.Cells[(int)JobQueueIndicies.Status].Value as string + JQLDelimiter + " "
+                jqlContent += currentItem.Cells[(int)JobQueueIndicies.JobRuns].Value.ToString() + JQLDelimiter + " "
                              + currentItem.Cells[(int)JobQueueIndicies.IniFile].Value as string + JQLDelimiter + " "
                              + currentItem.Cells[(int)JobQueueIndicies.SwpFile].Value as string + JQLDelimiter + " "
                              + currentItem.Cells[(int)JobQueueIndicies.SavFold].Value as string + Environment.NewLine;
@@ -823,10 +859,10 @@ namespace FEMDAQ.JobQueue
                 if (jqlLineEntries.Length != 4)
                     throw new FormatException(string.Format("Wrong Job-Queue-List format. Can't parse job-queue-entry {0}!", jqlLineIndex + 1));
 
-                AddJob(jqlLineEntries[(int)JobQueueIndicies.Status],
-                       jqlLineEntries[(int)JobQueueIndicies.IniFile],
-                       jqlLineEntries[(int)JobQueueIndicies.SwpFile],
-                       jqlLineEntries[(int)JobQueueIndicies.SavFold]);
+                AddJob(int.Parse(jqlLineEntries[(int)JobQueueIndicies.JobRuns]),
+                       jqlLineEntries[(int)JobQueueIndicies.IniFile - (int)JobQueueIndicies.CurrentRun],  // Remove offset of CurrentRun
+                       jqlLineEntries[(int)JobQueueIndicies.SwpFile - (int)JobQueueIndicies.CurrentRun],  // Remove offset of CurrentRun
+                       jqlLineEntries[(int)JobQueueIndicies.SavFold - (int)JobQueueIndicies.CurrentRun]); // Remove offset of CurrentRun
             }
         }
         #endregion
@@ -855,5 +891,7 @@ namespace FEMDAQ.JobQueue
         {
             ColorizeRobertModeButton(!_robertMode);
         }
+
+
     }
 }
