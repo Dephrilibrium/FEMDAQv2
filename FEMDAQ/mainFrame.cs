@@ -98,16 +98,30 @@ namespace FEMDAQ
                     StopMeasureLogic();
             }
 
-            if (_devices != null)
-            {
-                foreach (var device in _devices)
-                    device.Dispose();
-            }
+            //if (_devices != null)
+            //{
+            //    foreach (var device in _devices)
+            //        device.Dispose();
+            //}
+            DisposeDevices();
             if (Chart != null)
                 Chart.Dispose();
 
             if (_jobQueueFrame != null)
                 _jobQueueFrame.Dispose();
+        }
+
+
+        private void DisposeDevices()
+        {
+            if (_devices != null)
+            {
+                foreach (var device in _devices)
+                {
+                    try { device.Dispose(); }
+                    catch { }
+                }
+            }
         }
 
 
@@ -121,9 +135,10 @@ namespace FEMDAQ
             if (!File.Exists(filename)) return;
 
             // Clean up old ressources
-            if (_devices != null)
-                foreach (var device in _devices)
-                    device.Dispose();
+            //if (_devices != null)
+            //    foreach (var device in _devices)
+            //        device.Dispose();
+            DisposeDevices();
             Chart.WipeChart();
 
             // Renew configuration

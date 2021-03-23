@@ -29,25 +29,25 @@ namespace Instrument.LogicalLayer
             DeviceType = infoStructure.DeviceType;
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + (cName == null || cName == "" ? DeviceType : cName);
-            
+
             xResults = new List<List<double>>();
             yResults = new List<List<double>>();
 
             _device = new DMM7510(InfoBlock.Gpib.GpibBoardNumber, (byte)InfoBlock.Gpib.GpibPrimaryAdress, (byte)InfoBlock.Gpib.GpibSecondaryAdress);
             if (_device == null) throw new NullReferenceException("KE6487 device couldn't be generated.");
 
-            if(DrawnOverIdentifiers != null)
+            if (DrawnOverIdentifiers != null)
             {
                 foreach (var drawnOver in DrawnOverIdentifiers)
                     xResults.Add(new List<double>());
             }
 
-            if(InfoBlock.Common.ChartIdentifiers != null)
+            if (InfoBlock.Common.ChartIdentifiers != null)
             {
                 _seriesNames = new List<string>();
-                for(int index = 0; index < InfoBlock.Common.ChartIdentifiers.Count; index++)
+                for (int index = 0; index < InfoBlock.Common.ChartIdentifiers.Count; index++)
                 {
-                    _seriesNames.Add(string.Format("{0}-C{1}", 
+                    _seriesNames.Add(string.Format("{0}-C{1}",
                                                    DeviceName,
                                                    index));
                     chart.AddSeries(InfoBlock.Common.ChartIdentifiers[index], _seriesNames[index], InfoBlock.Common.ChartColors[index]);
@@ -85,7 +85,7 @@ namespace Instrument.LogicalLayer
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
         #endregion
 
-        
+
 
         #region Common
         public void Init()
@@ -110,9 +110,9 @@ namespace Instrument.LogicalLayer
         #region Gauge
         public void Measure(double[] drawnOver)
         {
-            lock(xResults)
+            lock (xResults)
             {
-                lock(yResults)
+                lock (yResults)
                 {
                     yResults[0].Add(_device.Measure());
                     for (var index = 0; index < DrawnOverIdentifiers.Count; index++)
@@ -166,11 +166,11 @@ namespace Instrument.LogicalLayer
 
         public void ClearResults()
         {
-            if(xResults != null)
+            if (xResults != null)
                 foreach (var xResult in xResults)
                     xResult.Clear();
 
-            if(yResults != null)
+            if (yResults != null)
                 yResults[0].Clear();
 
             if (_chart != null)
