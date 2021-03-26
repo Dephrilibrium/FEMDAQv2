@@ -2,11 +2,11 @@
 
 24.03.2021: V2.2.7.2
 Feature:
- - Added support to turn of chart-labels.
+ - Added support to show/hide chart-legends.
 Bugfix:
  - Fixed a format error when adding devicenames to Chasing-Plot-List
 Misc:
- - Also moved chart-titles a little bit
+ - Chart legends and titles have transparent backgrounds now
 
 23.03.2021: V2.2.7.1
 Bugfix:
