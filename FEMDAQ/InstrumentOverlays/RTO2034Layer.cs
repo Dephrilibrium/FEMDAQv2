@@ -30,7 +30,7 @@ namespace Instrument.LogicalLayer
             DeviceIdentifier = infoStructure.DeviceIdentifier;
             DeviceType = infoStructure.DeviceType;
             var cName = InfoBlock.CommonWaveform.CustomName;
-            DeviceName = DeviceIdentifier + (cName == null || cName == "" ? DeviceType : cName);
+            DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
 
             DrawnOverIdentifiers = new List<string>();
             xResults = new List<List<double>>();

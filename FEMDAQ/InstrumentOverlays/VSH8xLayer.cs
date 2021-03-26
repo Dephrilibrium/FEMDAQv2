@@ -48,10 +48,9 @@ namespace Instrument.LogicalLayer
                 _seriesNames = new List<string>();
                 for (var index = 0; index < InfoBlock.Common.ChartIdentifiers.Count; index++)
                 {
-                    _seriesNames.Add(string.Format("{0}|{1}-C{2}",
-                               InfoBlock.Common.DeviceIdentifier,
-                               (InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName), // Use customname when given, otherwise use devicetype as seriesname
-                               index));
+                    _seriesNames.Add(string.Format("{0}-C{1}",
+                                                   DeviceName,
+                                                   index));
                     chart.AddSeries(InfoBlock.Common.ChartIdentifiers[index], _seriesNames[index], InfoBlock.Common.ChartColors[index]);
                 }
                 _chart = chart;

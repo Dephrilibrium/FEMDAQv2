@@ -33,7 +33,7 @@ namespace HaumChart
 
 
 
-        #region Helper (cleaning, UI-Updat, Decimal-Rangechecker, Screenshoter)
+        #region Helper (cleaning, UI-Update, Decimal-Rangechecker, Screenshoter)
         public void WipeChart()
         {
             Areas.Clear();
@@ -289,10 +289,13 @@ namespace HaumChart
                     title = cDataChart.Titles.Add(ChartInfos[ChartAreaInfos.Name].Title);
                 title.Text = ChartInfos[ChartAreaInfos.Name].Title;
                 title.DockedToChartArea = ChartInfos[ChartAreaInfos.Name].Name;
+                title.IsDockedInsideChartArea = true;
+                title.BackColor = Color.Transparent;
+                title.Position.Auto = true;
             }
 
             // Legend creation
-            if (ChartInfos[ChartAreaInfos.Name].ShowLegend)
+            if (/*ChartInfos[ChartAreaInfos.Name].ShowLegend && */Legends.Count == 0) // One legend is used for all chartAreas! Use only the first one
             {
                 var legend = cDataChart.Legends.FindByName(ChartInfos[ChartAreaInfos.Name].Name);
                 if (legend == null)
@@ -300,7 +303,13 @@ namespace HaumChart
                 legend.DockedToChartArea = ChartInfos[ChartAreaInfos.Name].Name;
                 legend.Docking = Docking.Top;
                 legend.IsDockedInsideChartArea = true;
-                legend.LegendStyle = LegendStyle.Row;
+                legend.LegendStyle = LegendStyle.Table;
+                legend.BackColor = Color.Transparent;
+
+                //Set Legend visible checked-property
+                cbShowLegend.Checked = ChartInfos[ChartAreaInfos.Name].ShowLegend; // Show or hide legend depending on the first setting
+                SetLegendVisible(cbShowLegend.Checked);
+
             }
 
             return area;
@@ -662,6 +671,14 @@ namespace HaumChart
 
 
 
+        private void cbLabelVisible_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Legends.Count != 0)
+                SetLegendVisible(cbShowLegend.Checked);
+        }
+
+
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (lbSeries.Items.Count > 0)
@@ -760,6 +777,14 @@ namespace HaumChart
             ttCapturedPoint.SetToolTip(cDataChart, string.Format("X: {0}; Y: {1}",
                                                                  DataPoints[DataPointIndex].XValue.ToString("E" + nupAccuracy.Value),
                                                                  DataPoints[DataPointIndex].YValues[0].ToString("E" + nupAccuracy.Value)));
+        }
+
+
+
+        private void SetLegendVisible(bool visible)
+        {
+            if (Legends.Count != 0)
+                Legends[0].Enabled = visible;
         }
         #endregion
     }

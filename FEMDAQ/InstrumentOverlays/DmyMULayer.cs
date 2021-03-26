@@ -26,7 +26,7 @@ namespace Instrument.LogicalLayer
             DeviceIdentifier = infoStructure.DeviceIdentifier;
             DeviceType = infoStructure.DeviceType;
             var cName = InfoBlock.Common.CustomName;
-            DeviceName = DeviceIdentifier + (cName == null || cName == "" ? DeviceType : cName);
+            DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
 
             xResults = new List<List<double>>();
             yResults = new List<List<double>>();

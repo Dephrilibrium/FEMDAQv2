@@ -34,6 +34,7 @@
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.cDataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.pSidebar = new System.Windows.Forms.Panel();
+            this.cbShowLegend = new System.Windows.Forms.CheckBox();
             this.pbPinSidepanel = new System.Windows.Forms.PictureBox();
             this.lChasingSeries = new System.Windows.Forms.Label();
             this.nupAccuracy = new System.Windows.Forms.NumericUpDown();
@@ -72,6 +73,7 @@
             // 
             this.pSidebar.BackColor = System.Drawing.Color.White;
             this.pSidebar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pSidebar.Controls.Add(this.cbShowLegend);
             this.pSidebar.Controls.Add(this.pbPinSidepanel);
             this.pSidebar.Controls.Add(this.lChasingSeries);
             this.pSidebar.Controls.Add(this.nupAccuracy);
@@ -84,6 +86,18 @@
             this.pSidebar.Size = new System.Drawing.Size(167, 416);
             this.pSidebar.TabIndex = 1;
             this.pSidebar.MouseLeave += new System.EventHandler(this.PChartControls_MouseLeave);
+            // 
+            // cbShowLegend
+            // 
+            this.cbShowLegend.AutoSize = true;
+            this.cbShowLegend.Location = new System.Drawing.Point(28, 35);
+            this.cbShowLegend.Name = "cbShowLegend";
+            this.cbShowLegend.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.cbShowLegend.Size = new System.Drawing.Size(91, 17);
+            this.cbShowLegend.TabIndex = 7;
+            this.cbShowLegend.Text = ":Show legend";
+            this.cbShowLegend.UseVisualStyleBackColor = true;
+            this.cbShowLegend.CheckedChanged += new System.EventHandler(this.cbLabelVisible_CheckedChanged);
             // 
             // pbPinSidepanel
             // 
@@ -102,7 +116,7 @@
             // 
             this.lChasingSeries.AutoSize = true;
             this.lChasingSeries.BackColor = System.Drawing.Color.Transparent;
-            this.lChasingSeries.Location = new System.Drawing.Point(25, 42);
+            this.lChasingSeries.Location = new System.Drawing.Point(25, 55);
             this.lChasingSeries.Name = "lChasingSeries";
             this.lChasingSeries.Size = new System.Drawing.Size(68, 13);
             this.lChasingSeries.TabIndex = 5;
@@ -111,7 +125,7 @@
             // nupAccuracy
             // 
             this.nupAccuracy.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.nupAccuracy.Location = new System.Drawing.Point(86, 8);
+            this.nupAccuracy.Location = new System.Drawing.Point(86, 9);
             this.nupAccuracy.Maximum = new decimal(new int[] {
             12,
             0,
@@ -130,7 +144,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Location = new System.Drawing.Point(25, 10);
+            this.label1.Location = new System.Drawing.Point(25, 11);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(55, 13);
             this.label1.TabIndex = 2;
@@ -141,10 +155,10 @@
             this.lbSeries.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.lbSeries.ForeColor = System.Drawing.Color.Black;
             this.lbSeries.FormattingEnabled = true;
-            this.lbSeries.Location = new System.Drawing.Point(27, 60);
+            this.lbSeries.Location = new System.Drawing.Point(27, 73);
             this.lbSeries.Margin = new System.Windows.Forms.Padding(5);
             this.lbSeries.Name = "lbSeries";
-            this.lbSeries.Size = new System.Drawing.Size(132, 342);
+            this.lbSeries.Size = new System.Drawing.Size(132, 329);
             this.lbSeries.TabIndex = 1;
             this.lbSeries.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.LbSeries_DrawItem);
             // 
@@ -190,5 +204,6 @@
         private System.Windows.Forms.Label lChasingSeries;
         private System.Windows.Forms.PictureBox pbPinSidepanel;
         private System.Windows.Forms.ToolTip ttCapturedPoint;
+        private System.Windows.Forms.CheckBox cbShowLegend;
     }
 }
