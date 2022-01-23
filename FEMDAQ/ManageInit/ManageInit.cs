@@ -94,6 +94,10 @@ namespace FEMDAQ.Initialization
                     break;
 
                 // Source device only
+                case "FUGMCP140":
+                    device = new FUGMCP140Layer(devInfoStructure);
+                    break;
+
                 case "FUGHCP350":
                     device = new FUGHCP350Layer(devInfoStructure);
                     break;

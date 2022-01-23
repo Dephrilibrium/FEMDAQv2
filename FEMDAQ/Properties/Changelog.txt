@@ -1,5 +1,11 @@
 ﻿Changelog:
 
+24.01.2022: V2.2.7.3
+Feature:
+ - Added support for FUG MCP140-2000 devices
+Misc:
+ - FUGHCP350 turns on channel during Init-step (instead of sending turn on each time a new value is sent)
+
 24.03.2021: V2.2.7.2
 Feature:
  - Added support to show/hide chart-legends.

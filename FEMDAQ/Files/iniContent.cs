@@ -148,6 +148,10 @@ namespace Files
                             deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockSR785(infoBlock));
                             break;
 
+                        case "FUGMCP140":
+                            deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockFUGMCP140(infoBlock));
+                            break;
+
                         case "FUGHCP350":
                             deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockFUGHCP350(infoBlock));
                             break;

@@ -8,27 +8,27 @@ using System.Text;
 
 namespace Instrument.LogicalLayer
 {
-    public class FUGHCP350Layer : InstrumentLogicalLayer
+    public class FUGMCP140Layer : InstrumentLogicalLayer
     {
-        public InfoBlockFUGHCP350 InfoBlock { get; private set; }
+        public InfoBlockFUGMCP140 InfoBlock { get; private set; }
         private List<double> _sweep;
-        private FUGHCP350.FUGHCP350 _device;
+        private FUGMCP140.MCP140 _device;
 
 
 
-        public FUGHCP350Layer(DeviceInfoStructure infoStructure)
+        public FUGMCP140Layer(DeviceInfoStructure infoStructure)
         {
             if (infoStructure == null) throw new ArgumentNullException("infoStructure");
-            InfoBlock = infoStructure.InfoBlock as InfoBlockFUGHCP350;
-            if (InfoBlock == null) throw new ArgumentException(string.Format("Cast failed: infoBlock -> FUGHCP350InfoBlock"));
+            InfoBlock = infoStructure.InfoBlock as InfoBlockFUGMCP140;
+            if (InfoBlock == null) throw new ArgumentException(string.Format("Cast failed: infoBlock -> FUGMCP140InfoBlock"));
 
             DeviceIdentifier = infoStructure.DeviceIdentifier;
             DeviceType = infoStructure.DeviceType;
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + (cName == null || cName == "" ? DeviceType : cName);
 
-            _device = new FUGHCP350.FUGHCP350(InfoBlock.Gpib.GpibBoardNumber, (byte)InfoBlock.Gpib.GpibPrimaryAdress, (byte)InfoBlock.Gpib.GpibSecondaryAdress);
-            if (_device == null) throw new NullReferenceException("FUGHCP350 device couldn't be generated.");
+            _device = new FUGMCP140.MCP140(InfoBlock.Gpib.GpibBoardNumber, (byte)InfoBlock.Gpib.GpibPrimaryAdress, (byte)InfoBlock.Gpib.GpibSecondaryAdress);
+            if (_device == null) throw new NullReferenceException("FUGMCP140 device couldn't be generated.");
         }
 
 
@@ -123,6 +123,18 @@ namespace Instrument.LogicalLayer
             var voltageSourceNode = "U" + Convert.ToString(InfoBlock.Source.SourceNode);
             _sweep = AssignSweep.Assign(sweep, voltageSourceNode);
             if (_sweep == null) throw new MissingFieldException("Can't find " + voltageSourceNode + " in sweep-file.");
+
+            // MCP140 can't work with negative voltages -> Check if there are some negative values within sweep-values
+            int numberOfNegativeVoltages = 0;
+            foreach (double voltage in _sweep)
+            {
+                if (voltage < 0)
+                    numberOfNegativeVoltages++;
+            }
+
+            if (numberOfNegativeVoltages > 0)
+                throw new ArgumentOutOfRangeException("MCP140 can't handle negative voltages (found " + numberOfNegativeVoltages.ToString() + " in " + voltageSourceNode + " sweep values)");
+
         }
         #endregion
 

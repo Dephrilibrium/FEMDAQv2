@@ -38,7 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vsDAD3.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vs3C36.tmp\Debug\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -49,7 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vsDAD3.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vs3C36.tmp\Release\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -58,14 +58,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>..\Debug\</OutputPath>
-    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vsDAD3.tmp\x64\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vs3C36.tmp\x64\Debug\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>..\Debug\</OutputPath>
-    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vsDAD3.tmp\x64\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vs3C36.tmp\x64\Release\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -152,6 +152,9 @@
     <Compile Include="..\..\_SC_Library\Ext_Langer\Serial_Devs\SerialInterface.cs">
       <Link>Instruments\ExternLanger\SerialInterface.cs</Link>
     </Compile>
+    <Compile Include="..\..\_SC_Library\GPIB_Devs\FUGMCP140.cs">
+      <Link>Instruments\FUGMCP140.cs</Link>
+    </Compile>
     <Compile Include="..\..\_SC_Library\GPIB_Devs\KE6517B.cs">
       <Link>Instruments\KE6517B.cs</Link>
     </Compile>
@@ -178,6 +181,7 @@
     <Compile Include="Files\DeviceParser\InfoBlockDmyMU.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockDmySMU.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockDmySU.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockFUGMCP140.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockHP4145B.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockKE6517B.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockDSOX3034T.cs" />
@@ -208,6 +212,7 @@
     <Compile Include="InstrumentOverlays\DmySULayer.cs" />
     <Compile Include="InstrumentOverlays\Enumerates\ResultIndicies.cs" />
     <Compile Include="InstrumentOverlays\FUGHCP350Layer.cs" />
+    <Compile Include="InstrumentOverlays\FUGMCP140Layer.cs" />
     <Compile Include="InstrumentOverlays\HP4145BLayer.cs" />
     <Compile Include="InstrumentOverlays\Interfaces\InstrumentLogicalLayer.cs" />
     <Compile Include="InstrumentOverlays\KE6485Layer.cs" />

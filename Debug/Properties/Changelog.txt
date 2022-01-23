@@ -1,5 +1,9 @@
 ﻿Changelog:
 
+23.01.2022: V2.2.7.3
+Feature:
+ - Added support for FUG MCP140-2000 devices
+
 24.03.2021: V2.2.7.2
 Feature:
  - Added support to show/hide chart-legends.
