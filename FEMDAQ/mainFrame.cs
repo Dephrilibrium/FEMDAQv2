@@ -5,6 +5,7 @@ using FEMDAQ.Measurement;
 using FEMDAQ.SplashScreen;
 using FEMDAQ.StaticHelper;
 using Files;
+using Files.Parser;
 using Instrument.LogicalLayer;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
@@ -76,7 +77,7 @@ namespace FEMDAQ
             var splashScreen = new SplashScreenFrame();
             splashScreen.Show();
 
-            //OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
+            OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
             //if (_ini.SweepInfo.FullFilename != null)
             //    OpenSweep(_ini.SweepInfo.FullFilename);
             //OpenSweep(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\LFES-TRI-PA-03 33L-1000mms\UA200_0--400-0-10VS_200Hz50DuCy.swp");
@@ -445,11 +446,12 @@ namespace FEMDAQ
             {
                 foreach (var device in _devices)
                 {
-                    if (device.InstantMeasurement > 0)
-                    {
-                        var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
-                        device.Measure(drawnOver);
-                    }
+                    device.Measure(GetDrawnOver, GaugeMeasureInstantly.CycleStart);
+                    //if (device.InstantMeasurement > 0)
+                    //{
+                    //    var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
+                    //    device.Measure(drawnOver);
+                    //}
                 }
             }
         }
@@ -462,11 +464,12 @@ namespace FEMDAQ
             {
                 foreach (var device in _devices)
                 {
-                    if (device.InstantMeasurement == 0)
-                    {
-                        var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
-                        device.Measure(drawnOver);
-                    }
+                    device.Measure(GetDrawnOver, GaugeMeasureInstantly.CycleEnd);
+                    //if (device.InstantMeasurement == 0)
+                    //{
+                    //    var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
+                    //    device.Measure(drawnOver);
+                    //}
                 }
             }
         }

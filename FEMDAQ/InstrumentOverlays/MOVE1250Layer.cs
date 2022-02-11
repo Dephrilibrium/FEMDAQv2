@@ -49,7 +49,7 @@ namespace Instrument.LogicalLayer
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
         public List<string> DrawnOverIdentifiers { get { return null; } }
-        public int InstantMeasurement { get { return 0; } }
+        public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.CycleEnd; } }
         public List<List<double>> xResults { get { return null; } }
         public List<List<double>> yResults { get { return null; } }
         #endregion

@@ -34,7 +34,7 @@ namespace Instrument.LogicalLayer
             xResults = new List<List<double>>();
             yResults = new List<List<double>>();
 
-            _device = new VSH8x.VSH8x(InfoBlock.RS485Address, InfoBlock.Com.ComPort, InfoBlock.Baudrate);
+            _device = new VSH8x.VSH8x(InfoBlock.RS485Address, InfoBlock.ComPort.ComPort, InfoBlock.ComPort.Baudrate);
             if (_device == null) throw new NullReferenceException("VSH8x device couldn't be generated.");
 
             if(InfoBlock.Common.ChartDrawnOvers != null)
@@ -83,7 +83,7 @@ namespace Instrument.LogicalLayer
         public List<List<double>> xResults { get; private set; }
         public List<List<double>> yResults { get; private set; }
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
-        public int InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
+        public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
         #endregion
 
 

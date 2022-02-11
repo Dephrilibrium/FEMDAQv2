@@ -128,6 +128,10 @@ namespace Files
 
 
                         // Instanciation of real devices-InfoBlocks
+                        case "FEAR16v2":
+                            deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockFEAR16v2(infoBlock));
+                            break;
+
                         case "KE6485":
                             deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockKE6485(infoBlock));
                             break;

@@ -1,9 +1,17 @@
 ﻿using Files;
 using System;
 using System.Collections.Generic;
+using Files.Parser;
 
 namespace Instrument.LogicalLayer
 {
+    public enum GaugeMeasureInstantly
+    {
+        Disabled = -1,
+        CycleStart = 1,
+        CycleEnd = 0,
+    };
+
     public interface InstrumentLogicalLayer : IDisposable
     {
         // Getter/Setter
@@ -12,18 +20,20 @@ namespace Instrument.LogicalLayer
         string DeviceIdentifier { get; }
         string DeviceType { get; }
         string DeviceName { get; }
-        int InstantMeasurement { get; }
+        //GaugeMeasureInstantly InstantMeasurement(string identifier);
+        GaugeMeasureInstantly InstantMeasurement { get; }
         List<string> DrawnOverIdentifiers { get; }
 
 
 
         // Common
         void Init();
-        
+
 
 
         // Gauge
-        void Measure(double[] drawnOver);
+        //void Measure(double[] drawnOver);
+        void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle);
         //void SaveResultsToFolder(string folderPath);
         void SaveResultsToFolder(string folderPath, string filePrefix);
         void ClearResults();

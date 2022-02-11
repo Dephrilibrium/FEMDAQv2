@@ -93,6 +93,10 @@ namespace FEMDAQ.Initialization
                     device = new KE6517BLayer(devInfoStructure, chart);
                     break;
 
+                case "FEAR16v2":
+                    device = new FEAR16v2Layer(devInfoStructure, chart);
+                    break;
+
                 // Source device only
                 case "FUGMCP140":
                     device = new FUGMCP140Layer(devInfoStructure);

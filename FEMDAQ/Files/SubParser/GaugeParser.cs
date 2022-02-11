@@ -4,9 +4,10 @@ using System.Collections.Generic;
 
 namespace Files.Parser
 {
+
     public class GaugeParser
     {
-        public int MeasureInstantly { get; private set; }
+        public GaugeMeasureInstantly MeasureInstantly { get; private set; }
         public double Range { get; private set; }
         public double Nplc { get; private set; }
 
@@ -29,7 +30,7 @@ namespace Files.Parser
                 MeasureInstantly = 0; // Default
                 return; // Ignore range
             }
-            MeasureInstantly = (int)ParseHelper.ParseDoubleValueFromLineInfo(info);
+            MeasureInstantly = (GaugeMeasureInstantly)ParseHelper.ParseDoubleValueFromLineInfo(info);
         }
 
 

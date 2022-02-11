@@ -36,7 +36,7 @@ namespace Instrument.LogicalLayer
             xResults = new List<List<double>>();
             yResults = new List<List<double>>();
 
-            _device = new VD9x(InfoBlock.Com.ComPort, InfoBlock.Baudrate, 8, StopBits.One, Parity.None, 150);
+            _device = new VD9x(InfoBlock.ComPort.ComPort, InfoBlock.ComPort.Baudrate, 8, StopBits.One, Parity.None, 150);
             if (_device == null) throw new NullReferenceException("VD9x device couldn't be generated.");
 
             if(InfoBlock.Common.ChartDrawnOvers != null)
@@ -83,7 +83,7 @@ namespace Instrument.LogicalLayer
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
-        public int InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
+        public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
         public List<List<double>> xResults { get; private set; }
         public List<List<double>> yResults { get; private set; }
         #endregion

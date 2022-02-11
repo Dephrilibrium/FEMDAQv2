@@ -10,11 +10,11 @@ namespace Files.Parser
     public class InfoBlockVSH8x
     {
         public CommonParser Common { get; private set; }
-        public ComParser Com { get; private set; }
+        public ComParser ComPort { get; private set; }
         public GaugeParser Gauge { get; private set; }
 
         public string RS485Address { get; private set; }
-        public int Baudrate { get; private set; }
+        //public int Baudrate { get; private set; }
 
 
 
@@ -25,14 +25,14 @@ namespace Files.Parser
             string lineInfo = null;
 
             Common = new CommonParser(infoBlock);
-            Com = new ComParser(infoBlock);
+            ComPort = new ComParser(infoBlock);
             Gauge = new GaugeParser(infoBlock, null); // Has no range!
 
             lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "Rs485Address=");
             RS485Address = ParseHelper.ParseStringValueFromLineInfo(lineInfo);
 
-            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "Baudrate");
-            Baudrate = int.Parse(lineInfo);
+            //lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "Baudrate");
+            //Baudrate = int.Parse(lineInfo);
         }
     }
 }

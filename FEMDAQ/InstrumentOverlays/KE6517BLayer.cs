@@ -82,7 +82,7 @@ namespace Instrument.LogicalLayer
         public string DeviceName { get; private set;}
         public List<List<double>> xResults { get; private set; }
         public List<List<double>> yResults { get; private set; }
-        public int InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
+        public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
         #endregion
 

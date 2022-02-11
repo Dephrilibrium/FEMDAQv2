@@ -1,5 +1,16 @@
 ﻿Changelog:
 
+XX.YY.ZZZZ: V2.2.7.4
+Feature:
+ - Added support for FEAR16v2 (haum@OTH)
+ - Fully changed the basic way how measurements and source outputs are controlled
+   -> Measure-Method from Interace ""InstrumentLogicalLayer" takes now the getDrawnOver-method to handle that internally
+   -> This enables FEMDAQ to handle devices with multiple measurement units
+Bugfix:
+ - Fixed HP4145B driver-error: leading sign-character was clipped from response-string -> No negative numbers was returned to InstrumentLayer
+Misc:
+ - Changed MeasureInstantly-property from int to enum
+
 24.01.2022: V2.2.7.3
 Feature:
  - Added support for FUG MCP140-2000 devices

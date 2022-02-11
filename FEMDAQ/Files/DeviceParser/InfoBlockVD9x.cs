@@ -10,10 +10,10 @@ namespace Files.Parser
     public class InfoBlockVD9x
     {
         public CommonParser Common { get; private set; }
-        public ComParser Com { get; private set; }
+        public ComParser ComPort { get; private set; }
         public GaugeParser Gauge { get; private set; }
 
-        public int Baudrate { get; private set; }
+        //public int Baudrate { get; private set; }
 
 
 
@@ -21,14 +21,14 @@ namespace Files.Parser
         {
             if (infoBlock == null) throw new ArgumentNullException("infoBlock");
 
-            string lineInfo = null;
+            //string lineInfo = null;
 
             Common = new CommonParser(infoBlock);
-            Com = new ComParser(infoBlock);
+            ComPort = new ComParser(infoBlock);
             Gauge = new GaugeParser(infoBlock, null, null, null); // Has no range!
 
-            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "Baudrate");
-            Baudrate = (int)ParseHelper.ParseDoubleValueFromLineInfo(lineInfo);
+            //lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "Baudrate");
+            //Baudrate = (int)ParseHelper.ParseDoubleValueFromLineInfo(lineInfo);
         }
     }
 }

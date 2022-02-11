@@ -13,7 +13,6 @@ namespace Files.Parser
         public double Compliance { get; set; }
 
 
-
         public SourceParser(IEnumerable<string> infoBlock, string sourceNodeToken = "SourceNode=", string complianceToken = "Compliance=")
         {
             if (infoBlock == null) throw new ArgumentNullException("infoBlock");
