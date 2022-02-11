@@ -3,18 +3,28 @@ using Files;
 using Files.Parser;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Text;
 
 namespace Instrument.LogicalLayer
 {
+    internal enum FEAR16v2MeasurementChannelType
+    {
+        CF = 0, // Currentflow
+        Drp = 1, // FET Voltagedrop
+    }
+
+
+
     public class FEAR16v2Layer : InstrumentLogicalLayer
     {
         public InfoBlockFEAR16v2 InfoBlock { get; private set; }
         private List<double> _sweep;
         private HaumOTH.FEAR16v2 _device;
         private HaumChart.HaumChart _chart;
-        private List<List<string>> _seriesNames;
+        //private List<List<string>> _seriesNames;
+        private List<List<List<string>>> _seriesNames;
 
 
 
@@ -27,10 +37,17 @@ namespace Instrument.LogicalLayer
             DeviceIdentifier = infoStructure.DeviceIdentifier;
             DeviceType = infoStructure.DeviceType;
             var cName = InfoBlock.Common.CustomName;
-            DeviceName = DeviceIdentifier + (cName == null || cName == "" ? DeviceType : cName);
+            DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
 
-            //_device = new HaumOTH.FEAR16v2(InfoBlock.ComPort.ComPort, InfoBlock.ComPort.Baudrate);
-            //if (_device == null) throw new NullReferenceException("FEAR16v2 device couldn't be generated.");
+            xResults = new List<List<double>>();
+            yResults = new List<List<List<double>>>();
+            yResults.Add(new List<List<double>>()); // CurrentFlow
+            yResults.Add(new List<List<double>>()); // FET Dropvoltage
+
+            _device = new HaumOTH.FEAR16v2(InfoBlock.ComPort.ComPort, InfoBlock.ComPort.Baudrate);
+            if (_device == null) throw new NullReferenceException("FEAR16v2 device couldn't be generated.");
+
+
 
             if (DrawnOverIdentifiers != null)
             {
@@ -38,24 +55,68 @@ namespace Instrument.LogicalLayer
                     xResults.Add(new List<double>());
             }
 
-            _seriesNames = new List<List<string>>();
+            //_seriesNames = new List<List<string>>();
+            _seriesNames = new List<List<List<string>>>();
+            yResults = new List<List<List<double>>>();
+            List<string> chIdents = null;
+            List<Color> chColors = null;
+            string chTypeStr = null;
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
-                _seriesNames.Add(new List<string>());
-                if (InfoBlock.Common.ChartIdentifiers != null)
+                yResults.Add(new List<List<double>>());
+                //_seriesNames.Add(new List<string>());
+                _seriesNames.Add(new List<List<string>>());
+
+                for (int chType = 0; chType <= (int)FEAR16v2MeasurementChannelType.Drp; chType++)
                 {
-                    
-                    for (var index = 0; index < InfoBlock.Common.ChartIdentifiers.Count; index++)
+                    if (chType == (int)FEAR16v2MeasurementChannelType.CF)
                     {
-                        _seriesNames[iCh].Add(string.Format("{0}Ch{1}-C{2}",
-                                                       DeviceName,
-                                                       iCh,
-                                                       index));
-                        chart.AddSeries(InfoBlock.Common.ChartIdentifiers[index], _seriesNames[iCh][index], InfoBlock.Common.ChartColors[index]);
+                        if (InfoBlock.CurrFlowChannels[iCh].IsActive)
+                        {
+                            chIdents = InfoBlock.CurrFlowChannels[iCh].chartInfo.ChartIdentifiers;
+                            chColors = InfoBlock.CurrFlowChannels[iCh].chartInfo.ChartColors;
+                            chTypeStr = "CF";
+                        }
+                        else
+                            chIdents = null;
+
                     }
-                    _chart = chart;
+                    else if (chType == (int)FEAR16v2MeasurementChannelType.Drp
+                        )
+                    {
+                        if (InfoBlock.UDropFETChannels[iCh].IsActive)
+                        {
+                            chIdents = InfoBlock.UDropFETChannels[iCh].chartInfo.ChartIdentifiers;
+                            chColors = InfoBlock.UDropFETChannels[iCh].chartInfo.ChartColors;
+                            chTypeStr = "Drp";
+                        }
+                        else
+                            chIdents = null;
+                    }
+
+
+                    if (InfoBlock.CurrFlowChannels[iCh].IsActive)
+                    {
+                        if (chIdents != null)
+                        {
+                            yResults[iCh].Add(new List<double>());
+                            _seriesNames[iCh].Add(new List<string>());
+                            for (var index = 0; index < chIdents.Count; index++)
+                            {
+                                //_seriesNames[iCh].Add(string.Format("{0}CF{1}-C{2}",
+                                _seriesNames[iCh][chType].Add(string.Format("{0}-{1}{2}-C{3}",
+                                                           DeviceName,
+                                                           chTypeStr,
+                                                           iCh,
+                                                           index));
+                                //chart.AddSeries(chIdents[index], _seriesNames[chType][index], chColors[index]);
+                                chart.AddSeries(chIdents[index], _seriesNames[iCh][chType][index], chColors[index]);
+                            }
+                        }
+                    }
                 }
             }
+            _chart = chart;
         }
 
 
@@ -76,7 +137,8 @@ namespace Instrument.LogicalLayer
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
         public List<List<double>> xResults { get; private set; }
-        public List<List<double>> yResults { get; private set; }
+        //public List<List<double>> yResults { get; private set; }
+        public List<List<List<double>>> yResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.CycleEnd; } }
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
         #endregion
@@ -93,7 +155,7 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge | collects the voltages to each iterate!
-        void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
+        public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
             var curr = _device.CurrFlowChannels;
             var drop = _device.UFETDropChannels;
@@ -108,8 +170,10 @@ namespace Instrument.LogicalLayer
                     InfoBlock.UDropFETChannels[iCh].MeasureInstantly == MeasureCycle)
                     _device.UFETDropChannels[iCh].Requested = true;
             }
-            _device.MeasureCurrentFlowRequests();
             _device.MeasureUFETDropRequests();
+            _device.MeasureCurrentFlowRequests();
+
+            double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
         }
 
 
@@ -133,9 +197,9 @@ namespace Instrument.LogicalLayer
         #region Source
         public double GetSourceValue(string identifier)
         {
-            var split = identifier.Split(new char[] { '|' });
-            var iCh = int.Parse(split[1].Remove(0, 2));
-            return _device.CurrCtrlChannels[iCh].value;
+            Random rand = new Random();
+            return rand.NextDouble() * 10;
+            //return _device.CurrCtrlChannels[iCh].value;
         }
 
 

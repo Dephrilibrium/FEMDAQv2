@@ -100,8 +100,12 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge
-        public void Measure(double[] drawnOver)
+        //public void Measure(double[] drawnOver)
+        public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
+            // Get drawnOver-values
+            double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
+
             // Read waveform
             var waveform = new DSOX2034TWaveformResult();
             List<double> xWaveVals = null;

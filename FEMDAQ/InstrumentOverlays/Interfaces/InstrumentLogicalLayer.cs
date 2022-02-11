@@ -5,18 +5,11 @@ using Files.Parser;
 
 namespace Instrument.LogicalLayer
 {
-    public enum GaugeMeasureInstantly
-    {
-        Disabled = -1,
-        CycleStart = 1,
-        CycleEnd = 0,
-    };
-
     public interface InstrumentLogicalLayer : IDisposable
     {
         // Getter/Setter
-        List<List<double>> xResults { get; }
-        List<List<double>> yResults { get; }
+        List<List<List<double>>> xResults { get; }
+        List<List<List<double>>> yResults { get; }
         string DeviceIdentifier { get; }
         string DeviceType { get; }
         string DeviceName { get; }

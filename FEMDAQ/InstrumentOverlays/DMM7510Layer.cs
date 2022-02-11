@@ -108,8 +108,11 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge
-        public void Measure(double[] drawnOver)
+        //public void Measure(double[] drawnOver)
+        public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
+            double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
+
             lock (xResults)
             {
                 lock (yResults)

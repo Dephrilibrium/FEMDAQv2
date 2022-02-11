@@ -71,7 +71,8 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge
-        public void Measure(double[] drawnOver)
+        //public void Measure(double[] drawnOver)
+        public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
         }
 

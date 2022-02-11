@@ -68,7 +68,8 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge | collects the voltages to each iterate!
-        public void Measure(double[] drawnOver)
+        //public void Measure(double[] drawnOver)
+        public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
         }
 

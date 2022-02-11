@@ -33,8 +33,10 @@ namespace Instrument.LogicalLayer
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
 
             DrawnOverIdentifiers = new List<string>();
-            xResults = new List<List<double>>();
-            yResults = new List<List<double>>();
+            xResults = new List<List<List<double>>>();
+            yResults = new List<List<List<double>>>();
+            xResults.Add(new List<List<double>>());
+            yResults .Add(new List<List<double>>());
 
             _seriesNames = new List<string>();
             if (InfoBlock.CommonWaveform != null) // is null when ReadWavefrom = 0
@@ -94,8 +96,8 @@ namespace Instrument.LogicalLayer
         public string DeviceName { get; private set; }
         public List<int> WaveformIndicies { get; private set; }
         public List<int> FffIndicies { get; private set; }
-        public List<List<double>> xResults { get; private set; }
-        public List<List<double>> yResults { get; private set; }
+        public List<List<List<double>>> xResults { get; private set; }
+        public List<List<List<double>>> yResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
         public List<string> DrawnOverIdentifiers { get; private set; }
         #endregion
@@ -119,8 +121,12 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge
-        public void Measure(double[] drawnOver)
+        //public void Measure(double[] drawnOver)
+        public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
+            // Get drawnOver-values
+            double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
+
             // Read waveform
             var waveform = new RTO2034WaveformResult();
             List<double> xWaveVals = null;
@@ -158,22 +164,22 @@ namespace Instrument.LogicalLayer
                     xFftVals.Add(fftStart);
             }
 
-            lock (xResults)
+            lock (xResults[0])
             {
-                lock (yResults)
+                lock (yResults[0])
                 {
                     if (InfoBlock.CommonWaveform != null) // Is null when ReadWaveform = 0
                     {
-                        _waveformIndicies.Add(xResults.Count);
-                        xResults.Add(xWaveVals);
-                        yResults.Add(yWaveVals);
+                        _waveformIndicies.Add(xResults[0].Count);
+                        xResults[0].Add(xWaveVals);
+                        yResults[0].Add(yWaveVals);
                     }
 
                     if(InfoBlock.CommonFft != null)
                     {
-                        _fftIndicies.Add(xResults.Count);
-                        xResults.Add(xFftVals);
-                        yResults.Add(yFftVals);
+                        _fftIndicies.Add(xResults[0].Count);
+                        xResults[0].Add(xFftVals);
+                        yResults[0].Add(yFftVals);
                     }
                 }
             }
@@ -230,8 +236,8 @@ namespace Instrument.LogicalLayer
                 output = new StringBuilder();
                 for (var valueIndex = 0; valueIndex < recLenDataset; valueIndex++)
                 {
-                    x = xResults[_waveformIndicies[dataSetIndex]][valueIndex];
-                    y = yResults[_waveformIndicies[dataSetIndex]][valueIndex];
+                    x = xResults[0][_waveformIndicies[dataSetIndex]][valueIndex];
+                    y = yResults[0][_waveformIndicies[dataSetIndex]][valueIndex];
                     output.AppendLine(string.Format("{0}, {1}", Convert.ToString(x), Convert.ToString(y)));
                 }
                 fileWriter = new StreamWriter(filename, true);
@@ -257,16 +263,16 @@ namespace Instrument.LogicalLayer
             output.AppendFormat("# Startfrequency: {0}\n", InfoBlock.StartFrequency);
             output.AppendFormat("# Stopfrequency: {0}\n", InfoBlock.StopFrequency);
             output.AppendFormat("# Frequencyresolution: {0}\n", InfoBlock.FrequencyResolution);
-            output.AppendFormat("# DatasetSize: {0}\n", xResults[2].Count);
+            output.AppendFormat("# DatasetSize: {0}\n", xResults[0][2].Count);
             double x, y;
             output.AppendLine("# X, Y");
 
             for (var dataSetIndex = 0; dataSetIndex < _fftIndicies.Count; dataSetIndex++)
             {
-                for (var valueIndex = 0; valueIndex < xResults[_fftIndicies[dataSetIndex]].Count; valueIndex++)
+                for (var valueIndex = 0; valueIndex < xResults[0][_fftIndicies[dataSetIndex]].Count; valueIndex++)
                 {
-                    x = xResults[_fftIndicies[dataSetIndex]][valueIndex];
-                    y = yResults[_fftIndicies[dataSetIndex]][valueIndex];
+                    x = xResults[0][_fftIndicies[dataSetIndex]][valueIndex];
+                    y = yResults[0][_fftIndicies[dataSetIndex]][valueIndex];
                     output.AppendLine(string.Format("{0}, {1}", Convert.ToString(x), Convert.ToString(y)));
                 }
             }
@@ -280,17 +286,17 @@ namespace Instrument.LogicalLayer
 
         public void ClearResults()
         {
-            if (xResults != null)
+            if (xResults[0] != null)
             {
-                foreach (var result in xResults)
+                foreach (var result in xResults[0])
                     result.Clear();
-                xResults.Clear();
+                xResults[0].Clear();
             }
-            if (yResults != null)
+            if (yResults[0] != null)
             {
-                foreach (var result in yResults)
+                foreach (var result in yResults[0])
                     result.Clear();
-                yResults.Clear();
+                yResults[0].Clear();
             }
             if (_waveformIndicies != null)
                 _waveformIndicies.Clear();
@@ -340,12 +346,12 @@ namespace Instrument.LogicalLayer
                 if (lastDataSetIndex > 0)
                 {
                     lastDataSetIndex = _waveformIndicies[lastDataSetIndex];
-                    lock (xResults)
+                    lock (xResults[0])
                     {
-                        lock (yResults)
+                        lock (yResults[0])
                         {
-                            var x = xResults[lastDataSetIndex].ToArray();
-                            var y = yResults[lastDataSetIndex].ToArray();
+                            var x = xResults[0][lastDataSetIndex].ToArray();
+                            var y = yResults[0][lastDataSetIndex].ToArray();
                             _chart.DataBindXY(_seriesNames[0], x, y);
                         }
                     }
@@ -358,12 +364,12 @@ namespace Instrument.LogicalLayer
                 if (lastDataSetIndex > 0)
                 {
                     lastDataSetIndex = _fftIndicies[lastDataSetIndex];
-                    lock (xResults)
+                    lock (xResults[0])
                     {
-                        lock (yResults)
+                        lock (yResults[0])
                         {
-                            var x = xResults[lastDataSetIndex];
-                            var y = yResults[lastDataSetIndex];
+                            var x = xResults[0][lastDataSetIndex];
+                            var y = yResults[0][lastDataSetIndex];
                             _chart.AddXYSet(_seriesNames[_seriesNames.Count - 1], x, y);
                         }
                     }

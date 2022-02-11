@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using FEMDAQ.StaticHelper;
 using System.Drawing;
+using Instrument.LogicalLayer;
 
 namespace Files.Parser
 {
@@ -24,7 +25,7 @@ namespace Files.Parser
     {
         private int _amountOfChannels { get; set; }
         public CommonParser Common { get; private set; }
-        public List<CommonParser> ChChartCommons { get; private set; }
+        //public List<CommonParser> ChChartCommons { get; private set; }
         public ComParser ComPort { get; private set; }
         public List<FEAR16DACChannel> CurrCtrlChannels { get; private set; }
         public List<FEAR16ADCChannel> CurrFlowChannels { get; private set; }
@@ -46,7 +47,7 @@ namespace Files.Parser
             ComPort = new ComParser(infoBlock);
 
             _amountOfChannels = 16;
-            ChChartCommons = new List<CommonParser>(_amountOfChannels);
+            //ChChartCommons = new List<CommonParser>(_amountOfChannels);
             // Make Ctrl and Gauge lists and fill with instances
             CurrCtrlChannels = new List<FEAR16DACChannel>(_amountOfChannels);
             CurrFlowChannels = new List<FEAR16ADCChannel>(_amountOfChannels);
@@ -89,7 +90,7 @@ namespace Files.Parser
             parseControlChannel(infoBlock, chBase+"CC", CurrCtrlChannels[iCh]);
 
             parseMeasurementChannel(infoBlock, chBase + "CF", CurrFlowChannels[iCh]);
-            parseMeasurementChannel(infoBlock, chBase + "UDrp", CurrFlowChannels[iCh]);
+            parseMeasurementChannel(infoBlock, chBase + "UDrp", UDropFETChannels[iCh]);
         }
 
  
@@ -120,7 +121,11 @@ namespace Files.Parser
                     chPrefix + "ChartColor", null, null);
             }
             else
+            {
                 adcChannel.IsActive = false;
+                //adcChannel.MeasureInstantly = GaugeMeasureInstantly.Disabled;
+                //adcChannel.chartInfo = new CommonParser(infoBlock, null, null, null, null, null); // Create instance no content
+            }
         }
     }
 }

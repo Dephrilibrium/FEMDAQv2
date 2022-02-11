@@ -1,9 +1,17 @@
 ﻿using FEMDAQ.StaticHelper;
+using Instrument.LogicalLayer;
 using System;
 using System.Collections.Generic;
 
 namespace Files.Parser
 {
+    public enum GaugeMeasureInstantly
+    {
+        Disabled = -1,
+        CycleStart = 1,
+        CycleEnd = 0,
+    };
+
 
     public class GaugeParser
     {
