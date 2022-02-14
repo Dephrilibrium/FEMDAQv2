@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using HaumOTH;
 
 namespace Instrument.LogicalLayer
 {
@@ -13,14 +14,24 @@ namespace Instrument.LogicalLayer
     {
         CF = 0, // Currentflow
         Drp = 1, // FET Voltagedrop
+        TypeCount = 2 // Amount of channel-values
     }
+
+    //internal class FEAR16v2ChannelRequests
+    //{
+    //    public bool CurrCtrl = false;
+    //    public bool CurrFlow = false;
+    //    public bool FETUDrop = false;
+    //}
 
 
 
     public class FEAR16v2Layer : InstrumentLogicalLayer
     {
         public InfoBlockFEAR16v2 InfoBlock { get; private set; }
-        private List<double> _sweep;
+        private List<List<double>> _sweep;
+        private double maxVal = 10.0; // Maximum is +10V;
+        private double minVal = -10.0; // Minimum is -10V
         private HaumOTH.FEAR16v2 _device;
         private HaumChart.HaumChart _chart;
         //private List<List<string>> _seriesNames;
@@ -38,23 +49,27 @@ namespace Instrument.LogicalLayer
             DeviceType = infoStructure.DeviceType;
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
-
-            xResults = new List<List<List<double>>>();
-            yResults = new List<List<List<double>>>();
-            yResults.Add(new List<List<double>>()); // CurrentFlow
-            yResults.Add(new List<List<double>>()); // FET Dropvoltage
-
+            
             _device = new HaumOTH.FEAR16v2(InfoBlock.ComPort.ComPort, InfoBlock.ComPort.Baudrate);
             if (_device == null) throw new NullReferenceException("FEAR16v2 device couldn't be generated.");
 
+             // Make empty result-lists
+            xResults = new List<List<List<double>>>();
+            xResults.Add(new List<List<double>>());
+            xResults.Add(new List<List<double>>());
 
-
-            if (DrawnOverIdentifiers != null)
+            yResults = new List<List<List<double>>>();
+            for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
-                foreach (var drawnOver in DrawnOverIdentifiers)
-                    xResults[0].Add(new List<double>());
+                yResults.Add(new List<List<double>>());
+                for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
+                {
+                    yResults[iCh].Add(new List<double>());
+                }
             }
 
+
+            // Register channels to chart
             //_seriesNames = new List<List<string>>();
             _seriesNames = new List<List<List<string>>>();
             //yResults[0] = new List<List<List<double>>>();
@@ -63,7 +78,7 @@ namespace Instrument.LogicalLayer
             string chTypeStr = null;
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
-                yResults.Add(new List<List<double>>());
+                //yResults.Add(new List<List<double>>());
                 //_seriesNames.Add(new List<string>());
                 _seriesNames.Add(new List<List<string>>());
 
@@ -99,7 +114,7 @@ namespace Instrument.LogicalLayer
                     {
                         if (chIdents != null)
                         {
-                            yResults[iCh].Add(new List<double>());
+                            //yResults[iCh].Add(new List<double>());
                             _seriesNames[iCh].Add(new List<string>());
                             for (var index = 0; index < chIdents.Count; index++)
                             {
@@ -117,9 +132,8 @@ namespace Instrument.LogicalLayer
                 }
             }
             _chart = chart;
+
         }
-
-
 
         public void Dispose()
         {
@@ -159,21 +173,61 @@ namespace Instrument.LogicalLayer
         {
             var curr = _device.CurrFlowChannels;
             var drop = _device.UFETDropChannels;
+            bool oneCFRequest = false;
+            bool oneUDRequest = false;
 
             for(int iCh = 0; iCh <_device.AmountOfChannels; iCh++)
             {
-                if (InfoBlock.CurrFlowChannels[iCh].IsActive && 
+                if (InfoBlock.CurrFlowChannels[iCh].IsActive &&
                     InfoBlock.CurrFlowChannels[iCh].MeasureInstantly == MeasureCycle)
+                {
+                    oneCFRequest = true;
                     _device.CurrFlowChannels[iCh].Requested = true;
+                }
 
                 if (InfoBlock.UDropFETChannels[iCh].IsActive &&
                     InfoBlock.UDropFETChannels[iCh].MeasureInstantly == MeasureCycle)
+                {
+                    oneUDRequest = true;
                     _device.UFETDropChannels[iCh].Requested = true;
+                }
             }
-            _device.MeasureUFETDropRequests();
-            _device.MeasureCurrentFlowRequests();
+            if(oneUDRequest)
+                _device.MeasureUFETDropRequests();
 
-            double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
+            if (oneCFRequest)
+                _device.MeasureCurrentFlowRequests();
+
+
+            for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
+            {
+                double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
+                for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
+                {
+                    lock (xResults[iCh][iChType])
+                    {
+                        lock (yResults[iCh][iChType])
+                        {
+                            double value = 0.0;
+                            switch((FEAR16v2MeasurementChannelType)iChType)
+                            {
+                                case FEAR16v2MeasurementChannelType.CF:
+                                    yResults[iCh][iChType] = _device.CurrFlowChannels[iCh].value;
+                                    xResults[iCh][iCh]
+                                    break;
+
+                                case FEAR16v2MeasurementChannelType.Drp:
+                                    value = _device.UFETDropChannels[iCh].value;
+                                    break;
+                            }
+                            
+                            yResults[iCh][iChType].Add(value);
+                            for (var index = 0; index < DrawnOverIdentifiers.Count; index++)
+                                xResults[0][index].Add(drawnOver[index]);
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -206,10 +260,21 @@ namespace Instrument.LogicalLayer
 
         public void SetSourceValues(int sweepLine)
         {
-            var voltage = _sweep[sweepLine];
+            var srcValues = _sweep[sweepLine];
+            bool oneRequest = false;
 
-            //_device.SetVoltage(voltage);
-            //_device.SetOutput(true); // Output now enabled in Init() instead of each time a value is sent
+            for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
+            {
+                if (!InfoBlock.CurrCtrlChannels[iCh].IsActive)
+                    continue;
+
+                oneRequest = true;
+                _device.CurrCtrlChannels[iCh].Requested = true;
+                _device.CurrCtrlChannels[iCh].value = srcValues[iCh];
+            }
+
+            if (oneRequest)
+                _device.UpdateCurrentControlRequests();
         }
 
 
@@ -223,24 +288,35 @@ namespace Instrument.LogicalLayer
 
         public void AssignSweepColumn(SweepContent sweep)
         {
-            //if (InfoBlock.Source.SourceNode < 0)
-            //    return;
+            _sweep = new List<List<double>>();
+            for(int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
+            {
+                _sweep.Add(new List<double>());
 
-            //var voltageSourceNode = "U" + Convert.ToString(InfoBlock.Source.SourceNode);
-            //_sweep = AssignSweep.Assign(sweep, voltageSourceNode);
-            //if (_sweep == null) throw new MissingFieldException("Can't find " + voltageSourceNode + " in sweep-file.");
+                if (InfoBlock.CurrCtrlChannels[iCh].IsActive && InfoBlock.CurrCtrlChannels[iCh].SourceNode >= 0)
+                {
+                    var sourceNode = "CC" + Convert.ToString(InfoBlock.CurrCtrlChannels[iCh].SourceNode);
+                    _sweep.Add(new List<double>());
+                    _sweep[iCh] = AssignSweep.Assign(sweep, sourceNode);
+                    if (_sweep == null) throw new MissingFieldException("Can't find " + sourceNode + " in sweep-file.");
 
-            //// MCP140 can't work with negative voltages -> Check if there are some negative values within sweep-values
-            //int numberOfNegativeVoltages = 0;
-            //foreach (double voltage in _sweep)
-            //{
-            //    if (voltage < 0)
-            //        numberOfNegativeVoltages++;
-            //}
-
-            //if (numberOfNegativeVoltages > 0)
-            //    throw new ArgumentOutOfRangeException("MCP140 can't handle negative voltages (found " + numberOfNegativeVoltages.ToString() + " in " + voltageSourceNode + " sweep values)");
-
+                    // Check range of values
+                    for (int iValue = 0; iValue < _sweep.Count; iValue++)
+                    {
+                        if (_sweep[iCh][iValue] < minVal || _sweep[iCh][iValue] > maxVal)
+                        {
+                            throw new Exception(string.Format("Value of {0} (Line {1}) out of range: {2} (allowed: {3} <= val <= {4})",
+                                sourceNode,
+                                iValue.ToString(),
+                                _sweep[iCh][iValue],
+                                minVal,
+                                maxVal));
+                        }
+                    }
+                }
+                else if (InfoBlock.CurrCtrlChannels[iCh].IsActive && InfoBlock.CurrCtrlChannels[iCh].SourceNode < 0)
+                    throw new Exception("Active currentcontrol (Ch" + iCh.ToString() + " has invalid sourceNode number (SN < 0).");
+            }
         }
         #endregion
 
