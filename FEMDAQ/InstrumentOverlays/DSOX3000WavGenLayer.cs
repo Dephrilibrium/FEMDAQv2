@@ -52,8 +52,8 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
-        public List<List<double>> xResults { get { return null; } }
-        public List<List<double>> yResults { get { return null; } }
+        public List<List<List<double>>> xResults { get { return null; } }
+        public List<List<List<double>>> yResults { get { return null; } }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.Disabled; } }
         public List<string> DrawnOverIdentifiers { get { return null; } }
         #endregion

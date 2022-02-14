@@ -31,8 +31,10 @@ namespace Instrument.LogicalLayer
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
             
             DrawnOverIdentifiers = new List<string>();
-            xResults = new List<List<double>>();
-            yResults = new List<List<double>>();
+            xResults = new List<List<List<double>>>();
+            yResults = new List<List<List<double>>>();
+            xResults .Add(new List<List<double>>());
+            yResults .Add(new List<List<double>>());
 
             _seriesNames = new List<string>();
             if (InfoBlock.Common != null) // is null when ReadWavefrom = 0
@@ -75,8 +77,8 @@ namespace Instrument.LogicalLayer
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
         public List<int> WaveformIndiciesInResults { get; private set; }
-        public List<List<double>> xResults { get; private set; }
-        public List<List<double>> yResults { get; private set; }
+        public List<List<List<double>>> xResults { get; private set; }
+        public List<List<List<double>>> yResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
         public List<string> DrawnOverIdentifiers { get; private set; }
         #endregion
@@ -125,15 +127,15 @@ namespace Instrument.LogicalLayer
             }
 
 
-            lock (xResults)
+            lock (xResults[0])
             {
-                lock (yResults)
+                lock (yResults[0])
                 {
                     if (InfoBlock.Common != null) // Is null when ReadWaveform = 0
                     {
-                        _waveformIndicies.Add(xResults.Count);
-                        xResults.Add(xWaveVals);
-                        yResults.Add(yWaveVals);
+                        _waveformIndicies.Add(xResults[0].Count);
+                        xResults[0].Add(xWaveVals);
+                        yResults[0].Add(yWaveVals);
                     }
                 }
             }
@@ -180,16 +182,16 @@ namespace Instrument.LogicalLayer
             output.AppendFormat("# DivX: {0}\n", InfoBlock.XDivScale);
             output.AppendFormat("# DivY: {0}\n", InfoBlock.Gauge.Range);
             output.AppendFormat("# Samplerate: {0}\n", _device.SampleRate);
-            output.AppendFormat("# DatasetSize: {0}\n", xResults[0].Count);
+            output.AppendFormat("# DatasetSize: {0}\n", xResults[0][0].Count);
             double x, y;
             output.AppendLine("# X, Y");
 
             for (var dataSetIndex = 0; dataSetIndex < _waveformIndicies.Count; dataSetIndex++)
             {
-                for (var valueIndex = 0; valueIndex < xResults[_waveformIndicies[dataSetIndex]].Count; valueIndex++)
+                for (var valueIndex = 0; valueIndex < xResults[0][_waveformIndicies[dataSetIndex]].Count; valueIndex++)
                 {
-                    x = xResults[_waveformIndicies[dataSetIndex]][valueIndex];
-                    y = yResults[_waveformIndicies[dataSetIndex]][valueIndex];
+                    x = xResults[0][_waveformIndicies[dataSetIndex]][valueIndex];
+                    y = yResults[0][_waveformIndicies[dataSetIndex]][valueIndex];
                     output.AppendLine(string.Format("{0}, {1}", Convert.ToString(x), Convert.ToString(y)));
                 }
             }
@@ -205,17 +207,17 @@ namespace Instrument.LogicalLayer
 
         public void ClearResults()
         {
-            if (xResults != null)
+            if (xResults[0] != null)
             {
-                foreach (var result in xResults)
+                foreach (var result in xResults[0])
                     result.Clear();
-                xResults.Clear();
+                xResults[0].Clear();
             }
-            if (yResults != null)
+            if (yResults[0] != null)
             {
-                foreach (var result in yResults)
+                foreach (var result in yResults[0])
                     result.Clear();
-                yResults.Clear();
+                yResults[0].Clear();
             }
             if (_waveformIndicies != null)
                 _waveformIndicies.Clear();
@@ -263,12 +265,12 @@ namespace Instrument.LogicalLayer
                 if (lastDataSetIndex > 0)
                 {
                     lastDataSetIndex = _waveformIndicies[lastDataSetIndex];
-                    lock (xResults)
+                    lock (xResults[0])
                     {
-                        lock (yResults)
+                        lock (yResults[0])
                         {
-                            var x = xResults[lastDataSetIndex].ToArray();
-                            var y = yResults[lastDataSetIndex].ToArray();
+                            var x = xResults[0][lastDataSetIndex].ToArray();
+                            var y = yResults[0][lastDataSetIndex].ToArray();
                             _chart.DataBindXY(_seriesNames[0], x, y);
                         }
                     }

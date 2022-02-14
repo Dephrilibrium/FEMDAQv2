@@ -39,7 +39,7 @@ namespace Instrument.LogicalLayer
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
 
-            xResults = new List<List<double>>();
+            xResults = new List<List<List<double>>>();
             yResults = new List<List<List<double>>>();
             yResults.Add(new List<List<double>>()); // CurrentFlow
             yResults.Add(new List<List<double>>()); // FET Dropvoltage
@@ -52,12 +52,12 @@ namespace Instrument.LogicalLayer
             if (DrawnOverIdentifiers != null)
             {
                 foreach (var drawnOver in DrawnOverIdentifiers)
-                    xResults.Add(new List<double>());
+                    xResults[0].Add(new List<double>());
             }
 
             //_seriesNames = new List<List<string>>();
             _seriesNames = new List<List<List<string>>>();
-            yResults = new List<List<List<double>>>();
+            //yResults[0] = new List<List<List<double>>>();
             List<string> chIdents = null;
             List<Color> chColors = null;
             string chTypeStr = null;
@@ -136,7 +136,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
-        public List<List<double>> xResults { get; private set; }
+        public List<List<List<double>>> xResults { get; private set; }
         //public List<List<double>> yResults { get; private set; }
         public List<List<List<double>>> yResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.CycleEnd; } }
