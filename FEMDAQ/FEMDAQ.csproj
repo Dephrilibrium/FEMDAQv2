@@ -228,6 +228,7 @@
     <Compile Include="InstrumentOverlays\RTO2034Layer.cs" />
     <Compile Include="InstrumentOverlays\SR785Layer.cs" />
     <Compile Include="InstrumentOverlays\Static\AssignSweep.cs" />
+    <Compile Include="InstrumentOverlays\Static\StandardGuardClauses.cs" />
     <Compile Include="InstrumentOverlays\VD9xLayer.cs" />
     <Compile Include="InstrumentOverlays\VSH8xLayer.cs" />
     <Compile Include="InstrumentOverlays\DSOX3000WavGenLayer.cs" />

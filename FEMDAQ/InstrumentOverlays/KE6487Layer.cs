@@ -30,10 +30,8 @@ namespace Instrument.LogicalLayer
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
 
-            xResults = new List<List<List<double>>>();
-            xResults = new List<List<List<double>>>();
-            xResults .Add(new List<List<double>>());
-            yResults.Add(new List<List<double>>());
+            XResults = new List<List<double>>();
+            YResults = new List<List<double>>();
 
             _device = new KE6487.KE6487(InfoBlock.Gpib.GpibBoardNumber, (byte)InfoBlock.Gpib.GpibPrimaryAdress, (byte)InfoBlock.Gpib.GpibSecondaryAdress);
             if (_device == null) throw new NullReferenceException("KE6487 device couldn't be generated.");
@@ -41,7 +39,7 @@ namespace Instrument.LogicalLayer
             if(InfoBlock.Common.ChartDrawnOvers != null)
             {
                 foreach (var drawnOver in InfoBlock.Common.ChartDrawnOvers)
-                    xResults[0].Add(new List<double>());
+                    XResults.Add(new List<double>());
             }
 
             if (InfoBlock.Common.ChartIdentifiers != null)
@@ -57,7 +55,7 @@ namespace Instrument.LogicalLayer
                 _chart = chart;
             }
 
-            yResults[0].Add(new List<double>());
+            YResults.Add(new List<double>());
         }
 
 
@@ -76,8 +74,8 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
-        public List<List<List<double>>> xResults { get; private set; }
-        public List<List<List<double>>> yResults { get; private set; }
+        public List<List<double>> XResults { get; set; }
+        public List<List<double>> YResults { get; set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
         #endregion
@@ -107,18 +105,32 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge
+        public List<double> GetXResultList(int[] indicies)
+        {
+            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 1, DeviceIdentifier); // Throws exceptions
+
+            return XResults[indicies[0]];
+        }
+
+        public List<double> GetYResultList(int[] indicies)
+        {
+            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 1, DeviceIdentifier); // Throws exceptions
+
+            return YResults[indicies[0]];
+        }
+
         //public void Measure(double[] drawnOver)
         public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
             double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
-            lock (xResults[0])
+            lock (XResults)
             {
-                lock (yResults[0])
+                lock (YResults)
                 {
                     var current = _device.GetCurrent();
-                    yResults[0][0].Add(current);
+                    YResults[0].Add(current);
                     for (var index = 0; index < DrawnOverIdentifiers.Count; index++)
-                        xResults[0][index].Add(drawnOver[index]);
+                        XResults[index].Add(drawnOver[index]);
                 }
             }
         }
@@ -153,11 +165,11 @@ namespace Instrument.LogicalLayer
             output.AppendLine("# Range: " + InfoBlock.Gauge.Range.ToString());
             output.AppendLine("# NPLC: " + InfoBlock.Gauge.Nplc.ToString());
 
-            for (var line = 0; line < yResults[0][0].Count; line++)
+            for (var line = 0; line < YResults[0].Count; line++)
             {
-                for (var xRow = 0; xRow < xResults[0].Count; xRow++)
-                    output.Append(Convert.ToString(xResults[0][xRow][line]) + ", ");
-                output.AppendLine(Convert.ToString(yResults[0][0][line]));
+                for (var xRow = 0; xRow < XResults.Count; xRow++)
+                    output.Append(Convert.ToString(XResults[xRow][line]) + ", ");
+                output.AppendLine(Convert.ToString(YResults[0][line]));
             }
             var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
             var fileWriter = new StreamWriter(filename, false);
@@ -169,12 +181,12 @@ namespace Instrument.LogicalLayer
 
         public void ClearResults()
         {
-            if (xResults[0] != null)
-                foreach (var xResult in xResults[0])
+            if (XResults != null)
+                foreach (var xResult in XResults)
                     xResult.Clear();
 
-            if (yResults[0] != null)
-                yResults[0][0].Clear();
+            if (YResults != null)
+                YResults[0].Clear();
 
 
             if (_chart != null)
@@ -231,18 +243,18 @@ namespace Instrument.LogicalLayer
 
             int lastLine;
             double lastYVal;
-            lock (yResults[0])
+            lock (YResults)
             {
-                lastLine = yResults[0][0].Count - 1;
+                lastLine = YResults[0].Count - 1;
                 if (lastLine < 0) // Actual no value measured
                     return;
-                lastYVal = yResults[0][0][lastLine];
+                lastYVal = YResults[0][lastLine];
             }
 
-            lock (xResults[0])
+            lock (XResults)
             {
                 for (var xRowIndex = 0; xRowIndex < _seriesNames.Count; xRowIndex++)
-                    _chart.AddXY(_seriesNames[xRowIndex], xResults[0][xRowIndex][lastLine], lastYVal);
+                    _chart.AddXY(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVal);
             }
         }
         #endregion

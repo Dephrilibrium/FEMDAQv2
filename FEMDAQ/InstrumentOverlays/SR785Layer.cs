@@ -28,10 +28,8 @@ namespace Instrument.LogicalLayer
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
 
-            xResults = new List<List<List<double>>>();
-            yResults = new List<List<List<double>>>();
-            xResults.Add(new List<List<double>>());
-            yResults.Add(new List<List<double>>());
+            XResults=new List<List<double>>();
+            YResults=new List<List<double>>();
 
             _device = new SR785(InfoBlock.Gpib.GpibBoardNumber, (byte)InfoBlock.Gpib.GpibPrimaryAdress, (byte)InfoBlock.Gpib.GpibSecondaryAdress);
             if (_device == null) throw new NullReferenceException("SR785 device couldn't be generated.");
@@ -55,8 +53,6 @@ namespace Instrument.LogicalLayer
                 _device.Dispose();
 
             ClearResults();
-            xResults[0].Clear();
-            yResults[0].Clear();
             if (_chart != null)
                 foreach (var seriesName in _seriesNames)
                     _chart.DeleteSeries(seriesName);
@@ -69,8 +65,8 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
-        public List<List<List<double>>> xResults { get; private set; }
-        public List<List<List<double>>> yResults { get; private set; }
+        public List<List<double>> XResults { get; private set; }
+        public List<List<double>> YResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
         #endregion
@@ -102,6 +98,19 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge
+        public List<double> GetXResultList(int[] indicies)
+        {
+            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 1, DeviceIdentifier);
+
+            return XResults[indicies[0]];
+        }
+        public List<double> GetYResultList(int[] indicies)
+        {
+            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 1, DeviceIdentifier);
+
+            return YResults[indicies[0]];
+        }
+
         //public void Measure(double[] drawnOver)
         public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
@@ -114,8 +123,8 @@ namespace Instrument.LogicalLayer
             for (var valueCount = valY.Count; valueCount > 0; start += diff, valueCount--)
                 valX.Add(start);
 
-            xResults[0].Add(valX);
-            yResults[0].Add(valY);
+            XResults.Add(valX);
+            YResults.Add(valY);
         }
 
 
@@ -141,19 +150,19 @@ namespace Instrument.LogicalLayer
                                            (InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName)
                                            );
             var output = new StringBuilder("Device: [" + deviceName + "]\n");
-            output.AppendFormat("# dX: {0} [Hz]\n", InfoBlock.FrequencySpan / xResults[0][0].Count);
+            output.AppendFormat("# dX: {0} [Hz]\n", InfoBlock.FrequencySpan / XResults[0].Count);
             output.AppendFormat("# X-View: {0}\n", InfoBlock.XAxisView.ToString());
             output.AppendFormat("# Y-View: {0}\n", InfoBlock.YAxisView.ToString());
             output.AppendFormat("# Y-Unit: {0}, {1}\n", InfoBlock.YdBUnit.ToString(), InfoBlock.YPeakUnit.ToString());
-            output.AppendFormat("# DatasetSize: {0}\n", xResults[0][0].Count);
+            output.AppendFormat("# DatasetSize: {0}\n", XResults[0].Count);
             double x, y;
             output.AppendLine("# X, Y\n\n");
-            for (var dataSetIndex = 0; dataSetIndex < xResults[0].Count; dataSetIndex++)
+            for (var dataSetIndex = 0; dataSetIndex < XResults.Count; dataSetIndex++)
             {
-                for (var valueIndex = 0; valueIndex < xResults[0][dataSetIndex].Count; valueIndex++)
+                for (var valueIndex = 0; valueIndex < XResults[dataSetIndex].Count; valueIndex++)
                 {
-                    x = xResults[0][dataSetIndex][valueIndex];
-                    y = yResults[0][dataSetIndex][valueIndex];
+                    x = XResults[dataSetIndex][valueIndex];
+                    y = YResults[dataSetIndex][valueIndex];
                     output.AppendLine(string.Format("{0}, {1}", Convert.ToString(x), Convert.ToString(y)));
                 }
             }
@@ -167,13 +176,13 @@ namespace Instrument.LogicalLayer
 
         public void ClearResults()
         {
-            if(xResults[0] != null)
-                foreach (var result in xResults[0])
-                    result.Clear();
+            if(XResults != null)
+                //foreach (var result in XResults)
+                    XResults.Clear();
 
-            if(yResults[0]!=null)
-                foreach (var result in yResults[0])
-                    result.Clear();
+            if(YResults!=null)
+                //foreach (var result in YResults)
+                    YResults.Clear();
 
             if (_seriesNames != null)
                 foreach (var seriesName in _seriesNames)
@@ -216,16 +225,16 @@ namespace Instrument.LogicalLayer
             if (_seriesNames.Count <= 0) // No drawdata
                 return;
 
-            var lastDataSetIndex = xResults[0].Count - 1;
+            var lastDataSetIndex = XResults.Count - 1;
             if (lastDataSetIndex < 0) // No datasets until now
                 return;
 
-            lock(xResults[0])
+            lock(XResults)
             {
-                lock(yResults[0])
+                lock(YResults)
                 {
-                    var x = xResults[0][lastDataSetIndex];
-                    var y = yResults[0][lastDataSetIndex];
+                    var x = XResults[lastDataSetIndex];
+                    var y = YResults[lastDataSetIndex];
                     _chart.AddXYSet(_seriesNames[0], x, y);
                 }
             }

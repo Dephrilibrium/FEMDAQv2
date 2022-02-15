@@ -32,7 +32,7 @@ namespace Instrument.LogicalLayer
         private List<List<double>> _sweep;
         private double maxVal = 10.0; // Maximum is +10V;
         private double minVal = -10.0; // Minimum is -10V
-        private HaumOTH.FEAR16v2 _device;
+        private FEAR16v2 _device;
         private HaumChart.HaumChart _chart;
         //private List<List<string>> _seriesNames;
         private List<List<List<string>>> _seriesNames;
@@ -49,23 +49,20 @@ namespace Instrument.LogicalLayer
             DeviceType = infoStructure.DeviceType;
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
-            
-            _device = new HaumOTH.FEAR16v2(InfoBlock.ComPort.ComPort, InfoBlock.ComPort.Baudrate);
+
+            _device = new FEAR16v2(InfoBlock.ComPort.ComPort, InfoBlock.ComPort.Baudrate);
             if (_device == null) throw new NullReferenceException("FEAR16v2 device couldn't be generated.");
 
-             // Make empty result-lists
-            xResults = new List<List<List<double>>>();
-            xResults.Add(new List<List<double>>());
-            xResults.Add(new List<List<double>>());
+            // Make empty result-lists
+            XResults = new List<List<List<List<double>>>>();
 
-            yResults = new List<List<List<double>>>();
+            YResults = new List<List<List<double>>>();
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
-                yResults.Add(new List<List<double>>());
-                for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
-                {
-                    yResults[iCh].Add(new List<double>());
-                }
+                XResults.Add(new List<List<List<double>>>()); // Currentflow
+                XResults.Add(new List<List<List<double>>>()); // UDrop
+                YResults.Add(new List<List<double>>()); // Currentflow
+                YResults.Add(new List<List<double>>()); // UDrop
             }
 
 
@@ -75,6 +72,7 @@ namespace Instrument.LogicalLayer
             //yResults[0] = new List<List<List<double>>>();
             List<string> chIdents = null;
             List<Color> chColors = null;
+            List<string> chDrawnOver = null;
             string chTypeStr = null;
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
@@ -90,6 +88,7 @@ namespace Instrument.LogicalLayer
                         {
                             chIdents = InfoBlock.CurrFlowChannels[iCh].chartInfo.ChartIdentifiers;
                             chColors = InfoBlock.CurrFlowChannels[iCh].chartInfo.ChartColors;
+                            chDrawnOver = InfoBlock.CurrFlowChannels[iCh].chartInfo.ChartDrawnOvers;
                             chTypeStr = "CF";
                         }
                         else
@@ -103,6 +102,7 @@ namespace Instrument.LogicalLayer
                         {
                             chIdents = InfoBlock.UDropFETChannels[iCh].chartInfo.ChartIdentifiers;
                             chColors = InfoBlock.UDropFETChannels[iCh].chartInfo.ChartColors;
+                            chDrawnOver = InfoBlock.UDropFETChannels[iCh].chartInfo.ChartDrawnOvers;
                             chTypeStr = "Drp";
                         }
                         else
@@ -127,6 +127,9 @@ namespace Instrument.LogicalLayer
                                 //chart.AddSeries(chIdents[index], _seriesNames[chType][index], chColors[index]);
                                 chart.AddSeries(chIdents[index], _seriesNames[iCh][chType][index], chColors[index]);
                             }
+
+                            for (var iDrawnOver = 0; iDrawnOver < chDrawnOver.Count; iDrawnOver++)
+                                XResults[iCh][chType].Add(new List<double>());
                         }
                     }
                 }
@@ -150,9 +153,9 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
-        public List<List<List<double>>> xResults { get; private set; }
+        public List<List<List<List<double>>>> XResults { get; private set; }
         //public List<List<double>> yResults { get; private set; }
-        public List<List<List<double>>> yResults { get; private set; }
+        public List<List<List<double>>> YResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.CycleEnd; } }
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
         #endregion
@@ -169,6 +172,22 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge | collects the voltages to each iterate!
+        public List<double> GetXResultList(int[] indicies)
+        {
+            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 3, DeviceIdentifier);
+
+            return XResults[indicies[0]][indicies[1]][indicies[2]];
+        }
+
+        public List<double> GetYResultList(int[] indicies)
+        {
+            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 2, DeviceIdentifier);
+
+            return YResults[indicies[0]][indicies[1]];
+        }
+
+
+
         public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
             var curr = _device.CurrFlowChannels;
@@ -176,7 +195,7 @@ namespace Instrument.LogicalLayer
             bool oneCFRequest = false;
             bool oneUDRequest = false;
 
-            for(int iCh = 0; iCh <_device.AmountOfChannels; iCh++)
+            for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
                 if (InfoBlock.CurrFlowChannels[iCh].IsActive &&
                     InfoBlock.CurrFlowChannels[iCh].MeasureInstantly == MeasureCycle)
@@ -192,7 +211,7 @@ namespace Instrument.LogicalLayer
                     _device.UFETDropChannels[iCh].Requested = true;
                 }
             }
-            if(oneUDRequest)
+            if (oneUDRequest)
                 _device.MeasureUFETDropRequests();
 
             if (oneCFRequest)
@@ -204,26 +223,13 @@ namespace Instrument.LogicalLayer
                 double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
                 for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
                 {
-                    lock (xResults[iCh][iChType])
+                    lock (XResults[iCh][iChType])
                     {
-                        lock (yResults[iCh][iChType])
+                        lock (YResults[iCh][iChType])
                         {
-                            double value = 0.0;
-                            switch((FEAR16v2MeasurementChannelType)iChType)
-                            {
-                                case FEAR16v2MeasurementChannelType.CF:
-                                    yResults[iCh][iChType] = _device.CurrFlowChannels[iCh].value;
-                                    xResults[iCh][iCh]
-                                    break;
-
-                                case FEAR16v2MeasurementChannelType.Drp:
-                                    value = _device.UFETDropChannels[iCh].value;
-                                    break;
-                            }
-                            
-                            yResults[iCh][iChType].Add(value);
+                            YResults[iCh][iChType].Add(_device.UFETDropChannels[iCh].value);
                             for (var index = 0; index < DrawnOverIdentifiers.Count; index++)
-                                xResults[0][index].Add(drawnOver[index]);
+                                XResults[iCh][iChType][index].Add(drawnOver[index]);
                         }
                     }
                 }
@@ -289,7 +295,7 @@ namespace Instrument.LogicalLayer
         public void AssignSweepColumn(SweepContent sweep)
         {
             _sweep = new List<List<double>>();
-            for(int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
+            for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
                 _sweep.Add(new List<double>());
 

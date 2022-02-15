@@ -52,8 +52,8 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
-        public List<List<List<double>>> xResults { get { return null; } }
-        public List<List<List<double>>> yResults { get { return null; } }
+        //public List<List<List<double>>> xResults { get { return null; } }
+        //public List<List<List<double>>> yResults { get { return null; } }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.Disabled; } }
         public List<string> DrawnOverIdentifiers { get { return null; } }
         #endregion
@@ -71,6 +71,10 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge
+        public List<double> GetXResultList(int[] indicies){ return null; }
+        public List<double> GetYResultList(int[] indicies) { return null; }
+
+
         //public void Measure(double[] drawnOver)
         public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {

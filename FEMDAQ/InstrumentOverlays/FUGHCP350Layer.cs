@@ -45,8 +45,8 @@ namespace Instrument.LogicalLayer
 
 
         #region Getter/Setter
-        public List<List<List<double>>> xResults { get { return null; } }
-        public List<List<List<double>>> yResults { get { return null; } }
+        //public List<List<List<double>>> xResults { get { return null; } }
+        //public List<List<List<double>>> yResults { get { return null; } }
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
@@ -68,6 +68,10 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge | collects the voltages to each iterate!
+        public List<double> GetXResultList(int[] indicies){  return null;}
+        public List<double> GetYResultList(int[] indicies) { return null; }
+
+
         //public void Measure(double[] drawnOver)
         public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {

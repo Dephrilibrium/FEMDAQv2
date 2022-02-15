@@ -8,8 +8,8 @@ namespace Instrument.LogicalLayer
     public interface InstrumentLogicalLayer : IDisposable
     {
         // Getter/Setter
-        List<List<List<double>>> xResults { get; }
-        List<List<List<double>>> yResults { get; }
+        //List<List<List<double>>> xResults { get; } // Obsolote due to device 
+        //List<List<List<double>>> yResults { get; }
         string DeviceIdentifier { get; }
         string DeviceType { get; }
         string DeviceName { get; }
@@ -26,6 +26,9 @@ namespace Instrument.LogicalLayer
 
         // Gauge
         //void Measure(double[] drawnOver);
+        List<double> GetXResultList(int[] indicies);
+        List<double> GetYResultList(int[] indicies);
+
         void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle);
         //void SaveResultsToFolder(string folderPath);
         void SaveResultsToFolder(string folderPath, string filePrefix);
