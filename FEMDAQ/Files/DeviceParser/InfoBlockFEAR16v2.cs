@@ -9,13 +9,13 @@ namespace Files.Parser
 {
     public class FEAR16DACChannel
     {
-        public bool IsActive = false;
+        //public bool IsActive = false;
         public int SourceNode = -1;
     }
 
     public class FEAR16ADCChannel
     {
-        public bool IsActive = false;
+        //public bool IsActive = false;
         public GaugeMeasureInstantly MeasureInstantly = 0;
         public CommonParser chartInfo;
     }
@@ -43,7 +43,7 @@ namespace Files.Parser
         {
             if (infoBlock == null) throw new NullReferenceException("infoBlock");
 
-            Common = new CommonParser(infoBlock, null, null, null);
+            Common = new CommonParser(infoBlock, null, null, null, null);
             ComPort = new ComParser(infoBlock);
 
             _amountOfChannels = 16;
@@ -90,7 +90,7 @@ namespace Files.Parser
             parseControlChannel(infoBlock, chBase+"CC", CurrCtrlChannels[iCh]);
 
             parseMeasurementChannel(infoBlock, chBase + "CF", CurrFlowChannels[iCh]);
-            parseMeasurementChannel(infoBlock, chBase + "UDrp", UDropFETChannels[iCh]);
+            parseMeasurementChannel(infoBlock, chBase + "UD", UDropFETChannels[iCh]);
         }
 
  
@@ -100,30 +100,39 @@ namespace Files.Parser
             string lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, chPrefix + "=");
             if (lineInfo != null)
             {
-                dacChannel.IsActive = true;
+                //dacChannel.IsActive = true;
                 dacChannel.SourceNode = int.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
             }
             else
-                dacChannel.IsActive = false;
+                //dacChannel.IsActive = false;
+                dacChannel.SourceNode = -1;
         }
 
 
         private void parseMeasurementChannel(IEnumerable<string> infoBlock, string chPrefix, FEAR16ADCChannel adcChannel)
         {
-            string lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, chPrefix+"=");
+            string lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, chPrefix + "=");
             if (lineInfo != null)
             {
-                adcChannel.IsActive = true;
+                //adcChannel.IsActive = true;
                 adcChannel.MeasureInstantly = (GaugeMeasureInstantly)int.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
-                adcChannel.chartInfo = new CommonParser(infoBlock,
-                    chPrefix + "ChartIdentifier=",
-                    chPrefix + "ChartDrawnOver=",
-                    chPrefix + "ChartColor", null, null);
+                if (adcChannel.MeasureInstantly < 0)
+                    adcChannel.MeasureInstantly = GaugeMeasureInstantly.Disabled;
+                else
+                {
+                    adcChannel.chartInfo = new CommonParser(infoBlock,
+                        chPrefix + "ChartIdentifier=",
+                        chPrefix + "ChartDrawnOver=",
+                        chPrefix + "ChartColor",
+                        chPrefix + "CustomName",
+                        null);
+                }
+
             }
             else
             {
-                adcChannel.IsActive = false;
-                //adcChannel.MeasureInstantly = GaugeMeasureInstantly.Disabled;
+                //adcChannel.IsActive = false;
+                adcChannel.MeasureInstantly = GaugeMeasureInstantly.Disabled;
                 //adcChannel.chartInfo = new CommonParser(infoBlock, null, null, null, null, null); // Create instance no content
             }
         }

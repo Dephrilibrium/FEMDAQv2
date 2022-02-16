@@ -12,8 +12,8 @@ namespace Instrument.LogicalLayer
 {
     internal enum FEAR16v2MeasurementChannelType
     {
-        CF = 0, // Currentflow
-        Drp = 1, // FET Voltagedrop
+        CF = 0, // Currentflow ([C]urrent[F]low)
+        UD = 1, // FET Voltagedrop (FET [UD]rop)
         TypeCount = 2 // Amount of channel-values
     }
 
@@ -84,7 +84,7 @@ namespace Instrument.LogicalLayer
                 YResults.Add(new List<List<double>>((int)FEAR16v2MeasurementChannelType.TypeCount));
                 _seriesNames.Add(new List<List<string>>());
 
-                for (int chType = 0; chType <= (int)FEAR16v2MeasurementChannelType.Drp; chType++)
+                for (int chType = 0; chType <= (int)FEAR16v2MeasurementChannelType.UD; chType++)
                 {
                     XResults[iCh].Add(new List<List<double>>());
                     YResults[iCh].Add(new List<double>());
@@ -95,14 +95,14 @@ namespace Instrument.LogicalLayer
                         currentADCChannel = InfoBlock.CurrFlowChannels[iCh];
                         chTypeStr = CurrFlowRequestString; // CurrentFlow request string
                     }
-                    else if (chType == (int)FEAR16v2MeasurementChannelType.Drp)
+                    else if (chType == (int)FEAR16v2MeasurementChannelType.UD)
                     {
                         currentADCChannel = InfoBlock.UDropFETChannels[iCh];
                         chTypeStr = FETUDropRequestString; // FET Voltage Drop request string
                     }
 
 
-                    if (currentADCChannel.IsActive)
+                    if (currentADCChannel.MeasureInstantly != GaugeMeasureInstantly.Disabled)
                     {
                         chIdents = currentADCChannel.chartInfo.ChartIdentifiers;
                         chColors = currentADCChannel.chartInfo.ChartColors;
@@ -188,15 +188,15 @@ namespace Instrument.LogicalLayer
             // Combine structures for following iterations
             var adcInfoBlocks = new List<FEAR16ADCChannel>[(int)FEAR16v2MeasurementChannelType.TypeCount];
             adcInfoBlocks[(int)FEAR16v2MeasurementChannelType.CF] = InfoBlock.CurrFlowChannels;
-            adcInfoBlocks[(int)FEAR16v2MeasurementChannelType.Drp] = InfoBlock.UDropFETChannels;
+            adcInfoBlocks[(int)FEAR16v2MeasurementChannelType.UD] = InfoBlock.UDropFETChannels;
 
             var adcChnls = new List<FEAR16v2ChannelRequest>[(int)FEAR16v2MeasurementChannelType.TypeCount];
             adcChnls[(int)FEAR16v2MeasurementChannelType.CF] = _device.CurrFlowChannels;
-            adcChnls[(int)FEAR16v2MeasurementChannelType.Drp] = _device.UFETDropChannels;
+            adcChnls[(int)FEAR16v2MeasurementChannelType.UD] = _device.UFETDropChannels;
 
             var atLeastOneRequest = new bool[(int)FEAR16v2MeasurementChannelType.TypeCount];
             atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.CF] = false;
-            atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.Drp] = false;
+            atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.UD] = false;
 
 
             // Mark the requested channels and channeltypes
@@ -204,8 +204,7 @@ namespace Instrument.LogicalLayer
             {
                 for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
                 {
-                    if (adcInfoBlocks[iChType][iCh].IsActive &&
-                        adcInfoBlocks[iChType][iCh].MeasureInstantly == MeasureCycle)
+                    if (adcInfoBlocks[iChType][iCh].MeasureInstantly == MeasureCycle)
                     {
                         adcChnls[iChType][iCh].Requested = true;
                         atLeastOneRequest[iChType] = true;
@@ -217,7 +216,7 @@ namespace Instrument.LogicalLayer
             if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.CF])
                 _device.MeasureUFETDropRequests();
 
-            if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.Drp])
+            if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.UD])
                 _device.MeasureCurrentFlowRequests();
 
 
@@ -259,33 +258,49 @@ namespace Instrument.LogicalLayer
             if (filePrefix == null)
                 filePrefix = "";
 
+
+            List<FEAR16ADCChannel>[] chnlNfoList = new List<FEAR16ADCChannel>[(int)FEAR16v2MeasurementChannelType.TypeCount];
+            chnlNfoList[(int)FEAR16v2MeasurementChannelType.CF] = InfoBlock.CurrFlowChannels;
+            chnlNfoList[(int)FEAR16v2MeasurementChannelType.UD] = InfoBlock.UDropFETChannels;
+
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
-                if (InfoBlock.Gauge.MeasureInstantly < 0) // Hadn't done measurements!
-                    return;
-
-                var deviceName = string.Format("{0}_{1}",
-                                               InfoBlock.Common.DeviceIdentifier,
-                                               (InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName)
-                                               );
-                var output = new StringBuilder("# Device: [" + deviceName + "]\n");
-                output.Append("# ");
-                foreach (var drawnOver in DrawnOverIdentifiers)
-                    output.Append(drawnOver + ", ");
-                output.AppendLine("Y");
-                output.AppendLine("# Range: " + InfoBlock.Gauge.Range.ToString());
-                output.AppendLine("# NPLC: " + InfoBlock.Gauge.Nplc.ToString());
-
-                for (var line = 0; line < YResults[0].Count; line++)
+                for(int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
                 {
-                    for (var xRow = 0; xRow < XResults.Count; xRow++)
-                        output.Append(Convert.ToString(XResults[xRow][line]) + ", ");
-                    output.AppendLine(Convert.ToString(YResults[0][line]));
+                    var chnlNfo = chnlNfoList[iChType][iCh]; // Get current infoBlock
+
+                    if (chnlNfo.MeasureInstantly != GaugeMeasureInstantly.Disabled) // Hadn't done measurements!
+                    {
+                        // Grab results of selected channel and type
+                        var chnlX = XResults[iCh][iChType];
+                        var chnlY = YResults[iCh][iChType];
+
+                        var deviceName = string.Format("{0}_{1}(Ch{2}{3})",
+                                                       chnlNfo.chartInfo.DeviceIdentifier,
+                                                       (chnlNfo.chartInfo.CustomName == null ? chnlNfo.chartInfo.DeviceType : chnlNfo.chartInfo.CustomName),
+                                                       iCh,
+                                                       ((FEAR16v2MeasurementChannelType)iChType).ToString()
+                                                       );
+                        var output = new StringBuilder("# Device: [" + deviceName + "]\n");
+                        output.Append("# ");
+                        foreach (var drawnOver in chnlNfo.chartInfo.ChartDrawnOvers)
+                            output.Append(drawnOver + ", ");
+                        output.AppendLine("Y");
+                        output.AppendLine(@"# Range: %.4f"); // Currently fixed range, but using the finest (ca. 300µV!)
+                        output.AppendLine(@"# Average: 1"); // Has no mean function until now!
+
+                        for (var line = 0; line < chnlY.Count; line++)
+                        {
+                            for (var xRow = 0; xRow < chnlX.Count; xRow++)
+                                output.Append(Convert.ToString(chnlX[xRow][line]) + ", ");
+                            output.AppendLine(Convert.ToString(chnlY[line]));
+                        }
+                        var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
+                        var fileWriter = new StreamWriter(filename, false);
+                        fileWriter.Write(output);
+                        fileWriter.Dispose();
+                    }
                 }
-                var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
-                var fileWriter = new StreamWriter(filename, false);
-                fileWriter.Write(output);
-                fileWriter.Dispose();
             }
         }
 
@@ -330,6 +345,8 @@ namespace Instrument.LogicalLayer
 
             if (split.Length >= 2)
             {
+                if (!split[1].ToUpper().StartsWith("CH"))
+                    throw new Exception("No channel as DrawnOver requested (Request was for: " + split[1] + " requested.");
                 chnlNum = int.Parse(split[1].Substring(2));
                 if (chnlNum < 0 || chnlNum > _device.AmountOfChannels)
                     throw new Exception("A device requests an invalid channel-number.");
@@ -338,7 +355,7 @@ namespace Instrument.LogicalLayer
                 srcValType = split[2];
 
 
-            switch(srcValType.ToUpper())
+            switch (srcValType.ToUpper())
             {
                 case CurrFlowRequestString:
                     return _device.CurrFlowChannels[chnlNum].Value;
@@ -362,7 +379,7 @@ namespace Instrument.LogicalLayer
 
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
-                if (!InfoBlock.CurrCtrlChannels[iCh].IsActive)
+                if (InfoBlock.CurrCtrlChannels[iCh].SourceNode < 0)
                     continue;
 
                 atLeastOneRequested = true;
@@ -390,7 +407,7 @@ namespace Instrument.LogicalLayer
             {
                 _sweep.Add(new List<double>());
 
-                if (InfoBlock.CurrCtrlChannels[iCh].IsActive && InfoBlock.CurrCtrlChannels[iCh].SourceNode >= 0)
+                if (InfoBlock.CurrCtrlChannels[iCh].SourceNode >= 0)
                 {
                     var sourceNode = CurrCtrlRequestString + Convert.ToString(InfoBlock.CurrCtrlChannels[iCh].SourceNode);
                     _sweep.Add(new List<double>());
@@ -411,8 +428,8 @@ namespace Instrument.LogicalLayer
                         }
                     }
                 }
-                else if (InfoBlock.CurrCtrlChannels[iCh].IsActive && InfoBlock.CurrCtrlChannels[iCh].SourceNode < 0)
-                    throw new Exception("Active currentcontrol (Ch" + iCh.ToString() + " has invalid sourceNode number (SN < 0).");
+                //else if (InfoBlock.CurrCtrlChannels[iCh].SourceNode < 0)
+                //    throw new Exception("Active currentcontrol (Ch" + iCh.ToString() + " has invalid sourceNode number (SN < 0).");
             }
         }
         #endregion
@@ -422,6 +439,31 @@ namespace Instrument.LogicalLayer
         #region UI
         public void UpdateGraph()
         {
+            for(int iCh = 0; iCh <_device.AmountOfChannels;iCh++)
+            {
+                for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
+                {
+                    if (_seriesNames[iCh][iChType] == null)
+                        continue;
+
+                    int iLastEntry;
+                    double lastYVal;
+
+                    lock(YResults)
+                    {
+                        iLastEntry = YResults[iCh][iChType].Count - 1;
+                        if (iLastEntry < 0)
+                            continue;
+                        lastYVal = YResults[iCh][iChType][iLastEntry];
+                    }
+
+                    lock(XResults)
+                    {
+                        for (int iChart = 0; iChart < _seriesNames[iCh][iChType].Count; iChart++)
+                            _chart.AddXY(_seriesNames[iCh][iChType][iChart], XResults[iCh][iChType][iChart][iLastEntry], lastYVal);
+                    }
+                }
+            }
         }
         #endregion
     }
