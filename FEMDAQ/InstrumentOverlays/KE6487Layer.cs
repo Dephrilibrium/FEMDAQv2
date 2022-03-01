@@ -105,23 +105,26 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge
-        public List<double> GetXResultList(int[] indicies)
-        {
-            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 1, DeviceIdentifier); // Throws exceptions
+        //public List<double> GetXResultList(int[] indicies)
+        //{
+        //    StandardGuardClauses.CheckGaugeResultIndicies(indicies, 1, DeviceIdentifier); // Throws exceptions
 
-            return XResults[indicies[0]];
-        }
+        //    return XResults[indicies[0]];
+        //}
 
-        public List<double> GetYResultList(int[] indicies)
-        {
-            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 1, DeviceIdentifier); // Throws exceptions
+        //public List<double> GetYResultList(int[] indicies)
+        //{
+        //    StandardGuardClauses.CheckGaugeResultIndicies(indicies, 1, DeviceIdentifier); // Throws exceptions
 
-            return YResults[indicies[0]];
-        }
+        //    return YResults[indicies[0]];
+        //}
 
         //public void Measure(double[] drawnOver)
         public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
+            if (MeasureCycle != InfoBlock.Gauge.MeasureInstantly)
+                return;
+
             double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
             lock (XResults)
             {

@@ -26,8 +26,8 @@ namespace Instrument.LogicalLayer
 
         // Gauge
         //void Measure(double[] drawnOver);
-        List<double> GetXResultList(int[] indicies);
-        List<double> GetYResultList(int[] indicies);
+        //List<double> GetXResultList(int[] indicies);
+        //List<double> GetYResultList(int[] indicies);
 
         void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle);
         //void SaveResultsToFolder(string folderPath);

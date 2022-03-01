@@ -1,6 +1,6 @@
 ﻿Changelog:
 
-XX.YY.ZZZZ: V2.2.7.4
+01.03.2022: V2.2.7.4
 Feature:
  - Added support for FEAR16v2 (haum@OTH)
  - Fully changed the basic way how measurements and source outputs are controlled
@@ -13,8 +13,11 @@ Feature:
 	 for gauges, sources and combinations (e.g. SMUs)
 Bugfix:
  - Fixed HP4145B driver-error: leading sign-character was clipped from response-string -> No negative numbers was returned to InstrumentLayer
+ - Fixed the way measureInstantly is checked (caused by change of the basically measure-routine due to FEAR16 implementation)
+ - Fixed a Bug where always measurements were done at cycle-start and cycle-end
 Misc:
  - Changed MeasureInstantly-property from int to enum
+ - Completely renrewed commentaries within default-INI-File
 
 24.01.2022: V2.2.7.3
 Feature:

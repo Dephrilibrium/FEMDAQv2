@@ -167,19 +167,19 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge | collects the voltages to each iterate!
-        public List<double> GetXResultList(int[] indicies)
-        {
-            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 3, DeviceIdentifier);
+        //public List<double> GetXResultList(int[] indicies)
+        //{
+        //    StandardGuardClauses.CheckGaugeResultIndicies(indicies, 3, DeviceIdentifier);
 
-            return XResults[indicies[0]][indicies[1]][indicies[2]];
-        }
+        //    return XResults[indicies[0]][indicies[1]][indicies[2]];
+        //}
 
-        public List<double> GetYResultList(int[] indicies)
-        {
-            StandardGuardClauses.CheckGaugeResultIndicies(indicies, 2, DeviceIdentifier);
+        //public List<double> GetYResultList(int[] indicies)
+        //{
+        //    StandardGuardClauses.CheckGaugeResultIndicies(indicies, 2, DeviceIdentifier);
 
-            return YResults[indicies[0]][indicies[1]];
-        }
+        //    return YResults[indicies[0]][indicies[1]];
+        //}
 
 
 
@@ -204,11 +204,11 @@ namespace Instrument.LogicalLayer
             {
                 for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
                 {
-                    if (adcInfoBlocks[iChType][iCh].MeasureInstantly == MeasureCycle)
-                    {
-                        adcChnls[iChType][iCh].Requested = true;
-                        atLeastOneRequest[iChType] = true;
-                    }
+                    if (adcInfoBlocks[iChType][iCh].MeasureInstantly != MeasureCycle)
+                        continue;
+
+                    adcChnls[iChType][iCh].Requested = true;
+                    atLeastOneRequest[iChType] = true;
                 }
             }
 

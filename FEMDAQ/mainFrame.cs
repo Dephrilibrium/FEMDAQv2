@@ -74,12 +74,12 @@ namespace FEMDAQ
             SavingPopup.Owner = this;
 
 
-            //var splashScreen = new SplashScreenFrame();
-            //splashScreen.Show();
+            var splashScreen = new SplashScreenFrame();
+            splashScreen.Show();
 
-            OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\_newDevice.ini");
-            if (_ini.SweepInfo.FullFilename != null)
-                OpenSweep(_ini.SweepInfo.FullFilename);
+            //OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\_newDevice.ini");
+            //if (_ini.SweepInfo.FullFilename != null)
+            //    OpenSweep(_ini.SweepInfo.FullFilename);
 
             //if (_ini.SweepInfo.FullFilename != null)
             //    OpenSweep(_ini.SweepInfo.FullFilename);

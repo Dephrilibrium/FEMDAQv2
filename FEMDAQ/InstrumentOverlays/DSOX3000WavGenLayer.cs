@@ -71,8 +71,8 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge
-        public List<double> GetXResultList(int[] indicies){ return null; }
-        public List<double> GetYResultList(int[] indicies) { return null; }
+        //public List<double> GetXResultList(int[] indicies){ return null; }
+        //public List<double> GetYResultList(int[] indicies) { return null; }
 
 
         //public void Measure(double[] drawnOver)

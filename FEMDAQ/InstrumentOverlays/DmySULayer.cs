@@ -66,8 +66,8 @@ namespace Instrument.LogicalLayer
 
 
         #region Gauge | collects the voltages to each iterate!
-        public List<double> GetXResultList(int[] indicies) { return null; }
-        public List<double> GetYResultList(int[] indicies){return null;}
+        //public List<double> GetXResultList(int[] indicies) { return null; }
+        //public List<double> GetYResultList(int[] indicies){return null;}
 
 
         //public void Measure(double[] drawnOver)
