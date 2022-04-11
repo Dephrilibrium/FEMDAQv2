@@ -77,7 +77,7 @@ namespace FEMDAQ
             var splashScreen = new SplashScreenFrame();
             splashScreen.Show();
 
-            //OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\_newDevice.ini");
+            OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
             //if (_ini.SweepInfo.FullFilename != null)
             //    OpenSweep(_ini.SweepInfo.FullFilename);
 

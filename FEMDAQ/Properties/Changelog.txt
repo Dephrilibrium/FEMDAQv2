@@ -1,5 +1,11 @@
 ﻿Changelog:
 
+DD.MM.YYYY: V2.2.7.5
+Feature:
+ - Added PiCam-Support
+Misc:
+ - Switched from .NET 4.5 to .NET 4.8 for tuple-support
+
 01.03.2022: V2.2.7.4
 Feature:
  - Added support for FEAR16v2 (haum@OTH)

@@ -120,6 +120,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\National Instruments\MeasurementStudioVS2012\DotNET\Assemblies\Current\NationalInstruments.NI4882.dll</HintPath>
     </Reference>
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\..\_SC_Library\NetDevs\Renci.SshNet.dll</HintPath>
+    </Reference>
     <Reference Include="RohdeSchwarz.RsScope.Fx40, Version=3.65.1.0, Culture=neutral, PublicKeyToken=21acc6a002277cd7, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files\IVI Foundation\IVI\Microsoft.NET\Framework64\v4.0.30319\RohdeSchwarz.RsScope 3.65.1.0\RohdeSchwarz.RsScope.Fx40.dll</HintPath>
@@ -158,6 +161,9 @@
     <Compile Include="..\..\_SC_Library\GPIB_Devs\KE6517B.cs">
       <Link>Instruments\KE6517B.cs</Link>
     </Compile>
+    <Compile Include="..\..\_SC_Library\NetDevs\PiCam.cs">
+      <Link>Instruments\PiCam.cs</Link>
+    </Compile>
     <Compile Include="..\..\_SC_Library\Serial_Devs\FEAR16v2.cs">
       <Link>Instruments\FEAR16v2.cs</Link>
     </Compile>
@@ -181,6 +187,7 @@
     </Compile>
     <Compile Include="Chart\HaumChartDataHelper.cs" />
     <Compile Include="Files\DeviceInfoStructure.cs" />
+    <Compile Include="Files\DeviceParser\InfoBlockPiCam.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockDmyMU.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockDmySMU.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockDmySU.cs" />
@@ -210,6 +217,7 @@
     <Compile Include="Files\SubParser\IpParser.cs" />
     <Compile Include="Files\SubParser\SourceParser.cs" />
     <Compile Include="Files\SubParser\UsbParser.cs" />
+    <Compile Include="InstrumentOverlays\PiCamLayer.cs" />
     <Compile Include="InstrumentOverlays\DMM7510Layer.cs" />
     <Compile Include="InstrumentOverlays\DmyMULayer.cs" />
     <Compile Include="InstrumentOverlays\DmySMULayer.cs" />

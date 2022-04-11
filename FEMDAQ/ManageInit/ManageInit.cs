@@ -51,6 +51,10 @@ namespace FEMDAQ.Initialization
 
                 // Instanciation of real devices
                 // Measurement device only
+                case "PiCam":
+                    device = new PiCamLayer(devInfoStructure, chart);
+                    break;
+
                 case "DMM7510":
                     device = new DMM7510Layer(devInfoStructure, chart);
                     break;
