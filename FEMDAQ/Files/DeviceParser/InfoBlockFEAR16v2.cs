@@ -83,8 +83,8 @@ namespace Files.Parser
 
         private void ParseChannelNum(IEnumerable<string> infoBlock, int iCh)
         {
-            string lineInfo;
-            string lineValue;
+            //string lineInfo;
+            //string lineValue;
             string chBase = string.Format("Ch{0}", iCh);
 
             parseControlChannel(infoBlock, chBase+"CC", CurrCtrlChannels[iCh]);

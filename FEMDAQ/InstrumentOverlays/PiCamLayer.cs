@@ -18,6 +18,10 @@ namespace Instrument.LogicalLayer
         private HaumChart.HaumChart _chart;
         private List<string> _seriesNames;
 
+        private int _filenameCounter = 0;
+        private string _shutterSpeeds = null;
+        private int _measureCalls = -1;
+        private string TempDownloadDir = null;
 
 
         public PiCamLayer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
@@ -32,31 +36,26 @@ namespace Instrument.LogicalLayer
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
 
-            XResults = new List<List<double>>();
-            YResults = new List<double>();
+            //XResults = new List<double>();
+            //YResults = new List<double>();
 
-            //_device = new PiCam(InfoBlock.Ip.IP, );
-            if (_device == null) throw new NullReferenceException("KE6487 device couldn't be generated.");
+            try { _device = new PiCam(InfoBlock.Ip.IP, InfoBlock.Ip.Port, InfoBlock.Ip.Username, InfoBlock.Ip.Password, InfoBlock.PyCamScriptPath); }
+            catch (Exception e) { throw new Exception("Can't create PiCam:\n\nAdditional Info:\n" + e.Message); }
 
-            if (DrawnOverIdentifiers != null)
-            {
-                foreach (var drawnOver in DrawnOverIdentifiers)
-                    XResults.Add(new List<double>());
-            }
+            if (InfoBlock.ShutterSpeeds.Length <= 0)
+                throw new Exception("No shutterspeeds given!");
+            _shutterSpeeds = string.Empty;
+            foreach (var ss in InfoBlock.ShutterSpeeds)
+                _shutterSpeeds += ss.ToString() + ":";
+            _shutterSpeeds.Remove(_shutterSpeeds.Length - 1); // Remove tailing ':'
 
-            if (InfoBlock.Common.ChartIdentifiers != null)
-            {
-                _seriesNames = new List<string>();
-                for (int index = 0; index < InfoBlock.Common.ChartIdentifiers.Count; index++)
-                {
-                    _seriesNames.Add(string.Format("{0}-C{1}",
-                                                   DeviceName,
-                                                   index));
-                    chart.AddSeries(InfoBlock.Common.ChartIdentifiers[index], _seriesNames[index], InfoBlock.Common.ChartColors[index]);
-                }
-                _chart = chart;
-            }
-            //YResults.Add(new List<double>());
+            // TempDownload gets a default value from InfoBlockPicam.cs
+                if (!Directory.Exists(InfoBlock.TempDownloadDir))
+                Directory.CreateDirectory(InfoBlock.TempDownloadDir);
+
+            var fileList = Directory.GetFiles(InfoBlock.TempDownloadDir);
+            foreach (var filepath in fileList)
+                File.Delete(filepath);
         }
 
 
@@ -65,19 +64,13 @@ namespace Instrument.LogicalLayer
         {
             if (_device != null)
                 _device.Dispose();
-
-            ClearResults();
-            if (_chart != null)
-                foreach (var seriesName in _seriesNames)
-                    _chart.DeleteSeries(seriesName);
-            _seriesNames.Clear();
         }
 
 
 
         #region Getter/Setter
-        public List<List<double>> XResults { get; private set; }
-        public List<double> YResults { get; private set; }
+        //public List<double> XResults { get; private set; }
+        //public List<double> YResults { get; private set; }
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
@@ -125,21 +118,33 @@ namespace Instrument.LogicalLayer
         //public void Measure(double[] drawnOver)
         public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
-            if (MeasureCycle != InfoBlock.Gauge.MeasureInstantly)
-                return;
+            string tarGzName = String.Empty;
 
-
-            double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
-
-            lock (XResults)
+            if (_measureCalls < 0)
             {
-                lock (YResults)
-                {
-                    //YResults.Add(_device.Measure());
-                    for (var index = 0; index < DrawnOverIdentifiers.Count; index++)
-                        XResults[index].Add(drawnOver[index]);
-                }
+                tarGzName = string.Format("{0}-BlackSubtraction",
+                                          DeviceName.Replace('|', '_')
+                                          //InfoBlock.Common.DeviceIdentifier,
+                                          //(InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName)
+                                          );
             }
+            else
+            {
+                if (MeasureCycle != InfoBlock.Gauge.MeasureInstantly)
+                    return;
+
+                tarGzName = string.Format("{0}-{1}",
+                                          DeviceName.Replace('|', '_'),
+                                          //InfoBlock.Common.DeviceIdentifier,
+                                          //(InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName),
+                                          _measureCalls.ToString().PadLeft(4, '0')
+                                          );
+            }
+
+            _device.TakePicSequence2Ramdisk(tarGzName, InfoBlock.ShutterSpeeds.Length);
+            _measureCalls++;
+
+            _device.ReceiveAllRawAsTar(InfoBlock.TempDownloadDir, tarGzName); // Puth them temporary to a dummy-folder
         }
 
 
@@ -164,43 +169,51 @@ namespace Instrument.LogicalLayer
                                            InfoBlock.Common.DeviceIdentifier,
                                            (InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName)
                                            );
-            var output = new StringBuilder("# Device: [" + deviceName + "]\n");
-            output.Append("# ");
-            foreach (var drawnOver in DrawnOverIdentifiers)
-                output.Append(drawnOver + ", ");
-            output.AppendLine("Y");
-            output.AppendLine("# Range: " + InfoBlock.Gauge.Range.ToString());
 
-            for (var line = 0; line < YResults.Count; line++)
+            var tarGzSrcPaths = Directory.GetFiles(InfoBlock.TempDownloadDir);
+            foreach (string srcPath in tarGzSrcPaths)
             {
-                for (var xRow = 0; xRow < DrawnOverIdentifiers.Count; xRow++)
-                    output.Append(Convert.ToString(XResults[xRow][line]) + ", ");
-                output.AppendLine(Convert.ToString(YResults[line]));
+                //                                     deviceName is inserted during download -> Already has the correct filename
+                var dstPath = folderPath + "\\" + filePrefix +/* deviceName + */Path.GetFileName(srcPath);
+                File.Move(srcPath, dstPath);
             }
-            var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
-            var fileWriter = new StreamWriter(filename, false);
-            fileWriter.Write(output);
-            fileWriter.Dispose();
+            //var output = new StringBuilder("# Device: [" + deviceName + "]\n");
+            //output.Append("# ");
+            //foreach (var drawnOver in DrawnOverIdentifiers)
+            //    output.Append(drawnOver + ", ");
+            //output.AppendLine("Y");
+            //output.AppendLine("# Range: " + InfoBlock.Gauge.Range.ToString());
+
+            //for (var line = 0; line < YResults.Count; line++)
+            //{
+            //    for (var xRow = 0; xRow < DrawnOverIdentifiers.Count; xRow++)
+            //        output.Append(Convert.ToString(XResults[xRow][line]) + ", ");
+            //    output.AppendLine(Convert.ToString(YResults[line]));
+            //}
+            //var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
+            //var fileWriter = new StreamWriter(filename, false);
+            //fileWriter.Write(output);
+            //fileWriter.Dispose();
         }
 
 
 
         public void ClearResults()
         {
-            if (XResults != null)
-                foreach (var xResult in XResults)
-                    xResult.Clear();
+            //if (XResults != null)
+            //    foreach (var xResult in XResults)
+            //        xResult.Clear();
 
-            if (YResults != null)
-                YResults.Clear();
+            //if (YResults != null)
+            //    YResults.Clear();
 
-            if (_chart != null)
-                foreach (var seriesName in _seriesNames)
-                    _chart.ClearXY(seriesName);
+            //if (_chart != null)
+            //    foreach (var seriesName in _seriesNames)
+            //        _chart.ClearXY(seriesName);
 
-            if (_chart != null)
-                foreach (var seriesName in _seriesNames)
-                    _chart.ClearXY(seriesName);
+            //if (_chart != null)
+            //    foreach (var seriesName in _seriesNames)
+            //        _chart.ClearXY(seriesName);
         }
         #endregion
 
@@ -237,24 +250,24 @@ namespace Instrument.LogicalLayer
         // Invoke this when using threads!
         public void UpdateGraph()
         {
-            if (_seriesNames.Count <= 0) // No drawdata
-                return;
+            //if (_seriesNames.Count <= 0) // No drawdata
+            //    return;
 
-            int lastLine;
-            double lastYVal;
-            lock (YResults)
-            {
-                lastLine = YResults.Count - 1;
-                if (lastLine < 0) // Actual is no value measured
-                    return;
-                lastYVal = YResults[lastLine];
-            }
+            //int lastLine;
+            //double lastYVal;
+            //lock (YResults)
+            //{
+            //    lastLine = YResults.Count - 1;
+            //    if (lastLine < 0) // Actual is no value measured
+            //        return;
+            //    lastYVal = YResults[lastLine];
+            //}
 
-            lock (XResults)
-            {
-                for (var xRowIndex = 0; xRowIndex < _seriesNames.Count; xRowIndex++)
-                    _chart.AddXY(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVal);
-            }
+            //lock (XResults)
+            //{
+            //    for (var xRowIndex = 0; xRowIndex < _seriesNames.Count; xRowIndex++)
+            //        _chart.AddXY(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVal);
+            //}
         }
         #endregion
     }

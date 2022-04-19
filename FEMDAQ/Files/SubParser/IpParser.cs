@@ -7,7 +7,7 @@ namespace Files.Parser
     public class IpParser
     {
         public string IP { get; set; }
-        public uint Port { get; set; }
+        public ushort Port { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
 
@@ -16,7 +16,7 @@ namespace Files.Parser
             if (infoBlock == null) throw new ArgumentNullException("infoBlock");
 
             ParseIp(StringHelper.FindStringWhichStartsWith(infoBlock, "Ip="));
-            Port = uint.Parse(ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "Port=")));
+            Port = ushort.Parse(ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "Port=")));
             Username = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "User="));
             Password = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "Passwd="));
         }

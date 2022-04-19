@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using HaumOTH;
-
+using System.IO;
 
 namespace Files.Parser
 {
@@ -12,6 +12,7 @@ namespace Files.Parser
         public IpParser Ip { get; private set; }
         public GaugeParser Gauge { get; private set; }
         public string PyCamScriptPath { get; private set; }
+        public string TempDownloadDir{ get; private set; }
         public uint ISO { get; private set; }
         public (uint width, uint height) Resolution { get; private set; }
         public PiCamExposureMode ExposureMode { get; private set; }
@@ -32,8 +33,13 @@ namespace Files.Parser
 
             Gauge = new GaugeParser(infoBlock);
 
-            PyCamScriptPath = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "PyCamPath="));
-            
+            PyCamScriptPath = StringHelper.TrimString(ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "PyCamPath=")));
+            if (PyCamScriptPath == null || PyCamScriptPath == "")
+                throw new Exception("No PyCamScriptPath given.");
+            TempDownloadDir = StringHelper.TrimString(ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "TempDownloadDir=")));
+            if (TempDownloadDir == null || TempDownloadDir == "")
+                TempDownloadDir = Path.Combine(Directory.GetCurrentDirectory(), "_PiCamTemp");
+
             lineInfo = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "ISO="));
             ISO = uint.Parse(lineInfo);
 
@@ -82,11 +88,11 @@ namespace Files.Parser
 
         private void ParseAutoWhiteBalance(IEnumerable<string> infoBlock)
         {
-            var lineInfo = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "ShutterSpeed="));
+            var lineInfo = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "Awb="));
             var lineSplit = lineInfo.Split(new char[] { ',' });
-            lineSplit = StringHelper.TrimArray(lineSplit);
+            lineSplit = StringHelper.TrimArray(StringHelper.TrimArray(lineSplit));
             if (lineSplit.Length <= 0)
-                throw new Exception("No ShutterSpeed given: ShutterSpeed=" + lineInfo);
+                throw new Exception("No ShutterSpeed given: Awb=" + lineInfo);
 
             switch (lineSplit.Length)
             {
@@ -97,7 +103,7 @@ namespace Files.Parser
 
                 case 2:
                     AwbMode = PiCamAwbMode.off;
-                    Awb = (uint.Parse(lineSplit[0]), uint.Parse(lineSplit[1])); // If a mode other than 
+                    Awb = (double.Parse(lineSplit[0]), double.Parse(lineSplit[1])); // If a mode other than 
                     break;
 
                 default:
