@@ -33,6 +33,7 @@ namespace Instrument.LogicalLayer
 
             _device = new HP4145B.HP4145B(InfoBlock.Gpib.GpibBoardNumber, (byte)InfoBlock.Gpib.GpibPrimaryAdress, (byte)InfoBlock.Gpib.GpibSecondaryAdress);
             if (_device == null) throw new NullReferenceException("HP4145B device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.GPIB;
 
             if (DrawnOverIdentifiers != null)
             {
@@ -74,6 +75,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public List<List<double>> XResults { get; private set; }
         public List<double> YResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }

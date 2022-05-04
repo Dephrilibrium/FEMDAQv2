@@ -41,6 +41,7 @@ namespace Instrument.LogicalLayer
 
             try { _device = new PiCam(InfoBlock.Ip.IP, InfoBlock.Ip.Port, InfoBlock.Ip.Username, InfoBlock.Ip.Password, InfoBlock.PyCamScriptPath); }
             catch (Exception e) { throw new Exception("Can't create PiCam:\n\nAdditional Info:\n" + e.Message); }
+            CommunicationPhy = InstrumentCommunicationPHY.Ethernet;
 
             if (InfoBlock.ShutterSpeeds.Length <= 0)
                 throw new Exception("No shutterspeeds given!");
@@ -74,6 +75,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
         #endregion

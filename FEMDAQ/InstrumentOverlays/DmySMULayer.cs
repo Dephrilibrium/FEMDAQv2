@@ -35,6 +35,7 @@ namespace Instrument.LogicalLayer
 
             _device = new DummyDevices.DmySMU(InfoBlock.LowerBound, InfoBlock.UpperBound);
             if (_device == null) throw new NullReferenceException("DSMU device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.Virtual;
 
             if(InfoBlock.Common.ChartDrawnOvers != null)
             {
@@ -74,6 +75,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public List<List<double>> XResults { get; private set; }
         public List<double> YResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }

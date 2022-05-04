@@ -70,6 +70,7 @@ namespace Instrument.LogicalLayer
 
             _device = new RTO2034(InfoBlock.Ip.IP, InfoBlock.Channel);
             if (_device == null) throw new NullReferenceException("RTO2034 device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.Ethernet;
         }
 
 
@@ -92,6 +93,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public List<int> WaveformIndicies { get; private set; }
         public List<int> FffIndicies { get; private set; }
         public List<List<double>> XResults { get; private set; }

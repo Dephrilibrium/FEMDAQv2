@@ -35,6 +35,7 @@ namespace Instrument.LogicalLayer
             
             _device = new WavGen33511B(InfoBlock.Gpib.GpibBoardNumber, (byte)InfoBlock.Gpib.GpibPrimaryAdress, (byte)InfoBlock.Gpib.GpibSecondaryAdress);
             if (_device == null) throw new NullReferenceException("WavGen33511B device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.GPIB;
 
             _voltMode = VoltageMode.NoMode;
         }
@@ -53,6 +54,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         //public List<double> _xResults { get { return null; } }
         //public List<double> _yResults { get { return null; } }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.Disabled; } }

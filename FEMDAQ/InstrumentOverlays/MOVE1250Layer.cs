@@ -33,6 +33,7 @@ namespace Instrument.LogicalLayer
 
             _device = new MOVE1250(InfoBlock.Com.ComPort, 300, 7, StopBits.Two, Parity.None, 2000, InfoBlock.ResponseTime);
             if (_device == null) throw new NullReferenceException("MOVE1250 device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.COMPort;
         }
 
 
@@ -48,6 +49,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public List<string> DrawnOverIdentifiers { get { return null; } }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.CycleEnd; } }
         //public List<List<List<double>>> xResults { get { return null; } }

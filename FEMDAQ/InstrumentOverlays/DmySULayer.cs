@@ -29,6 +29,7 @@ namespace Instrument.LogicalLayer
 
             _device = new DummyDevices.DmySU();
             if (_device == null) throw new NullReferenceException("DSU device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.Virtual;
         }
 
 
@@ -50,6 +51,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.CycleEnd; } }
         public List<string> DrawnOverIdentifiers { get { return null; } }
         #endregion
