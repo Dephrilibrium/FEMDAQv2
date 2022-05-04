@@ -52,6 +52,7 @@ namespace Instrument.LogicalLayer
 
             _device = new DSOX3034T(InfoBlock.Usb.USBAddress, InfoBlock.Channel);
             if (_device == null) throw new NullReferenceException("DSXO3034T device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.USB;
         }
 
 
@@ -74,6 +75,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public List<int> WaveformIndiciesInResults { get; private set; }
         public List<List<double>> XResults { get; private set; }
         public List<List<double>> YResults { get; private set; }

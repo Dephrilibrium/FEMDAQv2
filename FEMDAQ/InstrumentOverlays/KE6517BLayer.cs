@@ -35,6 +35,7 @@ namespace Instrument.LogicalLayer
 
             _device = new KE6517B(InfoBlock.Gpib.GpibBoardNumber, InfoBlock.Gpib.GpibPrimaryAdress, InfoBlock.Gpib.GpibSecondaryAdress);
             if (_device == null) throw new NullReferenceException("KE6517B device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.GPIB;
 
             if(DrawnOverIdentifiers != null)
             {
@@ -78,6 +79,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set;}
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public List<List<double>> XResults { get; private set; }
         public List<double> YResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }

@@ -26,10 +26,22 @@ namespace FEMDAQ
         // Mainframe basic header
         public string ProgramBasicTitletext { get; private set; }
 
-        // Thread-Locks
-        private ManualResetEvent _measureTaskWakeSignal;
-        private CancellationTokenSource _measureTaskCancelSource;
+        /* 
+         * Thread-Locks and -stuff
+         */
+        // Manager / Global
+        //private ManualResetEvent _measureTaskWakeSignal;
         private Task _measureTask;
+        private ManualResetEvent _measureManagerTaskWakeSignal;
+        private CancellationTokenSource _measureTaskCancellation;
+        private GaugeMeasureInstantly _measureAtActual;
+        private bool _setSources = false;
+
+        // Device threads
+        private List<Task> _devMeasureTasks;
+        private List<ManualResetEvent> _measureTaskWakeSignals;
+        private List<ManualResetEvent> _measureTaskReadySignals;
+        //private List<CancellationTokenSource> _measureTaskCancellations;
 
         // Files
         private IniContent _ini = null;
@@ -73,11 +85,12 @@ namespace FEMDAQ
             SavingPopup = new SavingPopup(0); // Marquee at first!
             SavingPopup.Owner = this;
 
-
             var splashScreen = new SplashScreenFrame();
             splashScreen.Show();
 
-            OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
+
+            //OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\_Dummies.ini");
+            //OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
             //if (_ini.SweepInfo.FullFilename != null)
             //    OpenSweep(_ini.SweepInfo.FullFilename);
 
@@ -330,7 +343,10 @@ namespace FEMDAQ
         private void InitialTimer_TicksElapsed(object sender, EventArgs e)
         {
             InitialTimer.Stop(); // Stop initial timer
-            _measureTaskWakeSignal.Set(); // Wake measureTask
+            //_measureTaskWakeSignal.Set(); // Wake measureTask
+            //foreach (var wake in _measureTaskWakeSignals)
+            //    wake.Set();
+            _measureManagerTaskWakeSignal.Set();
             IterativeTimer.Start(); // Start iterating
         }
 
@@ -344,44 +360,91 @@ namespace FEMDAQ
         private void IterativeTimer_TicksElapsed(object sender, EventArgs e)
         {
             // Measurement-sequence
-            _measureTaskWakeSignal.Set(); // Wake measureTask
+            //_measureTaskWakeSignal.Set(); // Wake measureTask
+            _measureManagerTaskWakeSignal.Set();
+            //foreach (var wake in _measureTaskWakeSignals)
+            //    wake.Set();
         }
         #endregion
 
 
 
         #region Measurementlogic running on measure thread
+        private void ThreadMeasure(Control Dispatcher, List<InstrumentLogicalLayer> Devices, ManualResetEvent MeasureWake, ManualResetEvent Ready, CancellationTokenSource Cancel)
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("EN-US");
+
+            GaugeMeasureInstantly measureAtActual = GaugeMeasureInstantly.Disabled;
+            bool setSource = false;
+            while (!Cancel.IsCancellationRequested)
+            {
+                Ready.Set();
+                MeasureWake.WaitOne();
+                MeasureWake.Reset();
+                if (Cancel.IsCancellationRequested)
+                    break;
+
+                foreach (var device in Devices)
+                {
+                    setSource = _setSources;
+                    if (_setSources) // On cycle-start setup the source
+                        device.SetSourceValues(OperationStatus.SweepLineIndexInProgress);
+
+                    measureAtActual = _measureAtActual; // Create copy
+                    device.Measure(GetDrawnOver, measureAtActual);
+
+                    if (measureAtActual == GaugeMeasureInstantly.CycleEnd)
+                        Dispatcher.BeginInvoke(new Action(device.UpdateGraph));
+                }
+            }
+
+            foreach(var device in Devices)
+                device.PowerDownSource();
+            Ready.Set(); // Finished shutting down!
+        }
+
+        private void ThreadsReady()
+        {
+            // Wait for each device-thread to be ready
+            foreach (var ready in _measureTaskReadySignals)
+            {
+                ready.WaitOne();
+                ready.Reset();
+            }
+        }
+
+
         private void ProcessMeasureCycle(Control dispatcher/*, Action updateListView*/)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("EN-US");
 
             // Init-thing
-            _measureTaskWakeSignal.WaitOne(); // Wait for wake on signal
-            _measureTaskWakeSignal.Reset(); // Reset wake-signal
+            _measureManagerTaskWakeSignal.WaitOne(); // Wait for wake on signal
+            _measureManagerTaskWakeSignal.Reset(); // Reset wake-signal
 
-            if (_measureTaskCancelSource.IsCancellationRequested) // Check cancellation!
+            if (_measureTaskCancellation.IsCancellationRequested) // Check cancellation!
                 return;
 
-            SetupSources();
+            SetupSources(); // Moved to device-thread
             lock (_diffTimeStamps)
             {
                 var diffTimeArr = GetDrawnOver(new List<string> { "TIME" });
                 _diffTimeStamps.Add(diffTimeArr[0]);
             }
             InstantMeasureCycle();
-            foreach (var device in _devices)
-                dispatcher.BeginInvoke(new Action(device.UpdateGraph));
+            //foreach (var device in _devices)
+            //    dispatcher.BeginInvoke(new Action(device.UpdateGraph)); // Moved to device-thread
 
             // Regular measuring
-            while (true)
+            while (_measureTaskCancellation.IsCancellationRequested == false) // Check for cancellation before waiting for next measure-step
             {
-                if (_measureTaskCancelSource.IsCancellationRequested) // Check for cancellation before waiting for next measure-step
-                    break;
+                //if (_measureTaskCancellation.IsCancellationRequested)  // Moved to while-Argument a line above)
+                //    break;
 
-                _measureTaskWakeSignal.WaitOne(); // Wait for wake on signal
-                _measureTaskWakeSignal.Reset(); // Reset wake-signal
+                _measureManagerTaskWakeSignal.WaitOne(); // Wait for wake on signal
+                _measureManagerTaskWakeSignal.Reset(); // Reset wake-signal
 
-                if (_measureTaskCancelSource.IsCancellationRequested) // Check for cancellation after waiting!
+                if (_measureTaskCancellation.IsCancellationRequested) // Check for cancellation after waiting!
                     break;
 
                 RegularMeasureCycle();
@@ -414,67 +477,166 @@ namespace FEMDAQ
                     InstantMeasureCycle();
                 }
 
-                foreach (var device in _devices)
-                    dispatcher.BeginInvoke(new Action(device.UpdateGraph));
+                //foreach (var device in _devices)
+                //    dispatcher.BeginInvoke(new Action(device.UpdateGraph)); // Moved to device-thread
             }
 
             // Shutdown sources on cancellation!
-            lock (_devices)
-            {
-                foreach (var device in _devices)
-                    device.PowerDownSource();
-            }
+            //lock (_devices)
+            //{
+            //    foreach (var device in _devices)
+            //        device.PowerDownSource(); // Moved to device-thread
+            //}
             lock (_diffTimeStamps)
             {
                 var diffTimeArr = GetDrawnOver(new List<string> { "TIME" });
                 _diffTimeStamps.Add(diffTimeArr[0]);
             }
+
+            /* Old non threading code */
+            //// Init-thing
+            //_measureTaskWakeSignal.WaitOne(); // Wait for wake on signal
+            //_measureTaskWakeSignal.Reset(); // Reset wake-signal
+
+            //if (_measureTaskCancellation.IsCancellationRequested) // Check cancellation!
+            //    return;
+
+            //SetupSources();
+            //lock (_diffTimeStamps)
+            //{
+            //    var diffTimeArr = GetDrawnOver(new List<string> { "TIME" });
+            //    _diffTimeStamps.Add(diffTimeArr[0]);
+            //}
+            //InstantMeasureCycle();
+            //foreach (var device in _devices)
+            //    dispatcher.BeginInvoke(new Action(device.UpdateGraph));
+
+            //// Regular measuring
+            //while (true)
+            //{
+            //    if (_measureTaskCancellation.IsCancellationRequested) // Check for cancellation before waiting for next measure-step
+            //        break;
+
+            //    _measureTaskWakeSignal.WaitOne(); // Wait for wake on signal
+            //    _measureTaskWakeSignal.Reset(); // Reset wake-signal
+
+            //    if (_measureTaskCancellation.IsCancellationRequested) // Check for cancellation after waiting!
+            //        break;
+
+            //    RegularMeasureCycle();
+            //    // Stop measurement
+            //    if (OperationStatus.SweepLineIndexOverflow)
+            //    {
+            //        dispatcher.BeginInvoke(new Action(StopMeasureLogic)); // Sets taskKill
+            //        dispatcher.BeginInvoke(new Action(UpdateListView));
+            //        dispatcher.BeginInvoke(new Action(UpdateProgress));
+            //        //return;
+            //        break;
+            //    }
+
+            //    if (OperationStatus.UpdateToNextIterate())
+            //    {
+            //        if (!OperationStatus.SweepLineIndexOverflow) // Update sources only when no overflow is appeared
+            //        {
+            //            dispatcher.BeginInvoke(new Action(UpdateListView));
+            //            SetupSources();
+            //        }
+            //        lock (_diffTimeStamps)
+            //        {
+            //            var diffTimeArr = GetDrawnOver(new List<string> { "TIME" });
+            //            _diffTimeStamps.Add(diffTimeArr[0]);
+            //        }
+            //    }
+            //    if (!OperationStatus.SweepLineIndexOverflow) // Measure gauges only when no overflow is appeard
+            //    {
+            //        dispatcher.BeginInvoke(new Action(UpdateProgress));
+            //        InstantMeasureCycle();
+            //    }
+
+            //    foreach (var device in _devices)
+            //        dispatcher.BeginInvoke(new Action(device.UpdateGraph));
+            //}
+
+            //// Shutdown sources on cancellation!
+            //lock (_devices)
+            //{
+            //    foreach (var device in _devices)
+            //        device.PowerDownSource();
+            //}
+            //lock (_diffTimeStamps)
+            //{
+            //    var diffTimeArr = GetDrawnOver(new List<string> { "TIME" });
+            //    _diffTimeStamps.Add(diffTimeArr[0]);
+            //}
         }
 
 
 
         private void SetupSources()
         {
-            lock (_devices)
-            {
-                foreach (var device in _devices)
-                    device.SetSourceValues(OperationStatus.SweepLineIndexInProgress);
-            }
+            _measureAtActual = (GaugeMeasureInstantly)(Enum.GetValues(typeof(GaugeMeasureInstantly)).Length); // Use non-existing value to avoid unexpected measurements!
+            _setSources = true;
+            WakeMeasureThreads();
+            ThreadsReady();
+
+            //lock (_devices)
+            //{
+            //    foreach (var device in _devices)
+            //        device.SetSourceValues(OperationStatus.SweepLineIndexInProgress);
+            //}
+
         }
 
 
         private void InstantMeasureCycle()
         {
-            lock (_devices)
-            {
-                foreach (var device in _devices)
-                {
-                    device.Measure(GetDrawnOver, GaugeMeasureInstantly.CycleStart);
-                    //if (device.InstantMeasurement > 0)
-                    //{
-                    //    var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
-                    //    device.Measure(drawnOver);
-                    //}
-                }
-            }
-        }
+            _measureAtActual = GaugeMeasureInstantly.CycleStart;
+            _setSources = false;
+            WakeMeasureThreads();
+            ThreadsReady();
 
+            // Non thread way
+            //lock (_devices)
+            //{
+            //    foreach (var device in _devices)
+            //    {
+            //        device.Measure(GetDrawnOver, GaugeMeasureInstantly.CycleStart);
+            //        //if (device.InstantMeasurement > 0)
+            //        //{
+            //        //    var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
+            //        //    device.Measure(drawnOver);
+            //        //}
+            //    }
+            //}
+        }
 
 
         private void RegularMeasureCycle()
         {
-            lock (_devices)
-            {
-                foreach (var device in _devices)
-                {
-                    device.Measure(GetDrawnOver, GaugeMeasureInstantly.CycleEnd);
-                    //if (device.InstantMeasurement == 0)
-                    //{
-                    //    var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
-                    //    device.Measure(drawnOver);
-                    //}
-                }
-            }
+            _measureAtActual = GaugeMeasureInstantly.CycleEnd;
+            _setSources = false;
+            WakeMeasureThreads();
+            ThreadsReady();
+
+            // Non thread way
+            //lock (_devices)
+            //{
+            //    foreach (var device in _devices)
+            //    {
+            //        device.Measure(GetDrawnOver, GaugeMeasureInstantly.CycleEnd);
+            //        //if (device.InstantMeasurement == 0)
+            //        //{
+            //        //    var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
+            //        //    device.Measure(drawnOver);
+            //        //}
+            //    }
+            //}
+        }
+
+        private void WakeMeasureThreads()
+        {
+            foreach (var wake in _measureTaskWakeSignals)
+                wake.Set();
         }
 
 
@@ -567,29 +729,107 @@ namespace FEMDAQ
             UpdateProgress(); // Initial update of the statusbar-info!
 
 
-            // Threading
-            if (_measureTaskWakeSignal == null)
-                _measureTaskWakeSignal = new ManualResetEvent(false);
-            if (_measureTaskCancelSource == null)
-                _measureTaskCancelSource = new CancellationTokenSource();
-            _measureTaskWakeSignal.Reset();
-            if (_measureTask != null)
-            {
-                _measureTaskCancelSource.Cancel();
-                _measureTaskWakeSignal.Set();
-                _measureTask.Wait();
-                if (_measureTask.IsCanceled || _measureTask.IsCompleted)
-                    _measureTask.Dispose();
-            }
-            _measureTaskCancelSource = new CancellationTokenSource();
-            _measureTask = new Task(() => ProcessMeasureCycle(this/*, UpdateListView*/));
-            _measureTask.Start();
+            /*
+             * Due to GPIB can't talk with more than 1 device simultaneously, it's necessary to create lists of devices for each thread.
+             * Each of that lists contains the devices foreseen for a separate thread.
+             * Therefore all devices are iterated through and collected in the lists (e.g. for GPIB)
+             */
+            List<List<InstrumentLogicalLayer>> ThreadDeviceLists = new List<List<InstrumentLogicalLayer>>(); // Each of the containing device-lists getting a separate thread
+            List<InstrumentCommunicationPHY> sequencedCommunicationTypes = new List<InstrumentCommunicationPHY>();// List which contains the CommunicationTypes which have to be collected for sequence-measurement
+            sequencedCommunicationTypes.Add(InstrumentCommunicationPHY.GPIB); // GPIB can't communicate with > 1 device simultaneously
+            //sequencedCommunicationTypes.Add(/* Add other CommunicationPhyTypes if there should be measured in sequence! */);
 
+            List<InstrumentLogicalLayer> devicesCopy = new List<InstrumentLogicalLayer>(_devices); // This _devices copy is used to remove collected devices based on their CommunicationType
+
+            // Find the devices of the communication-types (list from above) which are not able to communicate simultaneously
+            foreach (var type in sequencedCommunicationTypes)
+            {
+                var sequenceList = _devices.FindAll(layer => layer.CommunicationPhy == type); // Find all devices of a sequence-communication-type
+                devicesCopy.RemoveAll(dev => sequenceList.Contains(dev));                     // Remove that from the device-copy
+                ThreadDeviceLists.Add(sequenceList);                                          // Add the List
+            }
+
+            //foreach (var device in _devices)
+            foreach (var device in devicesCopy)
+            {
+                ThreadDeviceLists.Add(new List<InstrumentLogicalLayer>());
+                ThreadDeviceLists[ThreadDeviceLists.Count - 1].Add(device);
+            }
+
+
+
+            /*
+             * Measurement Threading (Manager)
+             */
+            _measureTaskCancellation = new CancellationTokenSource();
+            _measureManagerTaskWakeSignal = new ManualResetEvent(false);
+            _measureTask = new Task(() => ProcessMeasureCycle(this/*, UpdateListView*/));
+            _measureTask.Start(); // By starting this one first, it should be ready to start until the device-threads are started
+
+            /*
+             * Measurement Threading (Devices)
+             */
+            _devMeasureTasks = new List<Task>();
+            _measureTaskWakeSignals = new List<ManualResetEvent>();
+            _measureTaskReadySignals = new List<ManualResetEvent>();
+            for (int iDevPhyList = 0; iDevPhyList < ThreadDeviceLists.Count; iDevPhyList++)
+            {
+                // Create signals
+                _measureTaskWakeSignals.Add(new ManualResetEvent(false));
+                _measureTaskReadySignals.Add(new ManualResetEvent(false));
+
+                // Fetch separate copies (otherwise async calls can lead to expections due to iDev is not existing anymore when the thread runs its lambda-method)
+                var devList = ThreadDeviceLists[iDevPhyList];
+                var wakeSignal = _measureTaskWakeSignals[iDevPhyList];
+                var readySignal = _measureTaskReadySignals[iDevPhyList];
+
+                // Instanciating and run task
+                wakeSignal.Reset();
+                _devMeasureTasks.Add(new Task(() => ThreadMeasure(this, devList, wakeSignal, readySignal, _measureTaskCancellation)));
+                //var devTask = _devMeasureTasks[iDev];
+                _devMeasureTasks[iDevPhyList].Start();
+
+                //ThreadPool.QueueUserWorkItem((state) => { ThreadMeasure(this, device, wakeSignal, readySignal, _measureTaskCancellation); });
+            }
+
+           
+            ThreadsReady(); // Wait for each device-thread to be ready
+
+
+
+            /*
+             * Starting the measurement
+             */
             // Starting the initialtimer -> Starts measure-chain
             _diffTimeStamps = new List<double>();
             _startTime = DateTime.Now;
             InitialTimer.Start();
-            _measureTaskWakeSignal.Set(); // Wake measureTask for the first time (Initial-Step)!
+            _measureManagerTaskWakeSignal.Set();
+
+
+            /* Non Threading way! */
+            //if (_measureTaskWakeSignal == null)
+            //    _measureTaskWakeSignal = new ManualResetEvent(false);
+            //if (_measureTaskCancellation == null)
+            //    _measureTaskCancellation = new CancellationTokenSource();
+            //_measureTaskWakeSignal.Reset();
+            //if (_measureTask != null)
+            //{
+            //    _measureTaskCancellation.Cancel();
+            //    _measureTaskWakeSignal.Set();
+            //    _measureTask.Wait();
+            //    if (_measureTask.IsCanceled || _measureTask.IsCompleted)
+            //        _measureTask.Dispose();
+            //}
+            //_measureTaskCancellation = new CancellationTokenSource();
+            //_measureTask = new Task(() => ProcessMeasureCycle(this/*, UpdateListView*/));
+            //_measureTask.Start();
+
+            //// Starting the initialtimer -> Starts measure-chain
+            //_diffTimeStamps = new List<double>();
+            //_startTime = DateTime.Now;
+            //InitialTimer.Start();
+            //_measureTaskWakeSignal.Set(); // Wake measureTask for the first time (Initial-Step)!
         }
 
 
@@ -631,13 +871,17 @@ namespace FEMDAQ
         /// </summary>
         private void StopMeasureLogic()
         {
-            _measureTaskCancelSource.Cancel();
-            _measureTaskWakeSignal.Set();
+            _measureTaskCancellation.Cancel();
             InitialTimer.Stop();
             IterativeTimer.Stop();
-            OperationStatus.Status = MeasurementStatus.Stopped;
 
+            WakeMeasureThreads();
+            ThreadsReady();
+
+            _measureManagerTaskWakeSignal.Set();
             while (!_measureTask.IsCompleted) { Thread.Sleep(50); } // Wait for the measurethread to be finished!
+            
+            OperationStatus.Status = MeasurementStatus.Stopped;
             UpdateUI();
             if (SaveFolderFullPath != null) // In case of using jobqueue
             {

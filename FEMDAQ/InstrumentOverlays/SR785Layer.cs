@@ -33,6 +33,7 @@ namespace Instrument.LogicalLayer
 
             _device = new SR785(InfoBlock.Gpib.GpibBoardNumber, (byte)InfoBlock.Gpib.GpibPrimaryAdress, (byte)InfoBlock.Gpib.GpibSecondaryAdress);
             if (_device == null) throw new NullReferenceException("SR785 device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.GPIB;
 
             if (InfoBlock.Common.ChartIdentifiers != null && InfoBlock.Common.ChartIdentifiers[0] != "") // Add the possible chart!
             {
@@ -65,6 +66,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public List<List<double>> XResults { get; private set; }
         public List<List<double>> YResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }

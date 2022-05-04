@@ -38,6 +38,7 @@ namespace Instrument.LogicalLayer
 
             _device = new VSH8x.VSH8x(InfoBlock.RS485Address, InfoBlock.ComPort.ComPort, InfoBlock.ComPort.Baudrate);
             if (_device == null) throw new NullReferenceException("VSH8x device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.COMPort;
 
             if(InfoBlock.Common.ChartDrawnOvers != null)
             {
@@ -82,6 +83,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         public List<List<double>> XResults { get; private set; }
         public List<double> YResults { get; private set; }
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }

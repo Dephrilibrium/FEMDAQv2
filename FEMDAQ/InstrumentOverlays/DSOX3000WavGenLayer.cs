@@ -34,6 +34,7 @@ namespace Instrument.LogicalLayer
 
             _device = new DSOX3000WavGen(InfoBlock.Usb.USBAddress);
             if (_device == null) throw new NullReferenceException("WavGen33511B device couldn't be generated.");
+            CommunicationPhy = InstrumentCommunicationPHY.USB;
 
             //Init(); // Now in Startemeasurement-Routine of the mainFrame
         }
@@ -52,6 +53,7 @@ namespace Instrument.LogicalLayer
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
+        public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
         //public List<List<List<double>>> xResults { get { return null; } }
         //public List<List<List<double>>> yResults { get { return null; } }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.Disabled; } }

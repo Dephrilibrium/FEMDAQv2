@@ -1,5 +1,16 @@
 ﻿Changelog:
 
+04.05.2022: V2.2.7.7
+Bugfix:
+ - MeasurementManagerTask was not waked up when measurement is stopped by "StopMeasureLogic" -> Added extra wake after setting it's cancellation
+
+22.04.2022: V2.2.7.6
+Feature:
+ - Full MultiThreading support (one task for each device)
+  -> Problem: GPIB not supporting simultaneous communication with >1 devices
+  -> Solution: Introduced InstrumentCommunicationPHY-enumeration property within the InstrumentLogicalLayer-interface to be able to collect (depending on the communication-type) devices in a list
+               This list is used to create a separate measure-thread which measures it's device-list as a sequence (e.g. for GPIB!)
+
 19.04.2022: V2.2.7.5
 Feature:
  - Added PiCam-Support
