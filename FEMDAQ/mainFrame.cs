@@ -33,6 +33,7 @@ namespace FEMDAQ
         //private ManualResetEvent _measureTaskWakeSignal;
         private Task _measureTask;
         private ManualResetEvent _measureManagerTaskWakeSignal;
+        private CancellationTokenSource _measureManagerTaskCancellation;
         private CancellationTokenSource _measureTaskCancellation;
         private GaugeMeasureInstantly _measureAtActual;
         private bool _setSources = false;
@@ -89,14 +90,8 @@ namespace FEMDAQ
             splashScreen.Show();
 
 
-            //OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\_Dummies.ini");
-            //OpenIni(@"\\rfhmik164\Samba\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
-            //if (_ini.SweepInfo.FullFilename != null)
-            //    OpenSweep(_ini.SweepInfo.FullFilename);
-
-            //if (_ini.SweepInfo.FullFilename != null)
-            //    OpenSweep(_ini.SweepInfo.FullFilename);
-            //OpenSweep(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\LFES-TRI-PA-03 33L-1000mms\UA200_0--400-0-10VS_200Hz50DuCy.swp");
+            //OpenIni(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\220608 IVNC2022 Streifenemitter\6517B (KS-Test).ini");
+            //OpenSweep(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\220608 IVNC2022 Streifenemitter\0_100_0_2VS.swp");
         }
 
 
@@ -115,11 +110,6 @@ namespace FEMDAQ
                     StopMeasureLogic();
             }
 
-            //if (_devices != null)
-            //{
-            //    foreach (var device in _devices)
-            //        device.Dispose();
-            //}
             DisposeDevices();
             if (Chart != null)
                 Chart.Dispose();
@@ -403,18 +393,18 @@ namespace FEMDAQ
             Ready.Set(); // Finished shutting down!
         }
 
-        private void ThreadsReady()
+        private void MeasureThreadsReady()
         {
             // Wait for each device-thread to be ready
             foreach (var ready in _measureTaskReadySignals)
             {
-                ready.WaitOne();
+                ready.WaitOne(/*_ini.TimingInfo.IterativeTime*/); // Just ignore non responding threads, may get crashed by windows later on?
                 ready.Reset();
             }
         }
 
 
-        private void ProcessMeasureCycle(Control dispatcher/*, Action updateListView*/)
+        private void ProcessMeasureCycle(Control dispatcher/*, ManualResetEvent Wake, CancellationTokenSource Cancel*//*, Action updateListView*/)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("EN-US");
 
@@ -422,8 +412,18 @@ namespace FEMDAQ
             _measureManagerTaskWakeSignal.WaitOne(); // Wait for wake on signal
             _measureManagerTaskWakeSignal.Reset(); // Reset wake-signal
 
-            if (_measureTaskCancellation.IsCancellationRequested) // Check cancellation!
+
+            if (_measureManagerTaskCancellation.IsCancellationRequested) // Check cancellation!
+            {
+                // Send cancellation to measure-threads and wait for their finish before leaving
+                //  Cancellint the measure-threads has to be done by the measure-manager
+                //  due to otherwise (older code) started to hang up, waiting for the
+                //  measure-threads finishing (the response tokens of them were checked and resetted from 2 threads!)
+                _measureTaskCancellation.Cancel();
+                WakeMeasureThreads();
+                MeasureThreadsReady();
                 return;
+            }
 
             SetupSources(); // Moved to device-thread
             lock (_diffTimeStamps)
@@ -432,20 +432,25 @@ namespace FEMDAQ
                 _diffTimeStamps.Add(diffTimeArr[0]);
             }
             InstantMeasureCycle();
-            //foreach (var device in _devices)
-            //    dispatcher.BeginInvoke(new Action(device.UpdateGraph)); // Moved to device-thread
 
             // Regular measuring
-            while (_measureTaskCancellation.IsCancellationRequested == false) // Check for cancellation before waiting for next measure-step
+            while (_measureManagerTaskCancellation.IsCancellationRequested == false) // Check for cancellation before waiting for next measure-step
             {
-                //if (_measureTaskCancellation.IsCancellationRequested)  // Moved to while-Argument a line above)
-                //    break;
-
                 _measureManagerTaskWakeSignal.WaitOne(); // Wait for wake on signal
                 _measureManagerTaskWakeSignal.Reset(); // Reset wake-signal
 
-                if (_measureTaskCancellation.IsCancellationRequested) // Check for cancellation after waiting!
+                /* main-Thread requests cancellation to measureManager
+                   measureManager requests cancellation to measureTasks
+                   Otherwise it can happen, that main- and measureManager threads watching and resetting the "finish"-response-events of the measuretasks
+                   so that they wait forever.
+                */
+                if (_measureManagerTaskCancellation.IsCancellationRequested) // Check for cancellation after waiting!
+                {
+                    _measureTaskCancellation.Cancel();
+                    WakeMeasureThreads();
+                    MeasureThreadsReady();
                     break;
+                }
 
                 RegularMeasureCycle();
                 // Stop measurement
@@ -476,98 +481,14 @@ namespace FEMDAQ
                     dispatcher.BeginInvoke(new Action(UpdateProgress));
                     InstantMeasureCycle();
                 }
-
-                //foreach (var device in _devices)
-                //    dispatcher.BeginInvoke(new Action(device.UpdateGraph)); // Moved to device-thread
             }
 
-            // Shutdown sources on cancellation!
-            //lock (_devices)
-            //{
-            //    foreach (var device in _devices)
-            //        device.PowerDownSource(); // Moved to device-thread
-            //}
             lock (_diffTimeStamps)
             {
                 var diffTimeArr = GetDrawnOver(new List<string> { "TIME" });
                 _diffTimeStamps.Add(diffTimeArr[0]);
             }
 
-            /* Old non threading code */
-            //// Init-thing
-            //_measureTaskWakeSignal.WaitOne(); // Wait for wake on signal
-            //_measureTaskWakeSignal.Reset(); // Reset wake-signal
-
-            //if (_measureTaskCancellation.IsCancellationRequested) // Check cancellation!
-            //    return;
-
-            //SetupSources();
-            //lock (_diffTimeStamps)
-            //{
-            //    var diffTimeArr = GetDrawnOver(new List<string> { "TIME" });
-            //    _diffTimeStamps.Add(diffTimeArr[0]);
-            //}
-            //InstantMeasureCycle();
-            //foreach (var device in _devices)
-            //    dispatcher.BeginInvoke(new Action(device.UpdateGraph));
-
-            //// Regular measuring
-            //while (true)
-            //{
-            //    if (_measureTaskCancellation.IsCancellationRequested) // Check for cancellation before waiting for next measure-step
-            //        break;
-
-            //    _measureTaskWakeSignal.WaitOne(); // Wait for wake on signal
-            //    _measureTaskWakeSignal.Reset(); // Reset wake-signal
-
-            //    if (_measureTaskCancellation.IsCancellationRequested) // Check for cancellation after waiting!
-            //        break;
-
-            //    RegularMeasureCycle();
-            //    // Stop measurement
-            //    if (OperationStatus.SweepLineIndexOverflow)
-            //    {
-            //        dispatcher.BeginInvoke(new Action(StopMeasureLogic)); // Sets taskKill
-            //        dispatcher.BeginInvoke(new Action(UpdateListView));
-            //        dispatcher.BeginInvoke(new Action(UpdateProgress));
-            //        //return;
-            //        break;
-            //    }
-
-            //    if (OperationStatus.UpdateToNextIterate())
-            //    {
-            //        if (!OperationStatus.SweepLineIndexOverflow) // Update sources only when no overflow is appeared
-            //        {
-            //            dispatcher.BeginInvoke(new Action(UpdateListView));
-            //            SetupSources();
-            //        }
-            //        lock (_diffTimeStamps)
-            //        {
-            //            var diffTimeArr = GetDrawnOver(new List<string> { "TIME" });
-            //            _diffTimeStamps.Add(diffTimeArr[0]);
-            //        }
-            //    }
-            //    if (!OperationStatus.SweepLineIndexOverflow) // Measure gauges only when no overflow is appeard
-            //    {
-            //        dispatcher.BeginInvoke(new Action(UpdateProgress));
-            //        InstantMeasureCycle();
-            //    }
-
-            //    foreach (var device in _devices)
-            //        dispatcher.BeginInvoke(new Action(device.UpdateGraph));
-            //}
-
-            //// Shutdown sources on cancellation!
-            //lock (_devices)
-            //{
-            //    foreach (var device in _devices)
-            //        device.PowerDownSource();
-            //}
-            //lock (_diffTimeStamps)
-            //{
-            //    var diffTimeArr = GetDrawnOver(new List<string> { "TIME" });
-            //    _diffTimeStamps.Add(diffTimeArr[0]);
-            //}
         }
 
 
@@ -577,14 +498,7 @@ namespace FEMDAQ
             _measureAtActual = (GaugeMeasureInstantly)(Enum.GetValues(typeof(GaugeMeasureInstantly)).Length); // Use non-existing value to avoid unexpected measurements!
             _setSources = true;
             WakeMeasureThreads();
-            ThreadsReady();
-
-            //lock (_devices)
-            //{
-            //    foreach (var device in _devices)
-            //        device.SetSourceValues(OperationStatus.SweepLineIndexInProgress);
-            //}
-
+            MeasureThreadsReady();
         }
 
 
@@ -593,21 +507,8 @@ namespace FEMDAQ
             _measureAtActual = GaugeMeasureInstantly.CycleStart;
             _setSources = false;
             WakeMeasureThreads();
-            ThreadsReady();
+            MeasureThreadsReady();
 
-            // Non thread way
-            //lock (_devices)
-            //{
-            //    foreach (var device in _devices)
-            //    {
-            //        device.Measure(GetDrawnOver, GaugeMeasureInstantly.CycleStart);
-            //        //if (device.InstantMeasurement > 0)
-            //        //{
-            //        //    var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
-            //        //    device.Measure(drawnOver);
-            //        //}
-            //    }
-            //}
         }
 
 
@@ -616,21 +517,7 @@ namespace FEMDAQ
             _measureAtActual = GaugeMeasureInstantly.CycleEnd;
             _setSources = false;
             WakeMeasureThreads();
-            ThreadsReady();
-
-            // Non thread way
-            //lock (_devices)
-            //{
-            //    foreach (var device in _devices)
-            //    {
-            //        device.Measure(GetDrawnOver, GaugeMeasureInstantly.CycleEnd);
-            //        //if (device.InstantMeasurement == 0)
-            //        //{
-            //        //    var drawnOver = GetDrawnOver(device.DrawnOverIdentifiers);
-            //        //    device.Measure(drawnOver);
-            //        //}
-            //    }
-            //}
+            MeasureThreadsReady();
         }
 
         private void WakeMeasureThreads()
@@ -761,14 +648,15 @@ namespace FEMDAQ
             /*
              * Measurement Threading (Manager)
              */
-            _measureTaskCancellation = new CancellationTokenSource();
+            _measureManagerTaskCancellation = new CancellationTokenSource();
             _measureManagerTaskWakeSignal = new ManualResetEvent(false);
-            _measureTask = new Task(() => ProcessMeasureCycle(this/*, UpdateListView*/));
+            _measureTask = new Task(() => ProcessMeasureCycle(this/*, _measureManagerTaskWakeSignal, _measureTaskCancellation*//*, UpdateListView*/));
             _measureTask.Start(); // By starting this one first, it should be ready to start until the device-threads are started
 
             /*
              * Measurement Threading (Devices)
              */
+            _measureTaskCancellation = new CancellationTokenSource();
             _devMeasureTasks = new List<Task>();
             _measureTaskWakeSignals = new List<ManualResetEvent>();
             _measureTaskReadySignals = new List<ManualResetEvent>();
@@ -793,7 +681,7 @@ namespace FEMDAQ
             }
 
            
-            ThreadsReady(); // Wait for each device-thread to be ready
+            MeasureThreadsReady(); // Wait for each device-thread to be ready
 
 
 
@@ -805,31 +693,6 @@ namespace FEMDAQ
             _startTime = DateTime.Now;
             InitialTimer.Start();
             _measureManagerTaskWakeSignal.Set();
-
-
-            /* Non Threading way! */
-            //if (_measureTaskWakeSignal == null)
-            //    _measureTaskWakeSignal = new ManualResetEvent(false);
-            //if (_measureTaskCancellation == null)
-            //    _measureTaskCancellation = new CancellationTokenSource();
-            //_measureTaskWakeSignal.Reset();
-            //if (_measureTask != null)
-            //{
-            //    _measureTaskCancellation.Cancel();
-            //    _measureTaskWakeSignal.Set();
-            //    _measureTask.Wait();
-            //    if (_measureTask.IsCanceled || _measureTask.IsCompleted)
-            //        _measureTask.Dispose();
-            //}
-            //_measureTaskCancellation = new CancellationTokenSource();
-            //_measureTask = new Task(() => ProcessMeasureCycle(this/*, UpdateListView*/));
-            //_measureTask.Start();
-
-            //// Starting the initialtimer -> Starts measure-chain
-            //_diffTimeStamps = new List<double>();
-            //_startTime = DateTime.Now;
-            //InitialTimer.Start();
-            //_measureTaskWakeSignal.Set(); // Wake measureTask for the first time (Initial-Step)!
         }
 
 
@@ -871,16 +734,25 @@ namespace FEMDAQ
         /// </summary>
         private void StopMeasureLogic()
         {
-            _measureTaskCancellation.Cancel();
+            _measureManagerTaskCancellation.Cancel();
             InitialTimer.Stop();
             IterativeTimer.Stop();
 
-            WakeMeasureThreads();
-            ThreadsReady();
+            // This can cause big problems due to the Response-Events can be resetted from 2 threads!
+            //  Therefore when not pressing in the correct moment, the programs stops to work due to
+            //  one of the threads waits forever for the measure-threads to finish
+            // -> Solution: Stop the measuremanager from here, and use the measuremanager to cancel the measurethreads!
+            //WakeMeasureThreads(); 
+            //ThreadsReady();
 
             _measureManagerTaskWakeSignal.Set();
-            while (!_measureTask.IsCompleted) { Thread.Sleep(50); } // Wait for the measurethread to be finished!
-            
+            while (!_measureTask.IsCompleted)
+            {
+                Thread.Sleep(25);
+                //_measureManagerTaskWakeSignal.Set();
+            } // Wait for the measurethread to be finished!
+
+
             OperationStatus.Status = MeasurementStatus.Stopped;
             UpdateUI();
             if (SaveFolderFullPath != null) // In case of using jobqueue
@@ -1047,13 +919,6 @@ namespace FEMDAQ
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
 
-            // Fast stuff can be done in GUI-Thread
-            SaveTimeStamps(folderPath, filePrefix);
-            CopyIniAndSweepFiles(folderPath, filePrefix);
-            SaveLog(folderPath, filePrefix);
-            SaveChartCapturePng(folderPath, filePrefix);
-
-
             // Saving files
             Enabled = false; // Disable gui while saving files
             SavingPopup.CenterToOwner();
@@ -1088,6 +953,19 @@ namespace FEMDAQ
                     }
                     ));
             }); // Threadpool close
+
+            // Fast stuff can be done in GUI-Thread
+            SaveChartCapturePng(folderPath, filePrefix);
+            SaveTimeStamps(folderPath, filePrefix);
+            SaveLog(folderPath, filePrefix);
+            try
+            {
+                CopyIniAndSweepFiles(folderPath, filePrefix); // This as last, because if renamed or something, it crashes after the other parts already saved!
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message + "\nIgnoring Ini and Sweep!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
 
@@ -1141,8 +1019,12 @@ namespace FEMDAQ
 
             var targetIniPath = Path.Combine(folderPath, filePrefix + _ini.Filename);
             var targetSwpPath = Path.Combine(folderPath, filePrefix + _sweep.Filename);
-            File.Copy(_ini.Fullfilename, targetIniPath, true);
-            File.Copy(_sweep.FullFilename, targetSwpPath, true);
+
+            try { File.Copy(_ini.Fullfilename, targetIniPath, true); }
+            catch (Exception) { throw new Exception("Ini-file not found."); }
+
+            try { File.Copy(_sweep.FullFilename, targetSwpPath, true); }
+            catch (Exception) { throw new Exception("Sweep-file not found."); }
         }
 
 

@@ -6,7 +6,9 @@ using Keithley;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Instrument.LogicalLayer
@@ -15,13 +17,13 @@ namespace Instrument.LogicalLayer
     {
         public InfoBlockPiCam InfoBlock { get; private set; }
         private PiCam _device;
-        private HaumChart.HaumChart _chart;
-        private List<string> _seriesNames;
+        //private HaumChart.HaumChart _chart;
+        //private List<string> _seriesNames;
 
-        private int _filenameCounter = 0;
+        //private int _filenameCounter = 0;
         private string _shutterSpeeds = null;
         private int _measureCalls = -1;
-        private string TempDownloadDir = null;
+        //private string TempDownloadDir = null;
 
 
         public PiCamLayer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
@@ -45,6 +47,8 @@ namespace Instrument.LogicalLayer
 
             if (InfoBlock.ShutterSpeeds.Length <= 0)
                 throw new Exception("No shutterspeeds given!");
+
+            _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // Shutterspeeds are sorted! Configurate shortest SS before starting
             _shutterSpeeds = string.Empty;
             foreach (var ss in InfoBlock.ShutterSpeeds)
                 _shutterSpeeds += ss.ToString() + ":";
@@ -143,18 +147,14 @@ namespace Instrument.LogicalLayer
                                           );
             }
 
-            _device.TakePicSequence2Ramdisk(tarGzName, InfoBlock.ShutterSpeeds.Length);
+            _device.TakePicSequence2Ramdisk(tarGzName, InfoBlock.ShutterSpeeds.Length, InfoBlock.ShutterSpeeds, 0);
             _measureCalls++;
+            _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // Shutterspeeds are sorted
 
             _device.ReceiveAllRawAsTar(InfoBlock.TempDownloadDir, tarGzName); // Puth them temporary to a dummy-folder
         }
 
 
-
-        //public void SaveResultsToFolder(string folderPath)
-        //{
-        //    SaveResultsToFolder(folderPath, DateTime.Now);
-        //}
 
         public void SaveResultsToFolder(string folderPath, string filePrefix = null)
         {
@@ -179,43 +179,14 @@ namespace Instrument.LogicalLayer
                 var dstPath = folderPath + "\\" + filePrefix +/* deviceName + */Path.GetFileName(srcPath);
                 File.Move(srcPath, dstPath);
             }
-            //var output = new StringBuilder("# Device: [" + deviceName + "]\n");
-            //output.Append("# ");
-            //foreach (var drawnOver in DrawnOverIdentifiers)
-            //    output.Append(drawnOver + ", ");
-            //output.AppendLine("Y");
-            //output.AppendLine("# Range: " + InfoBlock.Gauge.Range.ToString());
 
-            //for (var line = 0; line < YResults.Count; line++)
-            //{
-            //    for (var xRow = 0; xRow < DrawnOverIdentifiers.Count; xRow++)
-            //        output.Append(Convert.ToString(XResults[xRow][line]) + ", ");
-            //    output.AppendLine(Convert.ToString(YResults[line]));
-            //}
-            //var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
-            //var fileWriter = new StreamWriter(filename, false);
-            //fileWriter.Write(output);
-            //fileWriter.Dispose();
+            _measureCalls = 0; // Reset for next run
         }
 
 
 
         public void ClearResults()
         {
-            //if (XResults != null)
-            //    foreach (var xResult in XResults)
-            //        xResult.Clear();
-
-            //if (YResults != null)
-            //    YResults.Clear();
-
-            //if (_chart != null)
-            //    foreach (var seriesName in _seriesNames)
-            //        _chart.ClearXY(seriesName);
-
-            //if (_chart != null)
-            //    foreach (var seriesName in _seriesNames)
-            //        _chart.ClearXY(seriesName);
         }
         #endregion
 
@@ -252,24 +223,6 @@ namespace Instrument.LogicalLayer
         // Invoke this when using threads!
         public void UpdateGraph()
         {
-            //if (_seriesNames.Count <= 0) // No drawdata
-            //    return;
-
-            //int lastLine;
-            //double lastYVal;
-            //lock (YResults)
-            //{
-            //    lastLine = YResults.Count - 1;
-            //    if (lastLine < 0) // Actual is no value measured
-            //        return;
-            //    lastYVal = YResults[lastLine];
-            //}
-
-            //lock (XResults)
-            //{
-            //    for (var xRowIndex = 0; xRowIndex < _seriesNames.Count; xRowIndex++)
-            //        _chart.AddXY(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVal);
-            //}
         }
         #endregion
     }

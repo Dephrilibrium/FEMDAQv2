@@ -15,7 +15,8 @@ namespace Files.Parser
             if (infoBlock == null) throw new ArgumentNullException("infoBlock");
 
             ParseComPort(StringHelper.FindStringWhichStartsWith(infoBlock, "ComPort"));
-            ParseBaudRate(StringHelper.FindStringWhichStartsWith(infoBlock, "Baudrate="));
+            //ParseBaudRate(StringHelper.FindStringWhichStartsWith(infoBlock, "Baudrate="));
+            Baudrate = 300; // Always using 300!
         }
 
 
@@ -26,11 +27,11 @@ namespace Files.Parser
             if (ComPort == "") throw new FormatException("Line: " + info);
         }
 
-        private void ParseBaudRate(string info)
-        {
-            var baudString= ParseHelper.ParseStringValueFromLineInfo(info);
-            try { Baudrate = int.Parse(baudString); }
-            catch (Exception) { throw new ArgumentOutOfRangeException("Line: " + info); }
-        }
+        //private void ParseBaudRate(string info)
+        //{
+        //    var baudString= ParseHelper.ParseStringValueFromLineInfo(info);
+        //    try { Baudrate = int.Parse(baudString); }
+        //    catch (Exception) { throw new ArgumentOutOfRangeException("Line: " + info); }
+        //}
     }
 }

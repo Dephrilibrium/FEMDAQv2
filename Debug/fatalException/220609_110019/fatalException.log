@@ -1,0 +1,8 @@
+System.IO.FileNotFoundException: Die Datei "\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\220608 IVNC2022 Streifenemitter\FEAR, MCP140 (FastMeasure).ini" konnte nicht gefunden werden.
+Dateiname: "\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\220608 IVNC2022 Streifenemitter\FEAR, MCP140 (FastMeasure).ini"
+   bei System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   bei System.IO.File.InternalCopy(String sourceFileName, String destFileName, Boolean overwrite, Boolean checkHost)
+   bei FEMDAQ.FEMDAQ.CopyIniAndSweepFiles(String folderPath, String filePrefix) in Z:\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\mainFrame.cs:Zeile 990.
+   bei FEMDAQ.FEMDAQ.SaveResultsToFolder(String folderPath, String filePrefix, Action jobDoneCallback) in Z:\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\mainFrame.cs:Zeile 898.
+   bei FEMDAQ.FEMDAQ.SaveResultsFromUser() in Z:\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\mainFrame.cs:Zeile 847.
+   bei FEMDAQ.FEMDAQ.StopMeasureLogic() in Z:\Hausladen\Programs\FEMDAQ_V2\FEMDAQ\mainFrame.cs:Zeile 737.

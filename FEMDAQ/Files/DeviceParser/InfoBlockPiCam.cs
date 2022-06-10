@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using HaumOTH;
 using System.IO;
+using System.Linq;
 
 namespace Files.Parser
 {
@@ -83,6 +84,12 @@ namespace Files.Parser
             ShutterSpeeds = new uint[lineSplit.Length];
             for (int iSS = 0; iSS < lineSplit.Length; iSS++)
                 ShutterSpeeds[iSS] = uint.Parse(lineSplit[iSS]);
+
+            // Sort from lowest to highest!
+            //  -> Cam an switch from short SS to longer SS fastly, but not inverse!
+            //  -> The shortest SS is set as initial SS in PiCam-Overlay
+            //  -> During measurement after all SS-Pictures the shortest SS is reset to not waste time for the next cycle
+            Array.Sort(ShutterSpeeds);
         }
 
 

@@ -1,5 +1,19 @@
 ﻿Changelog:
 
+XX.YY.ZZZZ: V2.2.7.8
+Bugfix:
+ - FEAR16 driver added 2x a list for it's sweep-values
+ - FEAR16 driver used wrong list-count for checking if the given sweep-values are in range
+ - PiCam driver: Changed the method for making pictures
+ - MeasureManagerTask was not waked up by Token.Set() function. Reduced the SleepTime for waiting for finish of the measuretask worked for now! Needs more time to check why this happened really!
+ - MOVE1250 was changed to force use Baudrate 300. This was modified in default.ini, but not in the InfoBlock-Parser! -> Fixed to Baud = 300 (always)
+ - Due to the change to Multi-Threading, all threads were tried to stop by the GUI-Mainthread. Due to there are 2 threads watching and resetting the "finished"-ReturnEvents simultaneously, both Threads (main- and measureManager-Thread) one of the threads waits forever!
+   -> Fix: Main-Thread stops the measure-manager and the measure-manager stops the measure-threads
+Misc:
+ - Removed old code parts (kept as commentaries) from the pre-multithreading time
+ - Changed the order of saving files. If ini or swp was renamed during measurement, the tool crashes without saving the important stuff!
+ - Added try-catch when FEMDAQ tries to copy Ini or Swp files so that it just ignores the copy with an error-message instead of crashing.
+
 04.05.2022: V2.2.7.7
 Bugfix:
  - MeasurementManagerTask was not waked up when measurement is stopped by "StopMeasureLogic" -> Added extra wake after setting it's cancellation

@@ -412,12 +412,12 @@ namespace Instrument.LogicalLayer
                 if (InfoBlock.CurrCtrlChannels[iCh].SourceNode >= 0)
                 {
                     var sourceNode = CurrCtrlRequestString + Convert.ToString(InfoBlock.CurrCtrlChannels[iCh].SourceNode);
-                    _sweep.Add(new List<double>());
+                    //_sweep.Add(new List<double>());
                     _sweep[iCh] = AssignSweep.Assign(sweep, sourceNode);
                     if (_sweep == null) throw new Exception("Can't find " + sourceNode + " in sweep-file.");
 
                     // Check range of values
-                    for (int iValue = 0; iValue < _sweep.Count; iValue++)
+                    for (int iValue = 0; iValue < _sweep[iCh].Count; iValue++)
                     {
                         if (_sweep[iCh][iValue] < minVal || _sweep[iCh][iValue] > maxVal)
                         {
