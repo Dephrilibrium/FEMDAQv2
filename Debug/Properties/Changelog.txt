@@ -13,6 +13,7 @@ Misc:
  - Removed old code parts (kept as commentaries) from the pre-multithreading time
  - Changed the order of saving files. If ini or swp was renamed during measurement, the tool crashes without saving the important stuff!
  - Added try-catch when FEMDAQ tries to copy Ini or Swp files so that it just ignores the copy with an error-message instead of crashing.
+ - Changed back to .NET 4.5.2 (maybe the NI4882.dll driver can't work with newer .NET-Frameworks; There was a change to .NET 4.8 due to native tuple-support, but this was rolled back to test if this causes the driver-crashes)
 
 04.05.2022: V2.2.7.7
 Bugfix:
