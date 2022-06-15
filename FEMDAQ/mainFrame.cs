@@ -390,6 +390,7 @@ namespace FEMDAQ
 
             foreach(var device in Devices)
                 device.PowerDownSource();
+
             Ready.Set(); // Finished shutting down!
         }
 
@@ -404,16 +405,19 @@ namespace FEMDAQ
         }
 
 
-        private void ProcessMeasureCycle(Control dispatcher/*, ManualResetEvent Wake, CancellationTokenSource Cancel*//*, Action updateListView*/)
+        private void ProcessMeasureCycle(Control dispatcher, ManualResetEvent Wake, /*CancellationTokenSource*/ CancellationToken Cancel/*, Action updateListView*/)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("EN-US");
 
             // Init-thing
-            _measureManagerTaskWakeSignal.WaitOne(); // Wait for wake on signal
-            _measureManagerTaskWakeSignal.Reset(); // Reset wake-signal
+            //_measureManagerTaskWakeSignal.WaitOne(); // Wait for wake on signal
+            //_measureManagerTaskWakeSignal.Reset(); // Reset wake-signal
+            Wake.WaitOne(); // Wait for wake on signal
+            Wake.Reset(); // Reset wake-signal
 
 
-            if (_measureManagerTaskCancellation.IsCancellationRequested) // Check cancellation!
+            //if (_measureManagerTaskCancellation.IsCancellationRequested) // Check cancellation!
+            if (Cancel.IsCancellationRequested) // Check cancellation!
             {
                 // Send cancellation to measure-threads and wait for their finish before leaving
                 //  Cancellint the measure-threads has to be done by the measure-manager
@@ -434,17 +438,21 @@ namespace FEMDAQ
             InstantMeasureCycle();
 
             // Regular measuring
-            while (_measureManagerTaskCancellation.IsCancellationRequested == false) // Check for cancellation before waiting for next measure-step
+            //while (_measureManagerTaskCancellation.IsCancellationRequested == false) // Check for cancellation before waiting for next measure-step
+            while (Cancel.IsCancellationRequested == false) // Check for cancellation before waiting for next measure-step
             {
-                _measureManagerTaskWakeSignal.WaitOne(); // Wait for wake on signal
-                _measureManagerTaskWakeSignal.Reset(); // Reset wake-signal
+                //_measureManagerTaskWakeSignal.WaitOne(); // Wait for wake on signal
+                //_measureManagerTaskWakeSignal.Reset(); // Reset wake-signal
+                Wake.WaitOne(); // Wait for wake on signal
+                Wake.Reset(); // Reset wake-signal
 
                 /* main-Thread requests cancellation to measureManager
                    measureManager requests cancellation to measureTasks
                    Otherwise it can happen, that main- and measureManager threads watching and resetting the "finish"-response-events of the measuretasks
                    so that they wait forever.
                 */
-                if (_measureManagerTaskCancellation.IsCancellationRequested) // Check for cancellation after waiting!
+                // if (_measureManagerTaskCancellation.IsCancellationRequested) // Check for cancellation after waiting!
+                if (Cancel.IsCancellationRequested) // Check for cancellation after waiting!
                 {
                     _measureTaskCancellation.Cancel();
                     WakeMeasureThreads();
@@ -460,7 +468,8 @@ namespace FEMDAQ
                     dispatcher.BeginInvoke(new Action(UpdateListView));
                     dispatcher.BeginInvoke(new Action(UpdateProgress));
                     //return;
-                    break;
+                    //break;
+                    continue; // Go back and wait for cancellation from main-thread (invoked StopMeasureLogic)
                 }
 
                 if (OperationStatus.UpdateToNextIterate())
@@ -650,7 +659,7 @@ namespace FEMDAQ
              */
             _measureManagerTaskCancellation = new CancellationTokenSource();
             _measureManagerTaskWakeSignal = new ManualResetEvent(false);
-            _measureTask = new Task(() => ProcessMeasureCycle(this/*, _measureManagerTaskWakeSignal, _measureTaskCancellation*//*, UpdateListView*/));
+            _measureTask = new Task(() => ProcessMeasureCycle(this, _measureManagerTaskWakeSignal, _measureManagerTaskCancellation.Token /*, UpdateListView*/));
             _measureTask.Start(); // By starting this one first, it should be ready to start until the device-threads are started
 
             /*

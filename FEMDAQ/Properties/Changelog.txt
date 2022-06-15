@@ -9,6 +9,8 @@ Bugfix:
  - MOVE1250 was changed to force use Baudrate 300. This was modified in default.ini, but not in the InfoBlock-Parser! -> Fixed to Baud = 300 (always)
  - Due to the change to Multi-Threading, all threads were tried to stop by the GUI-Mainthread. Due to there are 2 threads watching and resetting the "finished"-ReturnEvents simultaneously, both Threads (main- and measureManager-Thread) one of the threads waits forever!
    -> Fix: Main-Thread stops the measure-manager and the measure-manager stops the measure-threads
+   -> Following Problem: When the measurement was done correctly the sources not turned off (only when aborted by the user)
+      This was due to the "MeasureManager-Task" was invoking "StopMeasureLogic" and then it breaked and therefore stopped itself. Due to the "MeasureManager" is now taking care of shutting down the MeasureTasks it was cancelled before receiving the CancellationToken-signal and therefore it hasn't cancelled the MeasureTasks which are turning off the sources!
 Misc:
  - Removed old code parts (kept as commentaries) from the pre-multithreading time
  - Changed the order of saving files. If ini or swp was renamed during measurement, the tool crashes without saving the important stuff!
