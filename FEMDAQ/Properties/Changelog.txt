@@ -1,7 +1,9 @@
 ﻿Changelog:
 
-XX.YY.ZZZZ: V2.2.7.8
+26.07.2022: V2.2.7.8
 Bugfix:
+ - Fixed Cancellation problem (secure source state not called all the time)
+ - Fixed problem with FEAR16 internal _serialPort management.
  - FEAR16 driver added 2x a list for it's sweep-values
  - FEAR16 driver used wrong list-count for checking if the given sweep-values are in range
  - PiCam driver: Changed the method for making pictures

@@ -417,16 +417,13 @@ namespace FEMDAQ
 
 
             //if (_measureManagerTaskCancellation.IsCancellationRequested) // Check cancellation!
-            if (Cancel.IsCancellationRequested) // Check cancellation!
+            if (Cancel.IsCancellationRequested) // Check for "instant-cancellation"!
             {
-                // Send cancellation to measure-threads and wait for their finish before leaving
-                //  Cancellint the measure-threads has to be done by the measure-manager
-                //  due to otherwise (older code) started to hang up, waiting for the
-                //  measure-threads finishing (the response tokens of them were checked and resetted from 2 threads!)
-                _measureTaskCancellation.Cancel();
-                WakeMeasureThreads();
-                MeasureThreadsReady();
-                return;
+                goto CancelMeasThreads;
+                //_measureTaskCancellation.Cancel();
+                //WakeMeasureThreads();
+                //MeasureThreadsReady();
+                //return;
             }
 
             SetupSources(); // Moved to device-thread
@@ -453,12 +450,7 @@ namespace FEMDAQ
                 */
                 // if (_measureManagerTaskCancellation.IsCancellationRequested) // Check for cancellation after waiting!
                 if (Cancel.IsCancellationRequested) // Check for cancellation after waiting!
-                {
-                    _measureTaskCancellation.Cancel();
-                    WakeMeasureThreads();
-                    MeasureThreadsReady();
                     break;
-                }
 
                 RegularMeasureCycle();
                 // Stop measurement
@@ -498,6 +490,15 @@ namespace FEMDAQ
                 _diffTimeStamps.Add(diffTimeArr[0]);
             }
 
+        CancelMeasThreads:
+            // When breaking out "cancellation" or "finished measurement" occured
+            // Sends cancellation to measure-threads and wait for their finish before leaving
+            //  Cancellint the measure-threads has to be done by the measure-manager
+            //  due to otherwise (older code) started to hang up, waiting for the
+            //  measure-threads finishing (the response tokens of them were checked and resetted from 2 threads!)
+            _measureTaskCancellation.Cancel();
+            WakeMeasureThreads();
+            MeasureThreadsReady();
         }
 
 
