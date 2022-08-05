@@ -19,6 +19,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+
 namespace FEMDAQ
 {
     public partial class FEMDAQ : Form
@@ -459,9 +461,13 @@ namespace FEMDAQ
                     dispatcher.BeginInvoke(new Action(StopMeasureLogic)); // Sets taskKill
                     dispatcher.BeginInvoke(new Action(UpdateListView));
                     dispatcher.BeginInvoke(new Action(UpdateProgress));
-                    //return;
-                    //break;
-                    continue; // Go back and wait for cancellation from main-thread (invoked StopMeasureLogic)
+
+                    // Tested: When invoking StopMeasureLogic it needs to much time to set the cancellation-token.
+                    //  In the meantime the MeasureManger may come back and invoke again before noticing to get closed!
+                    //  Therefore wait first for next wake before going back to "while(!Canceled)"
+                    Wake.WaitOne(); // Wait for wake on signal
+                    Wake.Reset(); // Reset wake-signal
+                    continue;
                 }
 
                 if (OperationStatus.UpdateToNextIterate())
@@ -884,7 +890,6 @@ namespace FEMDAQ
         }
 
 
-
         public void SaveResultsFromQueue(string folderPath, Action jobDoneCallback = null)
         {
             var timestamp = DateTime.Now;
@@ -905,9 +910,15 @@ namespace FEMDAQ
             SaveResultsToFolder(folderPath, filePrefix, jobDoneCallback); // Execute save: folderPath and filePrefix manipulated above
         }
 
-
+        bool _alreadySaving = false;
         private void SaveResultsToFolder(string folderPath, string filePrefix, Action jobDoneCallback = null)
         {
+            // Checking if saving is already ongoing
+            if (_alreadySaving == true)
+                return;
+            _alreadySaving = true; // Set until leaving save-method
+
+
             // Guard clauses
             if (folderPath == null)
                 throw new NullReferenceException("No savepath given");
@@ -976,6 +987,8 @@ namespace FEMDAQ
             {
                 MessageBox.Show(e.Message + "\nIgnoring Ini and Sweep!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            _alreadySaving = false; // Remove flag
         }
 
 

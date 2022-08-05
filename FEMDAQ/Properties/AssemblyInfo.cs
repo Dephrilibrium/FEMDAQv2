@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("OTH Regensburg")]
 [assembly: AssemblyProduct("FEMDAQ V2")]
-[assembly: AssemblyCopyright("Copyright © Matthias Hausladen (HAUM, OTH Regensburg) 2017-2021")]
+[assembly: AssemblyCopyright("Copyright © Matthias Hausladen (HAUM, OTH Regensburg) 2017-2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // Sie können alle Werte angeben oder die standardmäßigen Build- und Revisionsnummern 
 // übernehmen, indem Sie "*" eingeben:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.2.7.8")]
-[assembly: AssemblyFileVersion("2.2.7.8")]
+[assembly: AssemblyVersion("2.2.7.9")]
+[assembly: AssemblyFileVersion("2.2.7.9")]

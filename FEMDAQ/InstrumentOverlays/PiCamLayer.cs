@@ -48,11 +48,17 @@ namespace Instrument.LogicalLayer
             if (InfoBlock.ShutterSpeeds.Length <= 0)
                 throw new Exception("No shutterspeeds given!");
 
-            _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // Shutterspeeds are sorted! Configurate shortest SS before starting
+            // Setup of cam
+            _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // SS sorted ascending
             _shutterSpeeds = string.Empty;
             foreach (var ss in InfoBlock.ShutterSpeeds)
                 _shutterSpeeds += ss.ToString() + ":";
             _shutterSpeeds.Remove(_shutterSpeeds.Length - 1); // Remove tailing ':'
+
+            _device.ConfISO(InfoBlock.ISO);
+            _device.ConfResolution(InfoBlock.ResolutionWidth, InfoBlock.ResolutionHeight);
+            _device.ConfAwbGains(InfoBlock.AwbGainRBalance, InfoBlock.AwbGainBBalance);
+            _device.ConfAwbMode(InfoBlock.AwbMode);
 
             // TempDownload gets a default value from InfoBlockPicam.cs
                 if (!Directory.Exists(InfoBlock.TempDownloadDir))
@@ -147,9 +153,9 @@ namespace Instrument.LogicalLayer
                                           );
             }
 
-            _device.TakePicSequence2Ramdisk(tarGzName, InfoBlock.ShutterSpeeds.Length, InfoBlock.ShutterSpeeds, 0);
+            _device.TakePicSequence2Ramdisk(tarGzName, InfoBlock.ShutterSpeeds.Length, InfoBlock.ShutterSpeeds, InfoBlock.PictureInterval);
             _measureCalls++;
-            _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // Shutterspeeds are sorted
+            //_device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // Shutterspeeds are sorted // Is now done by the script itself when SS are sent sorted!
 
             _device.ReceiveAllRawAsTar(InfoBlock.TempDownloadDir, tarGzName); // Puth them temporary to a dummy-folder
         }
@@ -180,7 +186,7 @@ namespace Instrument.LogicalLayer
                 File.Move(srcPath, dstPath);
             }
 
-            _measureCalls = 0; // Reset for next run
+            _measureCalls = -1; // Reset for next run
         }
 
 

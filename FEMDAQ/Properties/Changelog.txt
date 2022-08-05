@@ -1,5 +1,27 @@
 ﻿Changelog:
 
+05.08.2022: V2.2.7.9
+Bugfix:
+ - PiCam-Server writes 4 or 5 lines to rPiHQCam.log depending on if scripts starts the first time (4 lines) after the pi-boot or is restarted (5 lines)!
+   This is caused by unmounting the RAMDisk and that led to a "socket not created" message within FEMDAQ.
+ - Moved the kill-code for the PiCam-Script into a separate function
+ - Fixed that "StopMeasureLogic" (and therefore saving) is called twice. This appeared due to when StopMeasureLogic is invoked by a finished job (Sweep-LineOverflow event).
+   The invoke needs time wherein the MeasureManager is able to invoke StopMeasurelogic a second time. This leads to saving twice and because of the SavingPopup an unhandled
+   exception occurs which crashes FEMDAQ. Fixed this by adding a WaitOne before going for the first CancellationToken-Check!
+ - Added option "PictureInterval" which describe the deltatime between pictures. When exceeding this limit, the cam goes on when the shutterspeed is within a +-5% window of
+   the target SS value.
+ - Adjusted Intervaltime of the PiCAM SEQFET command to 3s, due to the "took to long"-message
+ - Fixed reset of PiCam-measureCalls value, so that at each start a BlackSubtraction-Picture-Set is done (not only on the very first one after loading an INI).
+ - Added some missing initializations of PiCam
+ - Fixed missing baudrate-parsing within the "ComParser". Always set 300 baud (seems to be forgot to remove when did Move1250 implementation)
+ - Added temporarily a flag to avoid double saving -> Needs to be observed and fixed correctly later on!
+Misc:
+ - Adjusted default.ini comment for IP
+ - Added python script for sweep-columns with logarithmic spacing
+ - Added python script for automatic PiCam-tar.gz-extraction
+ - Added first version of Python SweepGenerator
+ 
+
 26.07.2022: V2.2.7.8
 Bugfix:
  - Fixed Cancellation problem (secure source state not called all the time)
@@ -14,6 +36,7 @@ Bugfix:
    -> Following Problem: When the measurement was done correctly the sources not turned off (only when aborted by the user)
       This was due to the "MeasureManager-Task" was invoking "StopMeasureLogic" and then it breaked and therefore stopped itself. Due to the "MeasureManager" is now taking care of shutting down the MeasureTasks it was cancelled before receiving the CancellationToken-signal and therefore it hasn't cancelled the MeasureTasks which are turning off the sources!
 Misc:
+ - Weird crash-error after some time (mostly 30minutes) was found in energy options of windows. Changed again back to .NET 4.8.
  - Removed old code parts (kept as commentaries) from the pre-multithreading time
  - Changed the order of saving files. If ini or swp was renamed during measurement, the tool crashes without saving the important stuff!
  - Added try-catch when FEMDAQ tries to copy Ini or Swp files so that it just ignores the copy with an error-message instead of crashing.

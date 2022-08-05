@@ -20,6 +20,7 @@ namespace Files.Parser
         public uint ResolutionHeight { get; private set; }
         public PiCamExposureMode ExposureMode { get; private set; }
         public uint[] ShutterSpeeds { get; private set; }
+        public double PictureInterval { get; private set; }
 
         public PiCamAwbMode AwbMode { get; private set; }
         //public (double rBalance, double bBalance) Awb { get; private set; }
@@ -52,6 +53,7 @@ namespace Files.Parser
 
             ParseExposuremode(infoBlock);
             ParseShutterspeed(infoBlock);
+            ParsePictureInterval(infoBlock);
 
             ParseAutoWhiteBalance(infoBlock);
         }
@@ -96,6 +98,12 @@ namespace Files.Parser
             //  -> The shortest SS is set as initial SS in PiCam-Overlay
             //  -> During measurement after all SS-Pictures the shortest SS is reset to not waste time for the next cycle
             Array.Sort(ShutterSpeeds);
+        }
+
+
+        private void ParsePictureInterval(IEnumerable<string> infoBlock)
+        {
+            PictureInterval = ParseHelper.ParseDoubleValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "PictureInterval="));
         }
 
 
