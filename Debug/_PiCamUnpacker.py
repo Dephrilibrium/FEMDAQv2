@@ -2,7 +2,6 @@
 import os
 import os.path
 import subprocess
-from xml.dom.pulldom import END_DOCUMENT
 import sys
 import time
 
@@ -35,6 +34,8 @@ class Logger(object):
         # you might want to specify some extra behavior here.
         pass
 
+def ClearLine():
+    print("\r\033[K", end="\r", flush=True)
 
 def TimeDelta(t0, t1):
     return t1 - t0
@@ -66,8 +67,7 @@ def ConvertTime2Human(time):
 def PrintProcessStats(t0, t1, t2):
     print("Processed files:" + bcolors.OKGREEN + str(fCnt).rjust(24) + bcolors.ENDC)
     print("Process time:   " + bcolors.OKBLUE + ConvertTime2Human(TimeDelta(t1, t2)).rjust(24) + bcolors.ENDC)
-    print("Cumulative time:" + bcolors.OKBLUE + ConvertTime2Human(TimeDelta(t0, t2)).rjust(24) + bcolors.ENDC
-    )
+    print("Cumulative time:" + bcolors.OKBLUE + ConvertTime2Human(TimeDelta(t0, t2)).rjust(24) + bcolors.ENDC)
 
 
 def PrintVerbosePaths(fPath, xPath, fPathAbs, xPathAbs):
@@ -81,7 +81,7 @@ def RunCmd(cmd):
     if skipCmd == True:
         return
 
-    if verbose == True:
+    if debug == True:
         subprocess.call(cmd)
     else:
         subprocess.call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)  # Only catch errors
@@ -98,12 +98,13 @@ xCmd = '"C:\\Program Files\\7-Zip\\7z.exe"'  # Path to 7zip
 xPath = "Pics"  # Subdirectory where extract to. !!! Do not add a leading / or \ !!!
 xLog = "_PiCamUnpacker.log"  # Filename to log output
 
-rmCmd = "del /f"  # delete command to delete files
+# rmCmd = "del /f"  # delete command to delete files; Obsolet, del doesn't support UNC-paths! -> os.remove(fPath)
 
 fileTypes = [".jpg", ".jpeg",]  # List of filetype which is counted at the end for statistics
 
 # Debug flags
-verbose = False  # Debug-flag if 7zip should ouput infos to it's extraction progresses
+debug   = False  # Debug-flag if 7zip should ouput infos to it's extraction progresses
+verbose = False  # Verbose output
 skipCmd = False  # Set to true to skip the cmd-exection (for test purposes)
 
 
@@ -112,12 +113,11 @@ t0 = time.time()  # Script starts
 # Prepare format-string for 7zip
 szCmd = xCmd + ' x "{}" -o"{}" -r -y'
 
-# Prepare format-string for file-delete
-rmCmd = rmCmd + ' "{}"'
+# # Prepare format-string for file-delete
+# rmCmd = rmCmd + ' "{}"' # Replaced with os.remove(fPath)
 
 
 # Change working-directory
-sys.stdout = Logger()
 owdPath = os.getcwd()
 pyPath = os.path.dirname(__file__)
 os.chdir(pyPath)
@@ -128,6 +128,10 @@ if verbose == True:
     print("Python File dir:\t" + pyPath)
 print(bcolors.OKBLUE + "New" + bcolors.ENDC + " working dir:\t" + cwdPath)
 print("Changing WD " + bcolors.OKGREEN + "OK" + bcolors.ENDC)
+
+# Open STDOUT&Log-File Logger
+sys.stdout = Logger()
+
 
 
 # Extract tar.gz
@@ -140,15 +144,20 @@ for dirpath, dirnames, filenames in os.walk("."):
         _fPathAbs = os.path.abspath(_fPath)
         _xPath = os.path.join(dirpath, xPath)
         _xPathAbs = os.path.abspath(_xPath)
-        if verbose == True:
+        if debug == True:
             PrintVerbosePaths(_fPath, _xPath, _fPathAbs, _xPathAbs)
 
         print(bcolors.WARNING + "Unpacking:" + bcolors.ENDC + ' "' + _fPath + '" -> "' + _xPath,end="",)
         cmd = str.format(szCmd, _fPath, _xPath)
         RunCmd(cmd)
-        print(bcolors.OKGREEN + "\tExtracted" + bcolors.ENDC)
+        if verbose == True:
+            print(bcolors.OKGREEN + "Extracted".rjust(15) + bcolors.ENDC) # Keep line
+        else:
+            print(bcolors.OKGREEN + "Extracted".rjust(15) + bcolors.ENDC + "\033[K", end="\r") # Override line
+
         fCnt = fCnt + 1
 t1 = time.time()
+ClearLine() # Be sure, current line is empty
 PrintProcessStats(t0, t0, t1)
 
 # Extract .tar
@@ -161,15 +170,19 @@ for dirpath, dirnames, filenames in os.walk("."):
         _fPathAbs = os.path.abspath(_fPath)
         _xPath = os.path.join(dirpath)
         _xPathAbs = os.path.abspath(_xPath)
-        if verbose == True:
+        if debug == True:
             PrintVerbosePaths(_fPath, _xPath, _fPathAbs, _xPathAbs)
 
         print( bcolors.WARNING + "Unpacking:" + bcolors.ENDC + ' "' + _fPath + '" -> "' + _xPath, end="",)
         cmd = str.format(szCmd, _fPath, _xPath)
         RunCmd(cmd)
-        print(bcolors.OKGREEN + "\tExtracted" + bcolors.ENDC)
+        if verbose == True:
+            print(bcolors.OKGREEN + "Extracted".rjust(15) + bcolors.ENDC) # Keep line
+        else:
+            print(bcolors.OKGREEN + "Extracted".rjust(15) + bcolors.ENDC + "\033[K", end="\r") # Override line
         fCnt = fCnt + 1
 t2 = time.time()
+ClearLine()
 PrintProcessStats(t0, t1, t2)
 
 # Clean up .tar
@@ -182,15 +195,21 @@ for dirpath, dirnames, filenames in os.walk("."):
         _fPathAbs = os.path.abspath(_fPath)
         _xPath = "-"  # Not existing
         _xPathAbs = "-"  # Not existing
-        if verbose == True:
+        if debug == True:
             PrintVerbosePaths(_fPath, _xPath, _fPathAbs, _xPathAbs)
 
         print(bcolors.FAIL + "Cleaning up:" + bcolors.ENDC + ' "' + _fPath, end="")
-        cmd = str.format(rmCmd, _fPath)
-        RunCmd(cmd)
-        print(bcolors.OKGREEN + "\tDeleted" + bcolors.ENDC)
+        # cmd = str.format(rmCmd, _fPath)
+        # RunCmd(cmd) # Replaced with os.remove(fPath)
+        os.remove(_fPath)
+        if verbose == True:
+            print(bcolors.OKGREEN + "Deleted".rjust(15) + bcolors.ENDC) # Keep line
+        else:
+            print(bcolors.OKGREEN + "Deleted".rjust(15) + bcolors.ENDC + "\033[K", end="\r") # Override line
+            
         fCnt = fCnt + 1
 t3 = time.time()
+ClearLine()
 PrintProcessStats(t0, t2, t3)
 
 
@@ -199,11 +218,7 @@ print("\r\n")
 print(str.format("Counting files of type: {}", fileTypes))
 fCnt = 0
 for dirpath, dirnames, filenames in os.walk("."):
-    _filenames = [
-        fn
-        for fn in os.listdir(dirpath)
-        if any(fn.lower().endswith(fType) for fType in fileTypes)
-    ]
+    _filenames = [fn for fn in os.listdir(dirpath) if any(fn.lower().endswith(fType) for fType in fileTypes)]
 
     _fCnt = len(_filenames)
     fCnt = fCnt + _fCnt

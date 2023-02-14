@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Instrument.LogicalLayer
@@ -49,19 +50,29 @@ namespace Instrument.LogicalLayer
                 throw new Exception("No shutterspeeds given!");
 
             // Setup of cam
+            _device.ConfExposureMode(InfoBlock.ExposureMode);
+            _device.ConfFrameRate(InfoBlock.FrameRate);
             _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // SS sorted ascending
             _shutterSpeeds = string.Empty;
             foreach (var ss in InfoBlock.ShutterSpeeds)
                 _shutterSpeeds += ss.ToString() + ":";
             _shutterSpeeds.Remove(_shutterSpeeds.Length - 1); // Remove tailing ':'
 
-            _device.ConfISO(InfoBlock.ISO);
+            if (InfoBlock.AnalogGain < 0 || InfoBlock.DigitalGain < 0)
+                _device.ConfISO((uint)InfoBlock.ISO);
+            else
+            {
+                _device.ConfISO((uint)0);
+                _device.ConfAnalogAndDigitalGain(InfoBlock.AnalogGain, InfoBlock.DigitalGain);
+            }
+            //_device.ConfExposureMode(InfoBlock.ExposureMode);
+
             _device.ConfResolution(InfoBlock.ResolutionWidth, InfoBlock.ResolutionHeight);
-            _device.ConfAwbGains(InfoBlock.AwbGainRBalance, InfoBlock.AwbGainBBalance);
-            _device.ConfAwbMode(InfoBlock.AwbMode);
+            _device.ConfAwbGains(InfoBlock.AwbGainRBalance, InfoBlock.AwbGainBBalance); // Sets AWB-Mode automatically "off"
+            //_device.ConfAwbMode(InfoBlock.AwbMode);
 
             // TempDownload gets a default value from InfoBlockPicam.cs
-                if (!Directory.Exists(InfoBlock.TempDownloadDir))
+            if (!Directory.Exists(InfoBlock.TempDownloadDir))
                 Directory.CreateDirectory(InfoBlock.TempDownloadDir);
 
             var fileList = Directory.GetFiles(InfoBlock.TempDownloadDir);
@@ -153,7 +164,7 @@ namespace Instrument.LogicalLayer
                                           );
             }
 
-            _device.TakePicSequence2Ramdisk(tarGzName, InfoBlock.ShutterSpeeds.Length, InfoBlock.ShutterSpeeds, InfoBlock.PictureInterval);
+            _device.TakePicSequence2Ramdisk(tarGzName, InfoBlock.PicsPerShutterSpeed, InfoBlock.ShutterSpeeds, InfoBlock.PictureInterval, InfoBlock.Bayer);
             _measureCalls++;
             //_device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // Shutterspeeds are sorted // Is now done by the script itself when SS are sent sorted!
 
@@ -178,15 +189,47 @@ namespace Instrument.LogicalLayer
                                            (InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName)
                                            );
 
+            // Download the log-file
+            var srcFullFilename = _device.PyLogPath;
+            var srcFilename = Path.GetFileName(srcFullFilename);
+            var dstFullFilename = Path.Combine(InfoBlock.TempDownloadDir, deviceName + ".log");
+            //var dstFullFilename = Path.Combine(InfoBlock.TempDownloadDir, srcFilename); // Old Filename - Kept that one from picam-server
+            try { 
+                string logContent = _device.CatFile(srcFullFilename);
+                var logFileWriter = new StreamWriter(dstFullFilename);
+                logFileWriter.Write(logContent);
+                logFileWriter.Close();
+                //_device.DownloadFile(srcFullFilename, dstFullFilename); // Didn't worked. Maybe rightproblems on logfile, so that download fails
+            }
+            catch (Exception) { }
+
+            // Grab all downloaded filenames and copy to save-folder
             var tarGzSrcPaths = Directory.GetFiles(InfoBlock.TempDownloadDir);
+
+            string failedSrcDir = null;
             foreach (string srcPath in tarGzSrcPaths)
             {
+                try
+                {
+                    var dstPath = folderPath + "\\" + filePrefix +/* deviceName + */Path.GetFileName(srcPath);
+                    File.Move(srcPath, dstPath);
+                }
+                catch (Exception)
+                {
+                    if (failedSrcDir == null)
+                        failedSrcDir = folderPath;
+                }
                 //                                     deviceName is inserted during download -> Already has the correct filename
-                var dstPath = folderPath + "\\" + filePrefix +/* deviceName + */Path.GetFileName(srcPath);
-                File.Move(srcPath, dstPath);
             }
 
             _measureCalls = -1; // Reset for next run
+
+            if (failedSrcDir != null)
+            {
+                var msgText = "Wasn't able to move files in: " + failedSrcDir + "\n\nCheck directory for files and copy them manually!";
+                MessageBox.Show(msgText, "Warning", MessageBoxButtons.OK);
+            }
+
         }
 
 

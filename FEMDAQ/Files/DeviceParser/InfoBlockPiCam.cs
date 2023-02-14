@@ -13,13 +13,21 @@ namespace Files.Parser
         public IpParser Ip { get; private set; }
         public GaugeParser Gauge { get; private set; }
         public string PyCamScriptPath { get; private set; }
+        public string PyCamLogPath { get; private set; }
         public string TempDownloadDir{ get; private set; }
-        public uint ISO { get; private set; }
+        public uint SensorMode { get; private set; }
+        public int ISO { get; private set; }
+        public double AnalogGain { get; private set; }
+        public double DigitalGain { get; private set; }
+
         //public (uint width, uint height) Resolution { get; private set; }
         public uint ResolutionWidth { get; private set; }
         public uint ResolutionHeight { get; private set; }
         public PiCamExposureMode ExposureMode { get; private set; }
+        public double FrameRate { get; private set; }
         public uint[] ShutterSpeeds { get; private set; }
+        public bool Bayer { get; private set; }
+        public uint PicsPerShutterSpeed { get; private set; }
         public double PictureInterval { get; private set; }
 
         public PiCamAwbMode AwbMode { get; private set; }
@@ -42,17 +50,67 @@ namespace Files.Parser
             PyCamScriptPath = StringHelper.TrimString(ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "PyCamPath=")));
             if (PyCamScriptPath == null || PyCamScriptPath == "")
                 throw new Exception("No PyCamScriptPath given.");
+
             TempDownloadDir = StringHelper.TrimString(ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "TempDownloadDir=")));
             if (TempDownloadDir == null || TempDownloadDir == "")
                 TempDownloadDir = Path.Combine(Directory.GetCurrentDirectory(), "_PiCamTemp");
 
-            lineInfo = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "ISO="));
-            ISO = uint.Parse(lineInfo);
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "SensorMode=");
+            if (lineInfo == null)
+                SensorMode = 0;
+            else
+                SensorMode = uint.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "AnalogGain=");
+            if (lineInfo == null)
+                AnalogGain = -1;
+            else
+                AnalogGain = double.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "DigitalGain=");
+            if (lineInfo == null || lineInfo == "")
+                DigitalGain = -1;
+            else
+                DigitalGain = double.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "ISO=");
+            if (lineInfo == null)
+                ISO = -1;
+            else
+                ISO = int.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+
+            if ((AnalogGain == -1 || DigitalGain == -1) && ISO == -1)
+                throw new Exception("No ISO or AG/DG given!");
 
             ParseResolution(infoBlock);
 
             ParseExposuremode(infoBlock);
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "FrameRate=");
+            if (lineInfo == null || lineInfo == "")
+                FrameRate = 10;
+            else
+                FrameRate = double.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+
             ParseShutterspeed(infoBlock);
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "Bayer=");
+            if (lineInfo == null || lineInfo == "")
+                Bayer = false;
+            else
+                Bayer = bool.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "PicsPerSS=");
+            if (lineInfo == null || lineInfo == "")
+                PicsPerShutterSpeed = 1;
+            else
+            {
+                int parsedVal = int.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+                if (parsedVal < 1)
+                    parsedVal = 1;
+                PicsPerShutterSpeed = (uint)parsedVal;
+            }
+
             ParsePictureInterval(infoBlock);
 
             ParseAutoWhiteBalance(infoBlock);
@@ -78,6 +136,7 @@ namespace Files.Parser
         {
             var lineInfo = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "ExposureMode="));
             ExposureMode = (PiCamExposureMode)Enum.Parse(typeof(PiCamExposureMode), lineInfo);
+
         }
 
 

@@ -92,8 +92,8 @@ namespace FEMDAQ
             splashScreen.Show();
 
 
-            //OpenIni(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\220608 IVNC2022 Streifenemitter\6517B (KS-Test).ini");
-            //OpenSweep(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\220608 IVNC2022 Streifenemitter\0_100_0_2VS.swp");
+            OpenIni(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\230126 HQCam SOI2x2_0005 (Test JPG+RAW)\_ini Runs.ini");
+            OpenSweep(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\230126 HQCam SOI2x2_0005 (Test JPG+RAW)\Readout.swp");
         }
 
 
@@ -130,6 +130,7 @@ namespace FEMDAQ
                     try { device.Dispose(); }
                     catch { }
                 }
+                _devices = null;
             }
         }
 
@@ -170,6 +171,7 @@ namespace FEMDAQ
                 //Chart.AddArea(chartInfo.ChartIdentifier, chartInfo.ChartName, chartInfo.XAxisTitle, chartInfo.YAxisTitle, chartInfo.XAxisBoundaries, chartInfo.YAxisBoundaries, chartInfo.XAxisLogBase, chartInfo.YAxisLogBase, showLegend);
                 Chart.AddArea(chartInfo.ChartInfo);
             }
+
 
             // Device creation
             _devices = new List<InstrumentLogicalLayer>();

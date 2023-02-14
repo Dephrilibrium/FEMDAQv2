@@ -1,5 +1,38 @@
 ﻿Changelog:
 
+27.10.2022: V2.2.8.1
+Fix:
+ - A wrong number of "PicsPerSS" was sent to the camera (amount of shutterspeeds). Therefore a new option "PicsPerSS=" were added to default.ini PiCam-Block
+Feature:
+ - Added options to PiCam-Driver
+    AnalogGain/DigitalGain (AG/DG) values can be given now. If both values given, ISO will be ignored! ISO is a weird value which the sensor uses to determine AG/DG by itself
+    SensorMode added to change the sensormode (active pixels, binning, etc...)
+ - Added possibility to adjust FrameRate by setting "FrameRate=" option in default.ini PiCam-Block
+    0:  PiCam adjusts automatically to fastest possible Framerate
+    >0: PiCam-Framerate is fixed
+ - Added "Bayer=<bool>" option to PiCam
+Misc:
+ - Added a "DownloadFile"-Function to get rPiHQCam.log-file from server.
+
+
+27.10.2022: V2.2.8.0
+Bugfix:
+ - Due to change to multi-threading the GPIB-devices other (not GPIB-devices) can request multiple queries at a time. That can lead to an exception of the GPIB-drivers.
+   Therefore the GPIB-devices must be locked everytime they write/read/query data. This fix was currently on applied to MCP140-driver (and only partially).
+ - When a tar.gz of PiCam is opened by the user, FEMDAQ can't move it to it's location directory. Now this is checked an a messagebox with a warning appears.
+   This has also big influence on queues, because also there that warning can appear an block the chain!
+
+ Misc:
+ - Added some stats and flags to PiCamUnpacker.py
+ - Added kedmm7510_64.dll to references for DMM7510-USB-Support
+ - Slight changes on default.ini
+ - Tried to implemented Cancel on "Create new folder if not exists" of JobQueue.
+   Already implemented: Yes - Creates one cell folder
+                        No  - Ignores one cell folder and marks red
+   New Implementation: Cancel - Ignores like no but keeps the decision for all savefolder-cells
+   !!!CODE IS CURRENTLY NOT SUPPOSED TO SUPPORT THAT FEATURE!!! (logical reasons! -> Commented for the moment)
+
+
 05.08.2022: V2.2.7.9
 Bugfix:
  - PiCam-Server writes 4 or 5 lines to rPiHQCam.log depending on if scripts starts the first time (4 lines) after the pi-boot or is restarted (5 lines)!

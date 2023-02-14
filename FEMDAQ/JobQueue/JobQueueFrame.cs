@@ -39,6 +39,9 @@ namespace FEMDAQ.JobQueue
         // Save/Load variable
         public const char JQLDelimiter = ';';
 
+        // Check save-folder and create if not exists
+        //private bool _createNewSavFolderCancelled = false;
+
 
         // RobertMode
         private bool _robertMode { get; set; }
@@ -160,6 +163,11 @@ namespace FEMDAQ.JobQueue
             for (var rowIndex = 0; rowIndex < dgvJobQueue.RowCount - 1; rowIndex++)
                 dgvJobQueue.Rows[rowIndex].HeaderCell.Value = string.Format("{0}", rowIndex + 1);
         }
+
+        //private void ResetNewFolderCancelled()
+        //{
+        //    _createNewSavFolderCancelled = false;
+        //}
         #endregion
 
 
@@ -180,6 +188,7 @@ namespace FEMDAQ.JobQueue
 
             CountJobs();
             RenumberJobs();
+            //ResetNewFolderCancelled();
             saveJobQueueListToolStripMenuItem.Enabled = true;
         }
 
@@ -506,14 +515,22 @@ namespace FEMDAQ.JobQueue
 
                     if (!Directory.Exists(pathBuffer))
                     {
-                        var createFolderResult = MessageBox.Show("Folder doesn't exist. Do you wan't create this folder now?", "Nonexisting Folder!",
+                        DialogResult createFolderResult;
+                        //if (_createNewSavFolderCancelled == true)
+                        //    createFolderResult = DialogResult.No;
+                        //else
+                        createFolderResult = MessageBox.Show("Folder doesn't exist. Do you wan't create this folder now?", "Nonexisting Folder!",
                                                                  MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
                         if (createFolderResult == DialogResult.Yes)
                         {
                             Directory.CreateDirectory(pathBuffer);
                         }
                         else
                         {
+                            //if (createFolderResult == DialogResult.Cancel)
+                            //    _createNewSavFolderCancelled = true; // Get's resetted if all cells are validated
+                            
                             Cell.ToolTipText = "Can't find folder! Please check your path.";
                             Cell.Style.BackColor = Color.Crimson;
                             return false;

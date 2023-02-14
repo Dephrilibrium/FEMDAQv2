@@ -9,8 +9,8 @@ def sprint(*args, end='\r\n', **kwargs):
     return sio.getvalue()
 
 
-min = 1e-2; # Voltage-Value! Divide by used shunt for real current value
-max = 10;    # Voltage-Value! Divide by used shunt for real current value
+min = 9e-3; # Voltage-Value! Divide by used shunt for real current value
+max = 9;    # Voltage-Value! Divide by used shunt for real current value
 pts = 20;
 a = (np.power(10, (np.linspace(np.log10(min),np.log10(max),pts + 1))))
 b = np.flip(a);
@@ -23,3 +23,4 @@ for i in range(len(c)):
     out = out + sprint("{:2.4f}".format(c[i]))
 
 pyperclip.copy(out) # copy buffer to clipboard :)
+print("\r\n\r\nColumnvector copied to clipboard\r\n\r\n")
