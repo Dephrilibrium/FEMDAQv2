@@ -55,6 +55,10 @@ namespace FEMDAQ.Initialization
                     device = new PiCamLayer(devInfoStructure, chart);
                     break;
 
+                case "PiCam2":
+                    device = new PiCam2Layer(devInfoStructure, chart);
+                    break;
+
                 case "DMM7510":
                     device = new DMM7510Layer(devInfoStructure, chart);
                     break;

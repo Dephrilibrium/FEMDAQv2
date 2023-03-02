@@ -92,8 +92,8 @@ namespace FEMDAQ
             splashScreen.Show();
 
 
-            OpenIni(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\230126 HQCam SOI2x2_0005 (Test JPG+RAW)\_ini Runs.ini");
-            OpenSweep(@"\\rfhmik164\Samba\_FEMDAQ V2 for Measurement\Hausi\230126 HQCam SOI2x2_0005 (Test JPG+RAW)\Readout.swp");
+            //OpenIni(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
+            //OpenSweep(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\defaultSwp.swp");
         }
 
 

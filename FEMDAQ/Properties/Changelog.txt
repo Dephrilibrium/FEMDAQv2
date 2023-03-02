@@ -1,5 +1,14 @@
 ﻿Changelog:
 
+02.03.2023: V2.2.8.2
+Feature:
+ - Added PiCam2 Support (fully tested)
+ - Added ADC:NMEAN X to mean X points. When using ADC:GET CF/UDRP Ch# the meaned value is returned
+ - Added ADC_MDELT X to define the ms-deltatime between sample points. Combined with ADC:NMEAN you can define the meaning-time. E.g. default is: 4Pnts * 25ms = 100ms meaning time
+Fixed:
+ - Fixed the commented "Autostart PyCamServer.py" code-lines in PiCam.cs
+ - Removed problemcatic "ChangeBaudrate"-code. Currently it just does nothing!
+
 14.02.2022: V2.2.8.1
 Fix:
  - A wrong number of "PicsPerSS" was sent to the camera (amount of shutterspeeds). Therefore a new option "PicsPerSS=" were added to default.ini PiCam-Block

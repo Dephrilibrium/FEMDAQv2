@@ -20,6 +20,12 @@ namespace Files.Parser
         public CommonParser chartInfo;
     }
 
+    public class FEAR16ADCGeneralSettings
+    {
+        public uint AdcNMean = 4;
+        public uint AdcMDelta = 25;
+    }
+
 
     public class InfoBlockFEAR16v2
     {
@@ -27,6 +33,7 @@ namespace Files.Parser
         public CommonParser Common { get; private set; }
         //public List<CommonParser> ChChartCommons { get; private set; }
         public ComParser ComPort { get; private set; }
+        public FEAR16ADCGeneralSettings AdcGeneralSettings { get; private set; }
         public List<FEAR16DACChannel> CurrCtrlChannels { get; private set; }
         public List<FEAR16ADCChannel> CurrFlowChannels { get; private set; }
         public List<FEAR16ADCChannel> UDropFETChannels { get; private set; }
@@ -61,6 +68,8 @@ namespace Files.Parser
                 ParseChannelNum(infoBlock, iCh);
             }
 
+            AdcGeneralSettings = new FEAR16ADCGeneralSettings();
+            parseADCGeneralSettings(infoBlock);
 
             //Source = new SourceParser(infoBlock, "SourceNode=", "Dummy=");
             //Gauge = new GaugeParser(infoBlock);
@@ -135,6 +144,20 @@ namespace Files.Parser
                 adcChannel.MeasureInstantly = GaugeMeasureInstantly.Disabled;
                 //adcChannel.chartInfo = new CommonParser(infoBlock, null, null, null, null, null); // Create instance no content
             }
+        }
+
+
+        private void parseADCGeneralSettings(IEnumerable<string> infoBlock)
+        {
+            string lineInfo = null;
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "AdcNMean=");
+            lineInfo = ParseHelper.ParseStringValueFromLineInfo(lineInfo).ToUpper();
+            AdcGeneralSettings.AdcNMean = uint.Parse(lineInfo);
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "AdcMDelta=");
+            lineInfo = ParseHelper.ParseStringValueFromLineInfo(lineInfo).ToUpper();
+            AdcGeneralSettings.AdcMDelta = uint.Parse(lineInfo);
         }
     }
 }

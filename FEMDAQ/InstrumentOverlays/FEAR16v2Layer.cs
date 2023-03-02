@@ -57,6 +57,10 @@ namespace Instrument.LogicalLayer
             if (_device == null) throw new NullReferenceException("FEAR16v2 device couldn't be generated.");
             CommunicationPhy = InstrumentCommunicationPHY.COMPort; // Via USB -> FT232
 
+            
+            _device.ChangeAdcNMeanPoints(InfoBlock.AdcGeneralSettings.AdcNMean);
+            _device.ChangeAdcMDeltaTime(InfoBlock.AdcGeneralSettings.AdcMDelta);
+
             // Make empty result-lists
             XResults = new List<List<List<List<double>>>>(_device.AmountOfChannels);
             YResults = new List<List<List<double>>>(_device.AmountOfChannels);

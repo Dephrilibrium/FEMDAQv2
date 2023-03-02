@@ -132,6 +132,10 @@ namespace Files
                             deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockPiCam(infoBlock));
                             break;
 
+                        case "PiCam2":
+                            deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockPiCam2(infoBlock));
+                            break;
+
                         case "FEAR16v2":
                             deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockFEAR16v2(infoBlock));
                             break;
