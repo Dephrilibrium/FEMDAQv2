@@ -81,6 +81,14 @@ namespace Instrument.LogicalLayer
             if (InfoBlock.UseBurst != 0)
                 _device.OutputBurst(InfoBlock.BurstCycles, InfoBlock.BurstPeriod);
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

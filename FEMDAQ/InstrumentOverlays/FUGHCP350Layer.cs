@@ -65,6 +65,15 @@ namespace Instrument.LogicalLayer
             _device.SetCurrent(InfoBlock.Source.Compliance);
             _device.SetOutput(true);
         }
+
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

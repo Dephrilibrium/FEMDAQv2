@@ -395,6 +395,7 @@ namespace FEMDAQ
             foreach(var device in Devices)
                 device.PowerDownSource();
 
+
             Ready.Set(); // Finished shutting down!
         }
 
@@ -617,6 +618,7 @@ namespace FEMDAQ
                 {
                     device.ClearResults();
                     device.Init();
+                    device.DoBeforeStart();
                 }
             }
 
@@ -769,6 +771,15 @@ namespace FEMDAQ
                 Thread.Sleep(25);
                 //_measureManagerTaskWakeSignal.Set();
             } // Wait for the measurethread to be finished!
+
+
+            lock (_devices) // This causes any problems when added after saving-results! (directly below)
+            {
+                foreach (var device in _devices)
+                {
+                    device.DoAfterFinished();
+                }
+            }
 
 
             OperationStatus.Status = MeasurementStatus.Stopped;

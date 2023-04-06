@@ -63,6 +63,14 @@ namespace Instrument.LogicalLayer
         {
             _device.OpenConnection();
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 
