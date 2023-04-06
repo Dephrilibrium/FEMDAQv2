@@ -95,6 +95,14 @@ namespace Instrument.LogicalLayer
                 _device.SetAverage(false);
             }
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

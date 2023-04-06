@@ -35,6 +35,8 @@ namespace Instrument.LogicalLayer
 
         // Common
         void Init();
+        void DoBeforeStart();
+        void DoAfterFinished();
 
 
 

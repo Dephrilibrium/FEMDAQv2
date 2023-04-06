@@ -96,6 +96,14 @@ namespace Instrument.LogicalLayer
         public void Init()
         {
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

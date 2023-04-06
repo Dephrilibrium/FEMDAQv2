@@ -97,6 +97,14 @@ namespace Instrument.LogicalLayer
                                  InfoBlock.TriggerSlope,
                                  InfoBlock.ForceTrigger);
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

@@ -24,6 +24,7 @@ namespace Instrument.LogicalLayer
         //private int _filenameCounter = 0;
         private string _shutterSpeeds = null;
         private int _measureCalls = -1;
+        private int _currentDownloads = 0;
         //private string TempDownloadDir = null;
 
 
@@ -59,8 +60,9 @@ namespace Instrument.LogicalLayer
                 _shutterSpeeds += ss.ToString() + ":";
             _shutterSpeeds.Remove(_shutterSpeeds.Length - 1); // Remove tailing ':'
 
-            _device.ConfAnalogGain(InfoBlock.AnalogGain);
-            _device.ConfAwbGains(InfoBlock.AwbGainRBalance, InfoBlock.AwbGainBBalance);
+            //_device.ConfAnalogGain(InfoBlock.AnalogGain);                                 // Testwise commented!
+            //_device.ConfAwbGains(InfoBlock.AwbGainRBalance, InfoBlock.AwbGainBBalance);   // Testwise commented!
+
             //_device.ConfScalerCrop(InfoBlock.ScalerCrop[0], InfoBlock.ScalerCrop[1], InfoBlock.ScalerCrop[2], InfoBlock.ScalerCrop[3]);
             if (InfoBlock.BayerClipWin.Length == 4)
                 _device.ServerBayerClipSize(InfoBlock.BayerClipWin[0], InfoBlock.BayerClipWin[1], InfoBlock.BayerClipWin[2], InfoBlock.BayerClipWin[3]);
@@ -73,9 +75,9 @@ namespace Instrument.LogicalLayer
             if (!Directory.Exists(InfoBlock.TempDownloadDir))
                 Directory.CreateDirectory(InfoBlock.TempDownloadDir);
 
-            var fileList = Directory.GetFiles(InfoBlock.TempDownloadDir);
-            foreach (var filepath in fileList)
-                File.Delete(filepath);
+            // Is done before measurement-start!
+            //ResetMeasureCalls();
+            // ClearTempFolder();
         }
 
 
@@ -85,6 +87,19 @@ namespace Instrument.LogicalLayer
             if (_device != null)
                 _device.Dispose();
         }
+
+        public void ClearTempFolder()
+        {
+            var fileList = Directory.GetFiles(InfoBlock.TempDownloadDir);
+            foreach (var filepath in fileList)
+                File.Delete(filepath);
+        }
+
+        public void ResetMeasureCalls()
+        {
+            _measureCalls = -1;
+        }
+
 
 
 
@@ -104,6 +119,10 @@ namespace Instrument.LogicalLayer
         #region Common
         public void Init()
         {
+            // Is done before measurement-start!
+            //ResetMeasureCalls();
+            //ClearTempFolder();
+
             //var couplingAC = DMM7510.ConvertCoupling(InfoBlock.Coupling);
             //if (InfoBlock.MeasurementType == "VOLT")
             //{
@@ -116,6 +135,16 @@ namespace Instrument.LogicalLayer
             //    //_device.SetCurrentMeasurement(couplingAC, cRange, InfoBlock.Gauge.Nplc, InfoBlock.AutoZero);
             //}
             //else throw new ArgumentOutOfRangeException("Unsupported measurementtype.");
+        }
+
+        public void DoBeforeStart()
+        {
+            ResetMeasureCalls();
+            ClearTempFolder();
+        }
+
+        public void DoAfterFinished()
+        {
         }
         #endregion
 
@@ -167,7 +196,17 @@ namespace Instrument.LogicalLayer
             _measureCalls++;
             //_device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // Shutterspeeds are sorted // Is now done by the script itself when SS are sent sorted!
 
-            _device.ReceiveAllRawAsArchive(InfoBlock.TempDownloadDir, tarGzName, InfoBlock.Compress2TarGz, InfoBlock.CompressMulticore, InfoBlock.CompressSuppressParents); // Puth them temporary to a dummy-folder
+
+            ThreadPool.QueueUserWorkItem((state) => {
+                _currentDownloads++; // Add during download
+                _device.ReceiveAllRawAsArchive(InfoBlock.TempDownloadDir, 
+                                                tarGzName, 
+                                                InfoBlock.Compress2TarGz, 
+                                                InfoBlock.CompressMulticore, 
+                                                InfoBlock.CompressSuppressParents); // Puth them temporary to a dummy-folder
+                _currentDownloads--; // Remove after download
+            });
+            //_device.ReceiveAllRawAsArchive(InfoBlock.TempDownloadDir, tarGzName, InfoBlock.Compress2TarGz, InfoBlock.CompressMulticore, InfoBlock.CompressSuppressParents); // Puth them temporary to a dummy-folder
         }
 
 
@@ -182,6 +221,11 @@ namespace Instrument.LogicalLayer
 
             if (InfoBlock.Gauge.MeasureInstantly < 0) // Hadn't done measurements!
                 return;
+
+            while(_currentDownloads > 0)
+            {
+                Thread.Sleep(100); // Wait 100ms and check again!
+            }
 
             var deviceName = string.Format("{0}_{1}",
                                            InfoBlock.Common.DeviceIdentifier,
@@ -221,7 +265,8 @@ namespace Instrument.LogicalLayer
                 //                                     deviceName is inserted during download -> Already has the correct filename
             }
 
-            _measureCalls = -1; // Reset for next run
+            // Is now done before measurement-start!
+            //ResetMeasureCalls(); // Reset for next run
 
             if (failedSrcDir != null)
             {

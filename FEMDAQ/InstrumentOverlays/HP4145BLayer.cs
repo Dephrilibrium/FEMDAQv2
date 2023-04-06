@@ -89,6 +89,14 @@ namespace Instrument.LogicalLayer
         {
             _device.SetParameter(InfoBlock.IntegrationTime, AutoCalibration.On);
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

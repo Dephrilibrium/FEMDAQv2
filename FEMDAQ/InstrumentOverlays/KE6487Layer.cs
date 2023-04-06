@@ -102,6 +102,14 @@ namespace Instrument.LogicalLayer
             }
             _device.SetRate(InfoBlock.Gauge.Nplc);
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

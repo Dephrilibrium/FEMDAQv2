@@ -68,6 +68,14 @@ namespace Instrument.LogicalLayer
             _device.OutputLoad = InfoBlock.OutputLoad;
             _device.Waveform = InfoBlock.Waveform;
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

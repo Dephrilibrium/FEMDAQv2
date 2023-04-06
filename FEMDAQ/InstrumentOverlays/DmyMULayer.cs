@@ -71,7 +71,13 @@ namespace Instrument.LogicalLayer
             _seriesNames.Clear();
         }
 
+        public void DoBeforeStart()
+        {
+        }
 
+        public void DoAfterFinished()
+        {
+        }
 
         #region Getter/Setter
         public List<List<double>> XResults { get; private set; }

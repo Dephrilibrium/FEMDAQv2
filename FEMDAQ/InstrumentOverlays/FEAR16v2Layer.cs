@@ -168,6 +168,14 @@ namespace Instrument.LogicalLayer
         {
             _device.ResetCurrentControl();
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

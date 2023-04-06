@@ -116,6 +116,14 @@ namespace Instrument.LogicalLayer
             if(InfoBlock.TriggerOnWaveform) _device.TriggerSetup(InfoBlock.TriggerLevel, InfoBlock.TriggerSource, InfoBlock.TriggerMode, InfoBlock.TriggerType, InfoBlock.TriggerSlope);
             _device.DisplayUpdate(InfoBlock.UpdateDisplay);
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

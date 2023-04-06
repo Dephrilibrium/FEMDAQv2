@@ -103,6 +103,14 @@ namespace Instrument.LogicalLayer
             }
             else throw new ArgumentOutOfRangeException("Unsupported measurementtype.");
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 

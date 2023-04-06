@@ -5,6 +5,8 @@ FEMDAQ/.vs
 FEMDAQ/_Klassendiagramme
 FEMDAQ/obj
 FEMDAQ/Service References
+Debug/fatalException/
+Debug/_PiCam2Temp/
 
 # Ignored files (wildcard)
 *.user

@@ -75,9 +75,9 @@ namespace Instrument.LogicalLayer
             if (!Directory.Exists(InfoBlock.TempDownloadDir))
                 Directory.CreateDirectory(InfoBlock.TempDownloadDir);
 
-            var fileList = Directory.GetFiles(InfoBlock.TempDownloadDir);
-            foreach (var filepath in fileList)
-                File.Delete(filepath);
+            // Is done before measurement-start!
+            //ResetMeasureCalls();
+            // ClearTempFolder();
         }
 
 
@@ -86,6 +86,19 @@ namespace Instrument.LogicalLayer
         {
             if (_device != null)
                 _device.Dispose();
+        }
+
+
+        public void ClearTempFolder()
+        {
+            var fileList = Directory.GetFiles(InfoBlock.TempDownloadDir);
+            foreach (var filepath in fileList)
+                File.Delete(filepath);
+        }
+
+        public void ResetMeasureCalls()
+        {
+            _measureCalls = -1;
         }
 
 
@@ -106,6 +119,10 @@ namespace Instrument.LogicalLayer
         #region Common
         public void Init()
         {
+            // Is done before measurement-start!
+            //ResetMeasureCalls();
+            // ClearTempFolder();
+
             //var couplingAC = DMM7510.ConvertCoupling(InfoBlock.Coupling);
             //if (InfoBlock.MeasurementType == "VOLT")
             //{
@@ -118,6 +135,16 @@ namespace Instrument.LogicalLayer
             //    //_device.SetCurrentMeasurement(couplingAC, cRange, InfoBlock.Gauge.Nplc, InfoBlock.AutoZero);
             //}
             //else throw new ArgumentOutOfRangeException("Unsupported measurementtype.");
+        }
+
+        public void DoBeforeStart()
+        {
+            ResetMeasureCalls();
+            ClearTempFolder();
+        }
+
+        public void DoAfterFinished()
+        {
         }
         #endregion
 
@@ -222,7 +249,8 @@ namespace Instrument.LogicalLayer
                 //                                     deviceName is inserted during download -> Already has the correct filename
             }
 
-            _measureCalls = -1; // Reset for next run
+            // Is now done before measurement-start!
+            //ResetMeasureCalls(); // Reset for next run
 
             if (failedSrcDir != null)
             {

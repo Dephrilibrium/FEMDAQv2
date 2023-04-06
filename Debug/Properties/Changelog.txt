@@ -1,5 +1,13 @@
 ﻿Changelog:
 
+XX.YY.ZZZZ: V2.2.8.3
+Feature:
+ - Added possibility to execute commands once per measurement-start to InstrumentOverlay
+Fixed:
+ - SerialPort-object of FEAR16v12 was static (now it's an instance-variable). That caused problem on re-init a port when turned off and on again!
+ - PyCam-Layer now resets its "MeasureCalls" and clears the temp-directory using the "exectue once before and after measurement" feature (see above).
+
+
 02.03.2023: V2.2.8.2
 Feature:
  - Added PiCam2 Support (fully tested)

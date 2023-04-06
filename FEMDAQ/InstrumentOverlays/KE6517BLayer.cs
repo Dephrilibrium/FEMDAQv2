@@ -106,6 +106,14 @@ namespace Instrument.LogicalLayer
             _device.SetZeroCheck(InfoBlock.ZeroCheck);
             _device.SetIntegrationInNPLC(InfoBlock.Gauge.Nplc);
         }
+
+        public void DoBeforeStart()
+        {
+        }
+
+        public void DoAfterFinished()
+        {
+        }
         #endregion
 
 
