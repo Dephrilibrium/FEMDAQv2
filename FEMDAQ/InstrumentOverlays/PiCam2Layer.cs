@@ -197,13 +197,23 @@ namespace Instrument.LogicalLayer
             //_device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // Shutterspeeds are sorted // Is now done by the script itself when SS are sent sorted!
 
 
+            var srcPath = _device.Raw2Archive(tarGzName,
+                                              InfoBlock.Compress2TarGz,
+                                              InfoBlock.CompressMulticore,
+                                              InfoBlock.CompressSuppressParents);
+            var dstPath = string.Format("{0}", Path.Combine(InfoBlock.TempDownloadDir, Path.GetFileName(srcPath))); // Append .gz if compression is enabled
+
             ThreadPool.QueueUserWorkItem((state) => {
                 _currentDownloads++; // Add during download
-                _device.ReceiveAllRawAsArchive(InfoBlock.TempDownloadDir, 
-                                                tarGzName, 
-                                                InfoBlock.Compress2TarGz, 
-                                                InfoBlock.CompressMulticore, 
-                                                InfoBlock.CompressSuppressParents); // Puth them temporary to a dummy-folder
+
+                _device.DownloadFile(srcPath, dstPath);
+                _device.ClearFile(srcPath);              // Remove archive
+
+                //_device.ReceiveAllRawAsArchive(InfoBlock.TempDownloadDir, 
+                //                                tarGzName, 
+                //                                InfoBlock.Compress2TarGz, 
+                //                                InfoBlock.CompressMulticore, 
+                //                                InfoBlock.CompressSuppressParents); // Puth them temporary to a dummy-folder
                 _currentDownloads--; // Remove after download
             });
             //_device.ReceiveAllRawAsArchive(InfoBlock.TempDownloadDir, tarGzName, InfoBlock.Compress2TarGz, InfoBlock.CompressMulticore, InfoBlock.CompressSuppressParents); // Puth them temporary to a dummy-folder
