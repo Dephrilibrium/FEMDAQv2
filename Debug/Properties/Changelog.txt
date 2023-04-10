@@ -7,6 +7,7 @@ Fixed:
  - SerialPort-object of FEAR16v12 was static (now it's an instance-variable). That caused problem on re-init a port when turned off and on again!
  - PyCam-Layer now resets its "MeasureCalls" and clears the temp-directory using the "exectue once before and after measurement" feature (see above).
  - PyCam2 Driver got own SCPClient-instance on download (using the same scpclient in different threads caused problems, due to scp already in use sometimes!)
+ - PyCam2-Layer: Restructured the way of archiving (in "linear" code) and downloading (as thread)!
 
 
 02.03.2023: V2.2.8.2
