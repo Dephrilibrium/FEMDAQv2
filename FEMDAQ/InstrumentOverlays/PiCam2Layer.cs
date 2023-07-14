@@ -1,4 +1,5 @@
 ﻿using FEMDAQ.StaticHelper;
+using FEMDAQ.Instrumentwindows;
 using Files;
 using Files.Parser;
 using HaumOTH;
@@ -11,6 +12,8 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using FEMDAQ.Instrumentwindows.PiCam2Statuswindow;
+using FEMDAQ;
 
 namespace Instrument.LogicalLayer
 {
@@ -24,9 +27,15 @@ namespace Instrument.LogicalLayer
         //private int _filenameCounter = 0;
         private string _shutterSpeeds = null;
         private int _measureCalls = -1;
-        private int _currentDownloads = 0;
+
+        private PyCam2Statuswindow _statWin = null;
+        public int _startedDownloads { get; private set; }
+        public int _activeDownloads { get; private set; }
         //private string TempDownloadDir = null;
 
+
+        // Log-Vars
+        private int _padding = 45;
 
         public PiCam2Layer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
         {
@@ -43,15 +52,27 @@ namespace Instrument.LogicalLayer
             //XResults = new List<double>();
             //YResults = new List<double>();
 
-            try 
+            // Open the status window
+            _statWin = new PyCam2Statuswindow(this);
+            _statWin.LPad = 22;
+            _statWin.Owner = GlobalVariables.MainFrame;
+            _statWin.Show();
+            _statWin.OverrideLog("!!! ATTENTION !!!\nThis log is only for your information and therefore NOT saved.\nIf you want to have a full and detailed log, use the PiCam2's logger functionality!\n\n\n"
+                                 , false);
+            _statWin.Append2Log("Creating PyCam2 instance.");
+
+
+            try
             { _device = new PiCam2(InfoBlock.Ip.IP, InfoBlock.Ip.Port, InfoBlock.Ip.Username, InfoBlock.Ip.Password, InfoBlock.PyCamScriptPath); }
             catch (Exception e) { throw new Exception("Can't create PiCam:\n\nAdditional Info:\n" + e.Message); }
+
             CommunicationPhy = InstrumentCommunicationPHY.Ethernet;
 
             if (InfoBlock.ShutterSpeeds.Length <= 0)
                 throw new Exception("No shutterspeeds given!");
 
             // Setup of cam
+            _statWin.Append2Log("Configuring PyCam2");
             //_device.ConfExposureMode(InfoBlock.ExposureMode);
             //_device.ConfFrameRate(InfoBlock.FrameRate);
             _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // SS sorted ascending
@@ -75,6 +96,8 @@ namespace Instrument.LogicalLayer
             if (!Directory.Exists(InfoBlock.TempDownloadDir))
                 Directory.CreateDirectory(InfoBlock.TempDownloadDir);
 
+            _statWin.Append2Log("Temp. download folder is " + InfoBlock.TempDownloadDir);
+
             // Is done before measurement-start!
             //ResetMeasureCalls();
             // ClearTempFolder();
@@ -86,11 +109,21 @@ namespace Instrument.LogicalLayer
         {
             if (_device != null)
                 _device.Dispose();
+
+            if (_statWin != null)
+            {
+                _statWin.Close();
+                _statWin.Dispose();
+            }
         }
 
         public void ClearTempFolder()
         {
             var fileList = Directory.GetFiles(InfoBlock.TempDownloadDir);
+
+            if (fileList.Length > 0)
+                _statWin.Append2Log("Deleting contents of temp. download folder.");
+
             foreach (var filepath in fileList)
                 File.Delete(filepath);
         }
@@ -139,6 +172,7 @@ namespace Instrument.LogicalLayer
 
         public void DoBeforeStart()
         {
+            _statWin.Append2Log("Resetting internal measurement status variables.");
             ResetMeasureCalls();
             ClearTempFolder();
         }
@@ -177,6 +211,7 @@ namespace Instrument.LogicalLayer
                                           //InfoBlock.Common.DeviceIdentifier,
                                           //(InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName)
                                           );
+                _statWin.Invoke(new Action(() => _statWin.Append2Log(string.Format("Requesting black image set."))));
             }
             else
             {
@@ -189,7 +224,10 @@ namespace Instrument.LogicalLayer
                                           //(InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName),
                                           _measureCalls.ToString().PadLeft(4, '0')
                                           );
+
+                _statWin.Invoke(new Action(() => _statWin.Append2Log(string.Format("Requesting image set {0}.", _measureCalls.ToString()))));
             }
+
 
             //_device.TakePicSequence2Ramdisk(tarGzName, InfoBlock.PicsPerShutterSpeed, InfoBlock.ShutterSpeeds, InfoBlock.PictureInterval, InfoBlock.Bayer);
             _device.CaptureShutterSpeedSequence(tarGzName, InfoBlock.PicsPerShutterSpeed, InfoBlock.ShutterSpeeds, 0.2, InfoBlock.SaveSSLog);
@@ -203,8 +241,15 @@ namespace Instrument.LogicalLayer
                                               InfoBlock.CompressSuppressParents);
             var dstPath = string.Format("{0}", Path.Combine(InfoBlock.TempDownloadDir, Path.GetFileName(srcPath))); // Append .gz if compression is enabled
 
+
+            
             ThreadPool.QueueUserWorkItem((state) => {
-                _currentDownloads++; // Add during download
+                
+                string imgSetName = (_startedDownloads - 1 < 0) ? "black" : (_startedDownloads - 1).ToString();
+                _statWin.Invoke(new Action(() => _statWin.Append2Log(string.Format("Downloading image set " + imgSetName))));
+
+                _startedDownloads++;
+                _activeDownloads++; // Add during download
 
                 _device.DownloadFile(srcPath, dstPath);
                 _device.ClearFile(srcPath);              // Remove archive
@@ -214,9 +259,14 @@ namespace Instrument.LogicalLayer
                 //                                InfoBlock.Compress2TarGz, 
                 //                                InfoBlock.CompressMulticore, 
                 //                                InfoBlock.CompressSuppressParents); // Puth them temporary to a dummy-folder
-                _currentDownloads--; // Remove after download
+                _activeDownloads--; // Remove after download
+
+                _statWin.Invoke(new Action(() => _statWin.Append2Log(string.Format("Finished image set " + imgSetName))));
+                if (_activeDownloads == 0)
+                    _statWin.Invoke(new Action(() => _statWin.UpdateActiveDownloadsToolstrip()));
             });
             //_device.ReceiveAllRawAsArchive(InfoBlock.TempDownloadDir, tarGzName, InfoBlock.Compress2TarGz, InfoBlock.CompressMulticore, InfoBlock.CompressSuppressParents); // Puth them temporary to a dummy-folder
+
         }
 
 
@@ -232,7 +282,7 @@ namespace Instrument.LogicalLayer
             if (InfoBlock.Gauge.MeasureInstantly < 0) // Hadn't done measurements!
                 return;
 
-            while(_currentDownloads > 0)
+            while(_activeDownloads > 0)
             {
                 Thread.Sleep(100); // Wait 100ms and check again!
             }
@@ -326,6 +376,7 @@ namespace Instrument.LogicalLayer
         // Invoke this when using threads!
         public void UpdateGraph()
         {
+            _statWin.UpdateActiveDownloadsToolstrip();
         }
         #endregion
     }

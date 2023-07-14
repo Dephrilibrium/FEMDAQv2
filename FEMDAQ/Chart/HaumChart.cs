@@ -21,7 +21,8 @@ namespace HaumChart
             WipeChart();
 
             _controlWidth = pSidebar.Width;
-            pSidebar.Width = lExpandSidebar.Width;
+            //pSidebar.Width = lExpandSidebar.Width;        // Disabled to not fold the sidepanel
+            PbPinSidepanel_Click(this, new EventArgs());    // Call to pin sidebar by default
         }
 
 

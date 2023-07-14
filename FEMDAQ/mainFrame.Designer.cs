@@ -86,6 +86,7 @@
             // 
             // mainMenu
             // 
+            this.mainMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.miFile,
             this.miMsrmt,
@@ -93,7 +94,8 @@
             this.miHelp});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
-            this.mainMenu.Size = new System.Drawing.Size(1304, 24);
+            this.mainMenu.Padding = new System.Windows.Forms.Padding(8, 2, 0, 2);
+            this.mainMenu.Size = new System.Drawing.Size(1739, 28);
             this.mainMenu.TabIndex = 0;
             this.mainMenu.Text = "mainMenu";
             // 
@@ -104,7 +106,7 @@
             this.miFileSaveLastResults,
             this.miFileClose});
             this.miFile.Name = "miFile";
-            this.miFile.Size = new System.Drawing.Size(37, 20);
+            this.miFile.Size = new System.Drawing.Size(46, 24);
             this.miFile.Text = "File";
             // 
             // miFileOpen
@@ -113,7 +115,7 @@
             this.miFileOpenIni,
             this.miFileOpenSweep});
             this.miFileOpen.Name = "miFileOpen";
-            this.miFileOpen.Size = new System.Drawing.Size(198, 22);
+            this.miFileOpen.Size = new System.Drawing.Size(250, 26);
             this.miFileOpen.Text = "Open";
             // 
             // miFileOpenIni
@@ -122,7 +124,7 @@
             this.miFileOpenIni.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.I)));
             this.miFileOpenIni.ShowShortcutKeys = false;
-            this.miFileOpenIni.Size = new System.Drawing.Size(200, 22);
+            this.miFileOpenIni.Size = new System.Drawing.Size(251, 26);
             this.miFileOpenIni.Text = "Ini-File (Ctrl+Shift+I)";
             this.miFileOpenIni.Click += new System.EventHandler(this.miFileOpenIni_Click);
             // 
@@ -132,7 +134,7 @@
             this.miFileOpenSweep.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.S)));
             this.miFileOpenSweep.ShowShortcutKeys = false;
-            this.miFileOpenSweep.Size = new System.Drawing.Size(200, 22);
+            this.miFileOpenSweep.Size = new System.Drawing.Size(251, 26);
             this.miFileOpenSweep.Text = "Sweep-File (Ctrl+Shift+S)";
             this.miFileOpenSweep.Click += new System.EventHandler(this.miFileOpenSweep_Click);
             // 
@@ -140,7 +142,7 @@
             // 
             this.miFileSaveLastResults.Name = "miFileSaveLastResults";
             this.miFileSaveLastResults.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.miFileSaveLastResults.Size = new System.Drawing.Size(198, 22);
+            this.miFileSaveLastResults.Size = new System.Drawing.Size(250, 26);
             this.miFileSaveLastResults.Text = "Save last results";
             this.miFileSaveLastResults.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -149,7 +151,7 @@
             this.miFileClose.Name = "miFileClose";
             this.miFileClose.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
             this.miFileClose.ShowShortcutKeys = false;
-            this.miFileClose.Size = new System.Drawing.Size(198, 22);
+            this.miFileClose.Size = new System.Drawing.Size(250, 26);
             this.miFileClose.Text = "Close (Alt+F4)";
             this.miFileClose.Click += new System.EventHandler(this.miFileClose_Click);
             // 
@@ -160,7 +162,7 @@
             this.miPause,
             this.miStop});
             this.miMsrmt.Name = "miMsrmt";
-            this.miMsrmt.Size = new System.Drawing.Size(92, 20);
+            this.miMsrmt.Size = new System.Drawing.Size(113, 24);
             this.miMsrmt.Text = "Measurement";
             // 
             // miStart
@@ -168,7 +170,7 @@
             this.miStart.Name = "miStart";
             this.miStart.ShortcutKeys = System.Windows.Forms.Keys.F5;
             this.miStart.ShowShortcutKeys = false;
-            this.miStart.Size = new System.Drawing.Size(180, 22);
+            this.miStart.Size = new System.Drawing.Size(162, 26);
             this.miStart.Text = "Start (F5)";
             this.miStart.Click += new System.EventHandler(this.msStart_Click);
             // 
@@ -178,7 +180,7 @@
             this.miPause.Name = "miPause";
             this.miPause.ShortcutKeys = System.Windows.Forms.Keys.F6;
             this.miPause.ShowShortcutKeys = false;
-            this.miPause.Size = new System.Drawing.Size(180, 22);
+            this.miPause.Size = new System.Drawing.Size(162, 26);
             this.miPause.Text = "Pausing (F6)";
             this.miPause.Click += new System.EventHandler(this.msPause_Click);
             // 
@@ -188,7 +190,7 @@
             this.miStop.Name = "miStop";
             this.miStop.ShortcutKeys = System.Windows.Forms.Keys.F7;
             this.miStop.ShowShortcutKeys = false;
-            this.miStop.Size = new System.Drawing.Size(180, 22);
+            this.miStop.Size = new System.Drawing.Size(162, 26);
             this.miStop.Text = "Stop (F7)";
             this.miStop.Click += new System.EventHandler(this.msStop_Click);
             // 
@@ -198,14 +200,14 @@
             this.miJobQueueCreateOrShow,
             this.miJobQueueDelete});
             this.miJobQueue.Name = "miJobQueue";
-            this.miJobQueue.Size = new System.Drawing.Size(70, 20);
+            this.miJobQueue.Size = new System.Drawing.Size(87, 24);
             this.miJobQueue.Text = "Jobqueue";
             // 
             // miJobQueueCreateOrShow
             // 
             this.miJobQueueCreateOrShow.Name = "miJobQueueCreateOrShow";
             this.miJobQueueCreateOrShow.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.J)));
-            this.miJobQueueCreateOrShow.Size = new System.Drawing.Size(206, 22);
+            this.miJobQueueCreateOrShow.Size = new System.Drawing.Size(261, 26);
             this.miJobQueueCreateOrShow.Text = "Create queue";
             this.miJobQueueCreateOrShow.Click += new System.EventHandler(this.miJobQueueCreateOrShow_Click);
             // 
@@ -214,7 +216,7 @@
             this.miJobQueueDelete.Name = "miJobQueueDelete";
             this.miJobQueueDelete.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
             | System.Windows.Forms.Keys.J)));
-            this.miJobQueueDelete.Size = new System.Drawing.Size(206, 22);
+            this.miJobQueueDelete.Size = new System.Drawing.Size(261, 26);
             this.miJobQueueDelete.Text = "Delete queue";
             this.miJobQueueDelete.Click += new System.EventHandler(this.miJobQueueDelete_Click);
             // 
@@ -225,34 +227,35 @@
             this.miChangelog,
             this.miUpdate});
             this.miHelp.Name = "miHelp";
-            this.miHelp.Size = new System.Drawing.Size(44, 20);
+            this.miHelp.Size = new System.Drawing.Size(55, 24);
             this.miHelp.Text = "Help";
             // 
             // miInfo
             // 
             this.miInfo.Name = "miInfo";
-            this.miInfo.Size = new System.Drawing.Size(180, 22);
+            this.miInfo.Size = new System.Drawing.Size(211, 26);
             this.miInfo.Text = "Info";
             this.miInfo.Click += new System.EventHandler(this.infoToolStripMenuItem_Click);
             // 
             // miChangelog
             // 
             this.miChangelog.Name = "miChangelog";
-            this.miChangelog.Size = new System.Drawing.Size(180, 22);
+            this.miChangelog.Size = new System.Drawing.Size(211, 26);
             this.miChangelog.Text = "Changelog";
             this.miChangelog.Click += new System.EventHandler(this.ChangelogToolStripMenuItem_Click);
             // 
             // miUpdate
             // 
             this.miUpdate.Name = "miUpdate";
-            this.miUpdate.Size = new System.Drawing.Size(180, 22);
+            this.miUpdate.Size = new System.Drawing.Size(211, 26);
             this.miUpdate.Text = "Check for updates";
             this.miUpdate.Click += new System.EventHandler(this.autoUpdaterToolStripMenuItem_Click);
             // 
             // splitInfoData
             // 
             this.splitInfoData.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitInfoData.Location = new System.Drawing.Point(0, 24);
+            this.splitInfoData.Location = new System.Drawing.Point(0, 28);
+            this.splitInfoData.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.splitInfoData.Name = "splitInfoData";
             this.splitInfoData.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -265,18 +268,19 @@
             // 
             this.splitInfoData.Panel2.Controls.Add(this.Chart);
             this.splitInfoData.Panel2.Controls.Add(this.statusBar);
-            this.splitInfoData.Size = new System.Drawing.Size(1304, 701);
-            this.splitInfoData.SplitterDistance = 140;
-            this.splitInfoData.SplitterWidth = 3;
+            this.splitInfoData.Size = new System.Drawing.Size(1739, 864);
+            this.splitInfoData.SplitterDistance = 118;
             this.splitInfoData.TabIndex = 1;
             // 
             // gbSweepInfo
             // 
             this.gbSweepInfo.Controls.Add(this.lvSweepData);
             this.gbSweepInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gbSweepInfo.Location = new System.Drawing.Point(343, 0);
+            this.gbSweepInfo.Location = new System.Drawing.Point(457, 0);
+            this.gbSweepInfo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.gbSweepInfo.Name = "gbSweepInfo";
-            this.gbSweepInfo.Size = new System.Drawing.Size(961, 140);
+            this.gbSweepInfo.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gbSweepInfo.Size = new System.Drawing.Size(1282, 118);
             this.gbSweepInfo.TabIndex = 0;
             this.gbSweepInfo.TabStop = false;
             this.gbSweepInfo.Text = "Sweepfile (None):";
@@ -295,9 +299,10 @@
             this.lvSweepData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvSweepData.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lvSweepData.HideSelection = false;
-            this.lvSweepData.Location = new System.Drawing.Point(3, 16);
+            this.lvSweepData.Location = new System.Drawing.Point(4, 19);
+            this.lvSweepData.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lvSweepData.Name = "lvSweepData";
-            this.lvSweepData.Size = new System.Drawing.Size(955, 121);
+            this.lvSweepData.Size = new System.Drawing.Size(1274, 95);
             this.lvSweepData.TabIndex = 0;
             this.lvSweepData.UseCompatibleStateImageBehavior = false;
             this.lvSweepData.View = System.Windows.Forms.View.Details;
@@ -347,8 +352,10 @@
             this.gbIniInfo.Controls.Add(this.tbLog);
             this.gbIniInfo.Dock = System.Windows.Forms.DockStyle.Left;
             this.gbIniInfo.Location = new System.Drawing.Point(0, 0);
+            this.gbIniInfo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.gbIniInfo.Name = "gbIniInfo";
-            this.gbIniInfo.Size = new System.Drawing.Size(343, 140);
+            this.gbIniInfo.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gbIniInfo.Size = new System.Drawing.Size(457, 118);
             this.gbIniInfo.TabIndex = 3;
             this.gbIniInfo.TabStop = false;
             this.gbIniInfo.Text = "Log-Window:";
@@ -357,11 +364,12 @@
             // 
             this.tbLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tbLog.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbLog.Location = new System.Drawing.Point(3, 16);
+            this.tbLog.Location = new System.Drawing.Point(4, 19);
+            this.tbLog.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tbLog.Name = "tbLog";
             this.tbLog.ReadOnly = true;
             this.tbLog.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.tbLog.Size = new System.Drawing.Size(337, 121);
+            this.tbLog.Size = new System.Drawing.Size(449, 95);
             this.tbLog.TabIndex = 1;
             this.tbLog.Text = "";
             // 
@@ -369,12 +377,14 @@
             // 
             this.Chart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Chart.Location = new System.Drawing.Point(0, 0);
+            this.Chart.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
             this.Chart.Name = "Chart";
-            this.Chart.Size = new System.Drawing.Size(1304, 536);
+            this.Chart.Size = new System.Drawing.Size(1739, 712);
             this.Chart.TabIndex = 1;
             // 
             // statusBar
             // 
+            this.statusBar.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.sbProgressLabel,
             this.sbProgress,
@@ -385,62 +395,63 @@
             this.sbSpacer,
             this.sbStatusLabel,
             this.sbStatus});
-            this.statusBar.Location = new System.Drawing.Point(0, 536);
+            this.statusBar.Location = new System.Drawing.Point(0, 712);
             this.statusBar.Name = "statusBar";
-            this.statusBar.Size = new System.Drawing.Size(1304, 22);
+            this.statusBar.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
+            this.statusBar.Size = new System.Drawing.Size(1739, 30);
             this.statusBar.TabIndex = 0;
             this.statusBar.Text = "Statusbar";
             // 
             // sbProgressLabel
             // 
             this.sbProgressLabel.Name = "sbProgressLabel";
-            this.sbProgressLabel.Size = new System.Drawing.Size(55, 17);
+            this.sbProgressLabel.Size = new System.Drawing.Size(68, 24);
             this.sbProgressLabel.Text = "Progress:";
             // 
             // sbProgress
             // 
             this.sbProgress.Name = "sbProgress";
-            this.sbProgress.Size = new System.Drawing.Size(150, 16);
+            this.sbProgress.Size = new System.Drawing.Size(200, 22);
             this.sbProgress.Step = 1;
             // 
             // sbIterates
             // 
             this.sbIterates.Name = "sbIterates";
-            this.sbIterates.Size = new System.Drawing.Size(68, 17);
+            this.sbIterates.Size = new System.Drawing.Size(87, 24);
             this.sbIterates.Text = "Iterates: 0/0";
             // 
             // sbRemaining
             // 
             this.sbRemaining.Margin = new System.Windows.Forms.Padding(15, 3, 0, 2);
             this.sbRemaining.Name = "sbRemaining";
-            this.sbRemaining.Size = new System.Drawing.Size(140, 17);
+            this.sbRemaining.Size = new System.Drawing.Size(170, 25);
             this.sbRemaining.Text = "Remaining: --:--:-- (--:--)";
             // 
             // sbOperator
             // 
             this.sbOperator.Margin = new System.Windows.Forms.Padding(15, 3, 0, 2);
             this.sbOperator.Name = "sbOperator";
-            this.sbOperator.Size = new System.Drawing.Size(65, 17);
+            this.sbOperator.Size = new System.Drawing.Size(82, 25);
             this.sbOperator.Text = "Operator: -";
             // 
             // sbDescription
             // 
             this.sbDescription.Margin = new System.Windows.Forms.Padding(15, 3, 0, 2);
             this.sbDescription.Name = "sbDescription";
-            this.sbDescription.Size = new System.Drawing.Size(78, 17);
+            this.sbDescription.Size = new System.Drawing.Size(98, 25);
             this.sbDescription.Text = "Description: -";
             // 
             // sbSpacer
             // 
             this.sbSpacer.Name = "sbSpacer";
-            this.sbSpacer.Size = new System.Drawing.Size(590, 17);
+            this.sbSpacer.Size = new System.Drawing.Size(845, 24);
             this.sbSpacer.Spring = true;
             // 
             // sbStatusLabel
             // 
             this.sbStatusLabel.BackColor = System.Drawing.SystemColors.Control;
             this.sbStatusLabel.Name = "sbStatusLabel";
-            this.sbStatusLabel.Size = new System.Drawing.Size(45, 17);
+            this.sbStatusLabel.Size = new System.Drawing.Size(56, 24);
             this.sbStatusLabel.Text = "Status: ";
             this.sbStatusLabel.TextDirection = System.Windows.Forms.ToolStripTextDirection.Horizontal;
             // 
@@ -448,7 +459,7 @@
             // 
             this.sbStatus.BackColor = System.Drawing.Color.Red;
             this.sbStatus.Name = "sbStatus";
-            this.sbStatus.Size = new System.Drawing.Size(51, 17);
+            this.sbStatus.Size = new System.Drawing.Size(66, 24);
             this.sbStatus.Text = "Stopped";
             // 
             // InitialTimer
@@ -461,13 +472,14 @@
             // 
             // FEMDAQ
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1304, 725);
+            this.ClientSize = new System.Drawing.Size(1739, 892);
             this.Controls.Add(this.splitInfoData);
             this.Controls.Add(this.mainMenu);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.mainMenu;
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "FEMDAQ";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FEMDAQ V2";

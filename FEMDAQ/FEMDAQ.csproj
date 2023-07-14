@@ -38,7 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vs4F06.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vsA491.tmp\Debug\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -49,7 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vs4F06.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vsA491.tmp\Release\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -58,14 +58,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>..\Debug\</OutputPath>
-    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vs4F06.tmp\x64\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vsA491.tmp\x64\Debug\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>..\Debug\</OutputPath>
-    <IntermediateOutputPath>C:\Users\ham38517\AppData\Local\Temp\vs4F06.tmp\x64\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vsA491.tmp\x64\Release\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -221,6 +221,12 @@
     <Compile Include="Files\SubParser\IpParser.cs" />
     <Compile Include="Files\SubParser\SourceParser.cs" />
     <Compile Include="Files\SubParser\UsbParser.cs" />
+    <Compile Include="Instrumentwindows\PiCam2Statuswindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Instrumentwindows\PiCam2Statuswindow.Designer.cs">
+      <DependentUpon>PiCam2Statuswindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="InstrumentOverlays\PiCam2Layer.cs" />
     <Compile Include="InstrumentOverlays\PiCamLayer.cs" />
     <Compile Include="InstrumentOverlays\DMM7510Layer.cs" />
@@ -277,6 +283,7 @@
     <Compile Include="Files\iniContent.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockKE6487.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockKE6485.cs" />
+    <Compile Include="StaticHelper\GlobalVariables.cs" />
     <Compile Include="StaticHelper\ParseHelper.cs" />
     <Compile Include="StaticHelper\StringHelper.cs" />
     <Compile Include="Files\swpContent.cs" />
@@ -321,6 +328,9 @@
     </Compile>
     <EmbeddedResource Include="Chart\HaumChart.resx">
       <DependentUpon>HaumChart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Instrumentwindows\PiCam2Statuswindow.resx">
+      <DependentUpon>PiCam2Statuswindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="JobQueue\JobQueueFrame.resx">
       <DependentUpon>JobQueueFrame.cs</DependentUpon>

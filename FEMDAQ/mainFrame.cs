@@ -88,6 +88,8 @@ namespace FEMDAQ
             SavingPopup = new SavingPopup(0); // Marquee at first!
             SavingPopup.Owner = this;
 
+            GlobalVariables.MainFrame = this; // Provide mainframe via static "GlobalVariables" class
+
             var splashScreen = new SplashScreenFrame();
             splashScreen.Show();
 

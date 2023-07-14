@@ -1,6 +1,12 @@
 ﻿Changelog:
 
-XX.YY.ZZZZ: V2.2.8.3
+XX.YY.ZZZZ: V2.2.8.4
+Feature:
+ - Added special window for PyCam2 as status monitor, showing roughly the current carried out actions. Log is not saved -> Use the detailed log of the PyCam2 itself!
+   (currently not completely finished all log-lines)
+
+
+14.07.2023: V2.2.8.3
 Feature:
  - Added possibility to execute commands once per measurement-start to InstrumentOverlay
 Fixed:
@@ -8,6 +14,9 @@ Fixed:
  - PyCam-Layer now resets its "MeasureCalls" and clears the temp-directory using the "exectue once before and after measurement" feature (see above).
  - PyCam2 Driver got own SCPClient-instance on download (using the same scpclient in different threads caused problems, due to scp already in use sometimes!)
  - PyCam2-Layer: Restructured the way of archiving (in "linear" code) and downloading (as thread)!
+Misc:
+ - Changed default height for "Log-Window" and "Sweepfile"
+ - Changed default pin state of the left chart-panel to pinned
 
 
 02.03.2023: V2.2.8.2

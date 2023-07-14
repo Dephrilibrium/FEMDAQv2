@@ -56,13 +56,14 @@
             legend1.Name = "Legend1";
             this.cDataChart.Legends.Add(legend1);
             this.cDataChart.Location = new System.Drawing.Point(0, 0);
-            this.cDataChart.MinimumSize = new System.Drawing.Size(50, 20);
+            this.cDataChart.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cDataChart.MinimumSize = new System.Drawing.Size(67, 25);
             this.cDataChart.Name = "cDataChart";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.cDataChart.Series.Add(series1);
-            this.cDataChart.Size = new System.Drawing.Size(754, 416);
+            this.cDataChart.Size = new System.Drawing.Size(1005, 512);
             this.cDataChart.TabIndex = 0;
             this.cDataChart.Text = "dataChart";
             this.cDataChart.MouseClick += new System.Windows.Forms.MouseEventHandler(this.CDataChart_MouseClick);
@@ -82,18 +83,20 @@
             this.pSidebar.Controls.Add(this.lExpandSidebar);
             this.pSidebar.Dock = System.Windows.Forms.DockStyle.Left;
             this.pSidebar.Location = new System.Drawing.Point(0, 0);
+            this.pSidebar.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pSidebar.Name = "pSidebar";
-            this.pSidebar.Size = new System.Drawing.Size(167, 416);
+            this.pSidebar.Size = new System.Drawing.Size(222, 512);
             this.pSidebar.TabIndex = 1;
             this.pSidebar.MouseLeave += new System.EventHandler(this.PChartControls_MouseLeave);
             // 
             // cbShowLegend
             // 
             this.cbShowLegend.AutoSize = true;
-            this.cbShowLegend.Location = new System.Drawing.Point(28, 35);
+            this.cbShowLegend.Location = new System.Drawing.Point(37, 43);
+            this.cbShowLegend.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cbShowLegend.Name = "cbShowLegend";
             this.cbShowLegend.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.cbShowLegend.Size = new System.Drawing.Size(91, 17);
+            this.cbShowLegend.Size = new System.Drawing.Size(110, 20);
             this.cbShowLegend.TabIndex = 7;
             this.cbShowLegend.Text = ":Show legend";
             this.cbShowLegend.UseVisualStyleBackColor = true;
@@ -102,10 +105,10 @@
             // pbPinSidepanel
             // 
             this.pbPinSidepanel.Image = global::FEMDAQ.Properties.Resources.Unpinned16;
-            this.pbPinSidepanel.Location = new System.Drawing.Point(149, 0);
+            this.pbPinSidepanel.Location = new System.Drawing.Point(199, 0);
             this.pbPinSidepanel.Margin = new System.Windows.Forms.Padding(0);
             this.pbPinSidepanel.Name = "pbPinSidepanel";
-            this.pbPinSidepanel.Size = new System.Drawing.Size(16, 16);
+            this.pbPinSidepanel.Size = new System.Drawing.Size(21, 20);
             this.pbPinSidepanel.TabIndex = 6;
             this.pbPinSidepanel.TabStop = false;
             this.pbPinSidepanel.Click += new System.EventHandler(this.PbPinSidepanel_Click);
@@ -116,23 +119,25 @@
             // 
             this.lChasingSeries.AutoSize = true;
             this.lChasingSeries.BackColor = System.Drawing.Color.Transparent;
-            this.lChasingSeries.Location = new System.Drawing.Point(25, 55);
+            this.lChasingSeries.Location = new System.Drawing.Point(33, 68);
+            this.lChasingSeries.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lChasingSeries.Name = "lChasingSeries";
-            this.lChasingSeries.Size = new System.Drawing.Size(68, 13);
+            this.lChasingSeries.Size = new System.Drawing.Size(84, 16);
             this.lChasingSeries.TabIndex = 5;
             this.lChasingSeries.Text = "Chasing plot:";
             // 
             // nupAccuracy
             // 
             this.nupAccuracy.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.nupAccuracy.Location = new System.Drawing.Point(86, 9);
+            this.nupAccuracy.Location = new System.Drawing.Point(115, 11);
+            this.nupAccuracy.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.nupAccuracy.Maximum = new decimal(new int[] {
             12,
             0,
             0,
             0});
             this.nupAccuracy.Name = "nupAccuracy";
-            this.nupAccuracy.Size = new System.Drawing.Size(35, 20);
+            this.nupAccuracy.Size = new System.Drawing.Size(47, 22);
             this.nupAccuracy.TabIndex = 4;
             this.nupAccuracy.Value = new decimal(new int[] {
             3,
@@ -144,9 +149,10 @@
             // 
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Location = new System.Drawing.Point(25, 11);
+            this.label1.Location = new System.Drawing.Point(33, 14);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(55, 13);
+            this.label1.Size = new System.Drawing.Size(66, 16);
             this.label1.TabIndex = 2;
             this.label1.Text = "Accuracy:";
             // 
@@ -155,10 +161,10 @@
             this.lbSeries.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.lbSeries.ForeColor = System.Drawing.Color.Black;
             this.lbSeries.FormattingEnabled = true;
-            this.lbSeries.Location = new System.Drawing.Point(27, 73);
-            this.lbSeries.Margin = new System.Windows.Forms.Padding(5);
+            this.lbSeries.Location = new System.Drawing.Point(36, 90);
+            this.lbSeries.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
             this.lbSeries.Name = "lbSeries";
-            this.lbSeries.Size = new System.Drawing.Size(132, 329);
+            this.lbSeries.Size = new System.Drawing.Size(175, 394);
             this.lbSeries.TabIndex = 1;
             this.lbSeries.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.LbSeries_DrawItem);
             // 
@@ -168,8 +174,9 @@
             this.lExpandSidebar.Dock = System.Windows.Forms.DockStyle.Left;
             this.lExpandSidebar.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
             this.lExpandSidebar.Location = new System.Drawing.Point(0, 0);
+            this.lExpandSidebar.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lExpandSidebar.Name = "lExpandSidebar";
-            this.lExpandSidebar.Size = new System.Drawing.Size(19, 414);
+            this.lExpandSidebar.Size = new System.Drawing.Size(25, 510);
             this.lExpandSidebar.TabIndex = 0;
             this.lExpandSidebar.Text = ">";
             this.lExpandSidebar.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -177,12 +184,13 @@
             // 
             // HaumChart
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.pSidebar);
             this.Controls.Add(this.cDataChart);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "HaumChart";
-            this.Size = new System.Drawing.Size(754, 416);
+            this.Size = new System.Drawing.Size(1005, 512);
             this.Resize += new System.EventHandler(this.HaumChart_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.cDataChart)).EndInit();
             this.pSidebar.ResumeLayout(false);
