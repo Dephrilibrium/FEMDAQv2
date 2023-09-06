@@ -1,10 +1,14 @@
 ﻿Changelog:
 
-XX.YY.ZZZZ: V2.2.8.4
+06.09.2023: V2.2.8.4
 Feature:
  - Added special window for PyCam2 as status monitor, showing roughly the current carried out actions. Log is not saved -> Use the detailed log of the PyCam2 itself!
    (currently not completely finished all log-lines)
-
+Fixes:
+ - Newly added devices caused problems at the IP-parser, since not all arguments were used -> NULL entries led to exceptions.
+ - PiCam2Layer hadn't resetted its internal counters on measurement-abortion and subsequent restart.
+Misc.:
+ - Adjusted linked include-paths of the driver-sources to relative paths. That should allow a direct compilation when downloading the group-repository FE-FEMDAQv2
 
 14.07.2023: V2.2.8.3
 Feature:

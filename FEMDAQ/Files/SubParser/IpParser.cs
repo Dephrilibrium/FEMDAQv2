@@ -16,9 +16,17 @@ namespace Files.Parser
             if (infoBlock == null) throw new ArgumentNullException("infoBlock");
 
             ParseIp(StringHelper.FindStringWhichStartsWith(infoBlock, "Ip="));
-            Port = ushort.Parse(ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "Port=")));
-            Username = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "User="));
-            Password = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "Passwd="));
+            var line = StringHelper.FindStringWhichStartsWith(infoBlock, "Port=");
+            if (line != null) // When not found -> 0
+                Port = ushort.Parse(ParseHelper.ParseStringValueFromLineInfo(line));
+
+            line = StringHelper.FindStringWhichStartsWith(infoBlock, "User=");
+            if (line != null) // When not found -> NULL
+                Username = ParseHelper.ParseStringValueFromLineInfo(line);
+
+            line = StringHelper.FindStringWhichStartsWith(infoBlock, "Passwd=");
+            if (line != null) // When not found -> NULL
+                Password = ParseHelper.ParseStringValueFromLineInfo(line);
         }
 
 

@@ -175,6 +175,8 @@ namespace Instrument.LogicalLayer
             _statWin.Append2Log("Resetting internal measurement status variables.");
             ResetMeasureCalls();
             ClearTempFolder();
+            _startedDownloads = 0;
+            _activeDownloads = 0;
         }
 
         public void DoAfterFinished()

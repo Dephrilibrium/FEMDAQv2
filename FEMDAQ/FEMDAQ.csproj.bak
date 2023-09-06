@@ -121,7 +121,7 @@
       <HintPath>C:\Program Files (x86)\National Instruments\MeasurementStudioVS2012\DotNET\Assemblies\Current\NationalInstruments.NI4882.dll</HintPath>
     </Reference>
     <Reference Include="Renci.SshNet">
-      <HintPath>..\..\FEMDAQ-DeviceDrivers\NetDevs\Renci.SshNet.dll</HintPath>
+      <HintPath>..\..\_SC_Library\NetDevs\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="RohdeSchwarz.RsScope.Fx40, Version=3.65.1.0, Culture=neutral, PublicKeyToken=21acc6a002277cd7, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -143,43 +143,43 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Dummy_Devs\DmyMU.cs">
+    <Compile Include="..\..\_SC_Library\Dummy_Devs\DmyMU.cs">
       <Link>Instruments\Dummies\DmyMU.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Dummy_Devs\DmySMU.cs">
+    <Compile Include="..\..\_SC_Library\Dummy_Devs\DmySMU.cs">
       <Link>Instruments\Dummies\DmySMU.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Dummy_Devs\DmySU.cs">
+    <Compile Include="..\..\_SC_Library\Dummy_Devs\DmySU.cs">
       <Link>Instruments\Dummies\DmySU.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Ext_Langer\Serial_Devs\SerialInterface.cs">
+    <Compile Include="..\..\_SC_Library\Ext_Langer\Serial_Devs\SerialInterface.cs">
       <Link>Instruments\ExternLanger\SerialInterface.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\GPIB_Devs\FUGMCP140.cs">
+    <Compile Include="..\..\_SC_Library\GPIB_Devs\FUGMCP140.cs">
       <Link>Instruments\FUGMCP140.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\GPIB_Devs\KE6517B.cs">
+    <Compile Include="..\..\_SC_Library\GPIB_Devs\KE6517B.cs">
       <Link>Instruments\KE6517B.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\NetDevs\PiCam.cs">
+    <Compile Include="..\..\_SC_Library\NetDevs\PiCam.cs">
       <Link>Instruments\PiCam.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\NetDevs\PiCam2.cs">
+    <Compile Include="..\..\_SC_Library\NetDevs\PiCam2.cs">
       <Link>Instruments\PiCam2.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Serial_Devs\FEAR16v2.cs">
+    <Compile Include="..\..\_SC_Library\Serial_Devs\FEAR16v2.cs">
       <Link>Instruments\FEAR16v2.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Serial_Devs\MOVE1250.cs">
+    <Compile Include="..\..\_SC_Library\Serial_Devs\MOVE1250.cs">
       <Link>Instruments\MOVE1250.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Serial_Devs\VD9x.cs">
+    <Compile Include="..\..\_SC_Library\Serial_Devs\VD9x.cs">
       <Link>Instruments\VD9x.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\USB_Devs\DSOX3000WavGen.cs">
+    <Compile Include="..\..\_SC_Library\USB_Devs\DSOX3000WavGen.cs">
       <Link>Instruments\DSOX3000WavGen.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\USB_Devs\DSOX3034T.cs">
+    <Compile Include="..\..\_SC_Library\USB_Devs\DSOX3034T.cs">
       <Link>Instruments\DSOX3034T.cs</Link>
     </Compile>
     <Compile Include="Chart\HaumChart.cs">
@@ -296,34 +296,34 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Ext_Langer\GPIB_Devs\FUGHCP350.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\GPIB_Devs\FUGHCP350.cs">
       <Link>Instruments\ExternLanger\FUGHCP350.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Ext_Langer\GPIB_Devs\HP4145B.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\GPIB_Devs\HP4145B.cs">
       <Link>Instruments\ExternLanger\HP4145B.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Ext_Langer\GPIB_Devs\KE6485.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\GPIB_Devs\KE6485.cs">
       <Link>Instruments\ExternLanger\KE6485.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Ext_Langer\GPIB_Devs\KE6487.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\GPIB_Devs\KE6487.cs">
       <Link>Instruments\ExternLanger\KE6487.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Ext_Langer\Serial_Devs\MKS909AR.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\Serial_Devs\MKS909AR.cs">
       <Link>Instruments\ExternLanger\MKS909AR.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\Ext_Langer\Serial_Devs\VSH8x.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\Ext_Langer\Serial_Devs\VSH8x.cs">
       <Link>Instruments\ExternLanger\VSH8x.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\GPIB_Devs\DigMultDMM7510.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\GPIB_Devs\DigMultDMM7510.cs">
       <Link>Instruments\DigMultDMM7510.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\GPIB_Devs\SR785.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\GPIB_Devs\SR785.cs">
       <Link>Instruments\SR785.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\GPIB_Devs\WavGen33511B.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\GPIB_Devs\WavGen33511B.cs">
       <Link>Instruments\WavGen33511B.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\IVI_Devs\RTO2034.cs">
+    <Compile Include="\\rfhmik164\Samba\Hausladen\Programs\_SC_Library\IVI_Devs\RTO2034.cs">
       <Link>Instruments\RTO2034.cs</Link>
     </Compile>
     <EmbeddedResource Include="Chart\HaumChart.resx">
