@@ -21,6 +21,7 @@ namespace Files.Parser
 
         public double AnalogGain { get; private set; }
         public double FrameRate { get; private set; }
+        public int ShutterSpeedsColumn {  get; private set; }
         public uint[] ShutterSpeeds { get; private set; }
         public uint PicsPerShutterSpeed { get; private set; }
 
@@ -75,7 +76,7 @@ namespace Files.Parser
 
             lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "FrameRate=");
             if (lineInfo == null)
-                FrameRate= 10;
+                FrameRate = 10;
             else
                 FrameRate = double.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
 
@@ -132,21 +133,43 @@ namespace Files.Parser
 
         private void ParseShutterspeed(IEnumerable<string> infoBlock)
         {
+            var str4SSColumn = "swpCol".ToLower();
+
             var lineInfo = ParseHelper.ParseStringValueFromLineInfo(StringHelper.FindStringWhichStartsWith(infoBlock, "ShutterSpeed="));
-            var lineSplit = lineInfo.Split(new char[] { ',' });
+            var lineSplit = lineInfo.Split(new char[] { ',', '|' });
             lineSplit = StringHelper.TrimArray(lineSplit);
-            if (lineSplit.Length <= 0)
+            if (lineSplit.Length <= 0)  // Check if a shutterspeed parameterlist is given
                 throw new Exception("No ShutterSpeed given: ShutterSpeed=" + lineInfo);
+            if (lineSplit.Length <= 1 && lineSplit[0].ToLower() == str4SSColumn) // Check if a shutterspeed-column is given
+                throw new Exception("No ShutterSpeedColumn given (swpCol|x; x missing): ShutterSpeed=" + lineInfo);
 
-            ShutterSpeeds = new uint[lineSplit.Length];
-            for (int iSS = 0; iSS < lineSplit.Length; iSS++)
-                ShutterSpeeds[iSS] = uint.Parse(lineSplit[iSS]);
+            if (lineSplit[0].ToLower() == str4SSColumn)
+            {
+                ShutterSpeedsColumn = int.Parse(lineSplit[1]);
+                if (int.Parse(lineSplit[1]) < 0) // Check if a valid shutterspeed-column is given
+                    throw new Exception("Invalid ShutterSpeedColumn given (swpCol|x; x < 0 not allowed): ShutterSpeed=" + lineInfo);
 
-            // Sort from lowest to highest!
-            //  -> Cam an switch from short SS to longer SS fastly, but not inverse!
-            //  -> The shortest SS is set as initial SS in PiCam-Overlay
-            //  -> During measurement after all SS-Pictures the shortest SS is reset to not waste time for the next cycle
-            Array.Sort(ShutterSpeeds);
+                ShutterSpeeds = null; // Columns is the source of Shutterspeeds -> No shutterspeedlist
+            }
+            else
+            {
+                ShutterSpeedsColumn = -1; // No Column -> Use invalid index
+                ShutterSpeeds = new uint[lineSplit.Length];
+                for (int iSS = 0; iSS < lineSplit.Length; iSS++)
+                    ShutterSpeeds[iSS] = uint.Parse(lineSplit[iSS]);
+
+                // Sort from lowest to highest!
+                //  -> Cam an switch from short SS to longer SS fastly, but not inverse!
+                //  -> The shortest SS is set as initial SS in PiCam-Overlay
+                //  -> During measurement after all SS-Pictures the shortest SS is reset to not waste time for the next cycle
+                Array.Sort(ShutterSpeeds);
+            }
+        }
+
+
+        public void OverrideShutterSpeeds(uint[] shutterspeeds)
+        {
+            ShutterSpeeds = shutterspeeds;
         }
 
 

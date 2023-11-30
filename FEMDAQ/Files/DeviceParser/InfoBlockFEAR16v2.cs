@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FEMDAQ.StaticHelper;
 using System.Drawing;
 using Instrument.LogicalLayer;
+using System.IO;
 
 namespace Files.Parser
 {
@@ -37,6 +38,7 @@ namespace Files.Parser
         public List<FEAR16DACChannel> CurrCtrlChannels { get; private set; }
         public List<FEAR16ADCChannel> CurrFlowChannels { get; private set; }
         public List<FEAR16ADCChannel> UDropFETChannels { get; private set; }
+        public int RequestDelay_ms { get; private set; }
 
         // Devicespecific
         //public Channel SMUChannel { get; private set; }
@@ -71,6 +73,8 @@ namespace Files.Parser
             AdcGeneralSettings = new FEAR16ADCGeneralSettings();
             parseADCGeneralSettings(infoBlock);
 
+            parseRequestDelay(infoBlock);
+
             //Source = new SourceParser(infoBlock, "SourceNode=", "Dummy=");
             //Gauge = new GaugeParser(infoBlock);
 
@@ -89,6 +93,18 @@ namespace Files.Parser
             //ParseCompliance(infoBlock);
         }
 
+        private void parseRequestDelay(IEnumerable<string> infoBlock)
+        {
+            var lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "RequestDelay=");
+            if (lineInfo == null)
+            {
+                RequestDelay_ms = 100; // Default = 100ms
+                return;
+            }
+            
+            lineInfo = ParseHelper.ParseStringValueFromLineInfo(lineInfo).ToUpper();
+            RequestDelay_ms = int.Parse(lineInfo);
+        }
 
         private void ParseChannelNum(IEnumerable<string> infoBlock, int iCh)
         {

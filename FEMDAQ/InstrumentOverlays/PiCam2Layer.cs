@@ -34,8 +34,8 @@ namespace Instrument.LogicalLayer
         //private string TempDownloadDir = null;
 
 
-        // Log-Vars
-        private int _padding = 45;
+        //// Log-Vars
+        //private int _padding = 45;
 
         public PiCam2Layer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
         {
@@ -53,54 +53,105 @@ namespace Instrument.LogicalLayer
             //YResults = new List<double>();
 
             // Open the status window
-            _statWin = new PyCam2Statuswindow(this);
-            _statWin.LPad = 22;
-            _statWin.Owner = GlobalVariables.MainFrame;
-            _statWin.Show();
-            _statWin.OverrideLog("!!! ATTENTION !!!\nThis log is only for your information and therefore NOT saved.\nIf you want to have a full and detailed log, use the PiCam2's logger functionality!\n\n\n"
-                                 , false);
-            _statWin.Append2Log("Creating PyCam2 instance.");
-
-
             try
-            { _device = new PiCam2(InfoBlock.Ip.IP, InfoBlock.Ip.Port, InfoBlock.Ip.Username, InfoBlock.Ip.Password, InfoBlock.PyCamScriptPath); }
-            catch (Exception e) { throw new Exception("Can't create PiCam:\n\nAdditional Info:\n" + e.Message); }
+            {
+                _statWin = new PyCam2Statuswindow(this);
+                _statWin.LPad = 22;
+                _statWin.Owner = GlobalVariables.MainFrame;
+                _statWin.Show();
+                _statWin.OverrideLog("!!! ATTENTION !!!\nThis log is only for your information and therefore NOT saved.\nIf you want to have a full and detailed log, use the PiCam2's logger functionality!\n\n\n"
+                                     , false);
+                _statWin.Append2Log("Creating PyCam2 instance.");
 
-            CommunicationPhy = InstrumentCommunicationPHY.Ethernet;
 
-            if (InfoBlock.ShutterSpeeds.Length <= 0)
-                throw new Exception("No shutterspeeds given!");
+                var exptimes = "";
+                if (InfoBlock.ShutterSpeedsColumn > 0) // Prepare presetting first ET
+                {
+                    exptimes = string.Format("{0}", 1000); // Static 1000µs, since _sweep containing the SWP-Columns is not known yet!
+                }
+                else // Build static parameter list
+                {
+                    for (int _i = 0; _i < InfoBlock.ShutterSpeeds.Length; _i++)
+                        exptimes += string.Format("{0},", InfoBlock.ShutterSpeeds[_i]);
+                    exptimes = exptimes.Remove(exptimes.Length - 1);
+                }
 
-            // Setup of cam
-            _statWin.Append2Log("Configuring PyCam2");
-            //_device.ConfExposureMode(InfoBlock.ExposureMode);
-            //_device.ConfFrameRate(InfoBlock.FrameRate);
-            _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // SS sorted ascending
-            _shutterSpeeds = string.Empty;
-            foreach (var ss in InfoBlock.ShutterSpeeds)
-                _shutterSpeeds += ss.ToString() + ":";
-            _shutterSpeeds.Remove(_shutterSpeeds.Length - 1); // Remove tailing ':'
+                _statWin.Append2Log(string.Format("Trying to connect to: {0}:{1}", InfoBlock.Ip.IP, InfoBlock.Ip.Port));
+                _statWin.Append2Log(string.Format("using:"));
+                _statWin.Append2Log(string.Format("- User: {0}", InfoBlock.Ip.Username));
+                _statWin.Append2Log(string.Format("- Password: {0}", InfoBlock.Ip.Password));
+                _statWin.Append2Log(string.Format("- FPS: {0}", InfoBlock.FrameRate));
+                if (InfoBlock.BayerClipWin.Length == 2)
+                    _statWin.Append2Log(string.Format("- Window (w,h): {0},{1} around center", InfoBlock.BayerClipWin[0], InfoBlock.BayerClipWin[1]));
+                else
+                    _statWin.Append2Log(string.Format("- Window (x,y,w,h): {0},{1},{2},{3}", InfoBlock.BayerClipWin[0], InfoBlock.BayerClipWin[1], InfoBlock.BayerClipWin[2], InfoBlock.BayerClipWin[3]));
+                if (InfoBlock.ShutterSpeedsColumn > 0)
+                    _statWin.Append2Log(string.Format("- Variable ExposureTimes of SWP-Column: ET{0} (presetting ET=1ms)", InfoBlock.ShutterSpeedsColumn));
+                else
+                    _statWin.Append2Log(string.Format("- Static ExposureTimes: {0}", exptimes));
+                _statWin.Append2Log(string.Format("- PicsPerET: {0}", InfoBlock.PicsPerShutterSpeed));
 
-            //_device.ConfAnalogGain(InfoBlock.AnalogGain);                                 // Testwise commented!
-            //_device.ConfAwbGains(InfoBlock.AwbGainRBalance, InfoBlock.AwbGainBBalance);   // Testwise commented!
+                try
+                { _device = new PiCam2(InfoBlock.Ip.IP, InfoBlock.Ip.Port, InfoBlock.Ip.Username, InfoBlock.Ip.Password, InfoBlock.PyCamScriptPath); }
+                catch (Exception e) { throw new Exception("Can't create PiCam:\n\nAdditional Info:\n" + e.Message); }
 
-            //_device.ConfScalerCrop(InfoBlock.ScalerCrop[0], InfoBlock.ScalerCrop[1], InfoBlock.ScalerCrop[2], InfoBlock.ScalerCrop[3]);
-            if (InfoBlock.BayerClipWin.Length == 4)
-                _device.ServerBayerClipSize(InfoBlock.BayerClipWin[0], InfoBlock.BayerClipWin[1], InfoBlock.BayerClipWin[2], InfoBlock.BayerClipWin[3]);
-            else
-                _device.ServerBayerClipSize(InfoBlock.BayerClipWin[0], InfoBlock.BayerClipWin[1]);
-            _device.ServerDeBayerClippedBayer(InfoBlock.DeBayerClipWindow);
-            _device.ServerShrinkHalfDebayeredImageIterations(InfoBlock.ShrinkDebayeredByBinPow);
+                CommunicationPhy = InstrumentCommunicationPHY.Ethernet;
 
-            // TempDownload gets a default value from InfoBlockPicam.cs
-            if (!Directory.Exists(InfoBlock.TempDownloadDir))
-                Directory.CreateDirectory(InfoBlock.TempDownloadDir);
 
-            _statWin.Append2Log("Temp. download folder is " + InfoBlock.TempDownloadDir);
+                if (InfoBlock.ShutterSpeedsColumn < 0 && InfoBlock.ShutterSpeeds != null && InfoBlock.ShutterSpeeds.Length <= 0)
+                    throw new Exception("No shutterspeeds given!");
 
-            // Is done before measurement-start!
-            //ResetMeasureCalls();
-            // ClearTempFolder();
+                if(InfoBlock.ShutterSpeedsColumn >= 0)
+                    InfoBlock.OverrideShutterSpeeds(new uint[] { 1000 }); // Give Shutterspeeds a value
+
+
+                // Setup of cam
+                //_statWin.Append2Log("Configuring PyCam2");
+                //_device.ConfExposureMode(InfoBlock.ExposureMode);
+                //_device.ConfFrameRate(InfoBlock.FrameRate);
+                _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // SS sorted ascending
+                _shutterSpeeds = string.Empty;
+                foreach (var ss in InfoBlock.ShutterSpeeds)
+                    _shutterSpeeds += ss.ToString() + ":";
+                _shutterSpeeds.Remove(_shutterSpeeds.Length - 1); // Remove tailing ':'
+
+                _statWin.Append2Log(string.Format("Configuring analogue gain to: {0:.##}", InfoBlock.AnalogGain));
+                _device.ConfAnalogGain(InfoBlock.AnalogGain);                               // Adjust static analogue gain
+                if (InfoBlock.AwbGainRBalance > 0 && InfoBlock.AwbGainBBalance > 0)
+                {
+                    _statWin.Append2Log(string.Format("Configuring AutoWhiteBalance to: {0:.##}, {1:.##}", InfoBlock.AwbGainRBalance, InfoBlock.AwbGainBBalance));
+                    _device.ConfAwbGains(InfoBlock.AwbGainRBalance, InfoBlock.AwbGainBBalance); // Adjust static auto-white-balance if valid inputs were given
+                }
+                _statWin.Append2Log(string.Format("Using the server's default AutoWhiteBalance (depending on config-file!)."));
+
+
+                //_device.ConfScalerCrop(InfoBlock.ScalerCrop[0], InfoBlock.ScalerCrop[1], InfoBlock.ScalerCrop[2], InfoBlock.ScalerCrop[3]);
+                if (InfoBlock.BayerClipWin.Length == 4)
+                    _device.ServerBayerClipSize(InfoBlock.BayerClipWin[0], InfoBlock.BayerClipWin[1], InfoBlock.BayerClipWin[2], InfoBlock.BayerClipWin[3]);
+                else
+                    _device.ServerBayerClipSize(InfoBlock.BayerClipWin[0], InfoBlock.BayerClipWin[1]);
+                _device.ServerDeBayerClippedBayer(InfoBlock.DeBayerClipWindow);
+                _device.ServerShrinkHalfDebayeredImageIterations(InfoBlock.ShrinkDebayeredByBinPow);
+
+                // TempDownload gets a default value from InfoBlockPicam.cs
+                if (!Directory.Exists(InfoBlock.TempDownloadDir))
+                    Directory.CreateDirectory(InfoBlock.TempDownloadDir);
+
+                _statWin.Append2Log("Temp. download folder is " + InfoBlock.TempDownloadDir);
+
+                // Is done before measurement-start!
+                //ResetMeasureCalls();
+                // ClearTempFolder();
+
+                //_statWin.Append2Log(string.Format("Waiting an extra second because of RPC_E_DISCONNECTED exception..."));
+                //Thread.Sleep(5000);
+                //_statWin.Append2Log(string.Format("Ready for start"));
+            }
+            catch (Exception e)
+            {
+                Dispose();
+                throw e;
+            }
         }
 
 
@@ -177,6 +228,9 @@ namespace Instrument.LogicalLayer
             ClearTempFolder();
             _startedDownloads = 0;
             _activeDownloads = 0;
+
+            if (InfoBlock.ShutterSpeedsColumn >= 0 && InfoBlock.ShutterSpeeds != null)                      // If Shutterspeeds are variables, preset the first SS
+                _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]);
         }
 
         public void DoAfterFinished()
@@ -232,9 +286,33 @@ namespace Instrument.LogicalLayer
 
 
             //_device.TakePicSequence2Ramdisk(tarGzName, InfoBlock.PicsPerShutterSpeed, InfoBlock.ShutterSpeeds, InfoBlock.PictureInterval, InfoBlock.Bayer);
-            _device.CaptureShutterSpeedSequence(tarGzName, InfoBlock.PicsPerShutterSpeed, InfoBlock.ShutterSpeeds, 0.2, InfoBlock.SaveSSLog);
+
+            if (InfoBlock.ShutterSpeedsColumn < 0 || _measureCalls < 0)
+            {
+                List<uint> _blackETs = new List<uint>();
+                foreach (uint _bET in InfoBlock.ShutterSpeeds) // Avoid making multiple black-image sets of the same SS
+                    if(!_blackETs.Contains(_bET))
+                        _blackETs.Add(_bET);
+
+                _device.CaptureShutterSpeedSequence(tarGzName, InfoBlock.PicsPerShutterSpeed, _blackETs.ToArray(), 0.2, InfoBlock.SaveSSLog);
+            }
+            else
+            {
+                int _iSSVar = ((_measureCalls) % InfoBlock.ShutterSpeeds.Length);
+                _device.CaptureShutterSpeedSequence(tarGzName, InfoBlock.PicsPerShutterSpeed, new uint[] { InfoBlock.ShutterSpeeds[_iSSVar] }, 0.2, InfoBlock.SaveSSLog);
+            }
+
             _measureCalls++;
-            //_device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); // Shutterspeeds are sorted // Is now done by the script itself when SS are sent sorted!
+
+            if (InfoBlock.ShutterSpeedsColumn >= 0) // If Shutterspeeds is not a parameter -> Preset the next SS
+            {
+                int _ssIndex = (_measureCalls) % InfoBlock.ShutterSpeeds.Length;
+                _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[_ssIndex]);
+            }
+            //else // This is already done by the server!
+            //{
+            //    _device.ConfShutterSpeed(InfoBlock.ShutterSpeeds[0]); 
+            //}
 
 
             var srcPath = _device.Raw2Archive(tarGzName,
@@ -244,9 +322,10 @@ namespace Instrument.LogicalLayer
             var dstPath = string.Format("{0}", Path.Combine(InfoBlock.TempDownloadDir, Path.GetFileName(srcPath))); // Append .gz if compression is enabled
 
 
-            
-            ThreadPool.QueueUserWorkItem((state) => {
-                
+
+            ThreadPool.QueueUserWorkItem((state) =>
+            {
+
                 string imgSetName = (_startedDownloads - 1 < 0) ? "black" : (_startedDownloads - 1).ToString();
                 _statWin.Invoke(new Action(() => _statWin.Append2Log(string.Format("Downloading image set " + imgSetName))));
 
@@ -284,7 +363,7 @@ namespace Instrument.LogicalLayer
             if (InfoBlock.Gauge.MeasureInstantly < 0) // Hadn't done measurements!
                 return;
 
-            while(_activeDownloads > 0)
+            while (_activeDownloads > 0)
             {
                 Thread.Sleep(100); // Wait 100ms and check again!
             }
@@ -299,7 +378,8 @@ namespace Instrument.LogicalLayer
             var srcFilename = Path.GetFileName(srcFullFilename);
             var dstFullFilename = Path.Combine(InfoBlock.TempDownloadDir, deviceName + ".log");
             //var dstFullFilename = Path.Combine(InfoBlock.TempDownloadDir, srcFilename); // Old Filename - Kept that one from picam-server
-            try { 
+            try
+            {
                 string logContent = _device.CatFile(srcFullFilename);
                 var logFileWriter = new StreamWriter(dstFullFilename);
                 logFileWriter.Write(logContent);
@@ -369,6 +449,19 @@ namespace Instrument.LogicalLayer
 
         public void AssignSweepColumn(SweepContent sweep)
         {
+            if (InfoBlock.ShutterSpeedsColumn < 0)
+                return;
+
+            var etSwpColumn = "ET" + Convert.ToString(InfoBlock.ShutterSpeedsColumn);
+            List<double> swp;
+            swp = AssignSweep.Assign(sweep, etSwpColumn);
+            if (swp == null) throw new MissingFieldException("Can't find " + etSwpColumn + " in sweep-file.");
+
+            uint[] _sweep = new uint[swp.Count];
+            for (int _i = 0; _i < swp.Count; _i++)
+                _sweep[_i] = (uint)swp[_i];
+
+            InfoBlock.OverrideShutterSpeeds(_sweep);
         }
         #endregion
 

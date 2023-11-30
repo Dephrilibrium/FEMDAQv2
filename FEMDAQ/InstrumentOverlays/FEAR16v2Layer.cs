@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using HaumOTH;
+using System.Threading;
 
 namespace Instrument.LogicalLayer
 {
@@ -40,6 +41,8 @@ namespace Instrument.LogicalLayer
         public const string CurrCtrlRequestString = "CC";
         public const string CurrFlowRequestString = "CF";
         public const string FETUDropRequestString = "UD";
+
+        public int RequestDelay_ms; // Delays the request of the measurement data by this time [ms]
 
 
         public FEAR16v2Layer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
@@ -136,6 +139,7 @@ namespace Instrument.LogicalLayer
             }
             _chart = chart;
 
+            RequestDelay_ms = 100; // Default = 100ms
         }
 
         public void Dispose()
@@ -225,6 +229,9 @@ namespace Instrument.LogicalLayer
                     atLeastOneRequest[iChType] = true;
                 }
             }
+
+            if (RequestDelay_ms > 0) // Delay request if a waiting time is given!
+                Thread.Sleep(RequestDelay_ms);
 
             // Run the measurements if at least one channel is requested
             if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.CF])

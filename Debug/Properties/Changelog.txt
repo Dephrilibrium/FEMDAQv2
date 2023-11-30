@@ -1,10 +1,39 @@
 ﻿Changelog:
 
-XX.YY.ZZZZ: V2.2.8.4
+30.11.2023: V2.2.8.5
+Feature:
+ - Added RequestDelay_ms to FEARv2 overlay. FEAR is measuring constantly and returns the value already stored from the ongoing measurements.
+   That means, that data is may not measured in the same time-window. To overcome this, the measurement-request can be delayed to be requested
+   at the same time as other data for accurate time-domain correlation.
+ - Added a few more configuration information to PiCam2-StatusWindow
+ - PyCam2:
+   -> Added the possibilty to turn the ExposureTime from a fixed paramter-list to a Sweep-Column variable, assigned to "ET<#>".
+      !!! Currently there is only one value per "ET<#>" cell allowed !!! This will be may change in future
+Bugfix:
+ - WavGen33500: The frequency generator was not accepting 20Vpp on High-Z output.
+ - WavGen33500: The Amplitude were also given to the Offset-Function.
+ - PyCam2: Overlay didn't accepted WxH BayerClipWindows because of missing x,y parameter. Now the length is also checked (2 or 4 parameters)
+ - PyCam2: From time to time the camera frame delay is triggered after starting the script imediately again.
+           Added a short wait-time after killing the previous pycam-script session on the server before restarting it again to give the camera time to recover before starting the next pycam-script session.
+ - KE6485: Fixed a missing MeasureCycle-Check (should it measure at the beginning or the end)
+
+Misc.:
+ - PyCam2:
+   -> Added manual close, dispose and clear on disconnect.
+   -> Allowed the reuse of the socket-stream.
+   -> Accidentially used PiCam-Enumations instead of PiCam2Numerations. (Both are the same, but because of port-reasons the are implemented for PiCam and PiCam2)
+
+
+
+06.09.2023: V2.2.8.4
 Feature:
  - Added special window for PyCam2 as status monitor, showing roughly the current carried out actions. Log is not saved -> Use the detailed log of the PyCam2 itself!
    (currently not completely finished all log-lines)
-
+Fixes:
+ - Newly added devices caused problems at the IP-parser, since not all arguments were used -> NULL entries led to exceptions.
+ - PiCam2Layer hadn't resetted its internal counters on measurement-abortion and subsequent restart.
+Misc.:
+ - Adjusted linked include-paths of the driver-sources to relative paths. That should allow a direct compilation when downloading the group-repository FE-FEMDAQv2
 
 14.07.2023: V2.2.8.3
 Feature:

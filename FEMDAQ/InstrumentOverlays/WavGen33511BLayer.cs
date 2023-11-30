@@ -180,7 +180,7 @@ namespace Instrument.LogicalLayer
                     var offset = _sweep[2][sweepLine];
                     _device.SetFrequency(ampOffFrequency);
                     _device.SetAmplitude(amplitude);
-                    _device.SetOffset(amplitude);
+                    _device.SetOffset(offset);
                     break;
                 case VoltageMode.HighLow:
                     var highLowFrequency = _sweep[0][sweepLine];

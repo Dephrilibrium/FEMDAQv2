@@ -41,9 +41,10 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsPicam2Downloads,
             this.tsPiCam2ActiveDownloads});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 238);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 188);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1076, 26);
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(588, 26);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -66,22 +67,24 @@
             this.rtbPiCam2Status.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtbPiCam2Status.Font = new System.Drawing.Font("Courier New", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rtbPiCam2Status.Location = new System.Drawing.Point(0, 0);
+            this.rtbPiCam2Status.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.rtbPiCam2Status.MaxLength = 65535;
             this.rtbPiCam2Status.Name = "rtbPiCam2Status";
             this.rtbPiCam2Status.ReadOnly = true;
-            this.rtbPiCam2Status.Size = new System.Drawing.Size(1076, 238);
+            this.rtbPiCam2Status.Size = new System.Drawing.Size(588, 188);
             this.rtbPiCam2Status.TabIndex = 3;
             this.rtbPiCam2Status.Text = "Testtext\n\num zu sehen\nwie das\nso ist\n\nYYMMDD - HH:MM:SS:\n";
             // 
             // PyCam2Statuswindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1076, 264);
+            this.ClientSize = new System.Drawing.Size(588, 214);
             this.ControlBox = false;
             this.Controls.Add(this.rtbPiCam2Status);
             this.Controls.Add(this.statusStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "PyCam2Statuswindow";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;

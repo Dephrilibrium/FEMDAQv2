@@ -134,6 +134,9 @@ namespace Instrument.LogicalLayer
         //public void Measure(double[] drawnOver)
         public void Measure(Func<List<string>, double[]> GetDrawnOver, GaugeMeasureInstantly MeasureCycle)
         {
+            if (MeasureCycle != InfoBlock.Gauge.MeasureInstantly)
+                return;
+
             double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
 
             lock (XResults)
