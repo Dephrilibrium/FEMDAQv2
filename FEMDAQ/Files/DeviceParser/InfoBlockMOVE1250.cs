@@ -23,7 +23,8 @@ namespace Files.Parser
             string lineInfo = null;
 
             Common = new CommonParser(infoBlock, null, null, null, "CustomName=", "Comment=");
-            Com = new ComParser(infoBlock);
+            Com = new ComParser(infoBlock); // Normally throws NULL exception since MOVE don't have a baudrate parameter anymore!
+            Com.Baudrate = 300; // Baudrate is fixed for this device to 300 BAUD
             Source = new SourceParser(infoBlock, "SourceNode=", null);
 
             lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "ResponseTime=");

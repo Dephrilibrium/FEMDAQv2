@@ -1,5 +1,20 @@
 ﻿Changelog:
 
+18.03.2024: V2.2.8.6
+Bugfix:
+ - DMM7510 driver:
+   SetMeasureFunc cutted away too much from the response. Therefore "SetCurrentMeasurement" returned with -1 instead of setting the range!
+ - MOVE1250 ini-parser:
+   MOVE has a fixed 300 Baudrate. The common COM parser tries to parse "BaudRate=" anyway. Thats why a exception is called because of a NULL-entry.
+   -> Fixed by just enter Baud=-1 and returning instead of throwing an exception if the "BaudRate=" parameter was not found (NULL-ptr).
+   -> and deleted an old commend doing "Baud=300" in the general COM-Parser.
+ - ke6487 freezed when to much instruments requested a source value --> Added a lock statement for sequential readout!
+
+Misc.:
+ - FEAR16v2:
+    Added wdsIgnore variable to _Add_ResistorFile.py. This enables to specify the parent directory but ignoring folders like short-cuircuit tests where no FEAR was used.
+
+
 30.11.2023: V2.2.8.5
 Feature:
  - Added RequestDelay_ms to FEARv2 overlay. FEAR is measuring constantly and returns the value already stored from the ongoing measurements.
