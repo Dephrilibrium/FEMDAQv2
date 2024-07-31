@@ -1,5 +1,11 @@
 ﻿Changelog:
 
+XX.YY.ZZZZ: V2.2.8.7
+Feature:
+Bugfix:
+Misc.:
+
+
 18.03.2024: V2.2.8.6
 Bugfix:
  - DMM7510 driver:
