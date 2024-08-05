@@ -14,3 +14,4 @@ Debug/_PiCam2Temp/
 *.cd
 
 # Ignored files (specific)
+debug.log
