@@ -67,6 +67,8 @@ namespace Instrument.LogicalLayer
             if (_chart != null)
                 foreach (var seriesName in _seriesNames)
                     _chart.DeleteArea(seriesName);
+
+            InfoBlock.Dispose();
         }
 
 

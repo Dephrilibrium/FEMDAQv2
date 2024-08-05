@@ -86,6 +86,8 @@ namespace Instrument.LogicalLayer
         {
             if (_device != null)
                 _device.Dispose();
+
+            InfoBlock.Dispose();
         }
 
 

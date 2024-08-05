@@ -166,6 +166,8 @@ namespace Instrument.LogicalLayer
                 _statWin.Close();
                 _statWin.Dispose();
             }
+
+            InfoBlock.Dispose();
         }
 
         public void ClearTempFolder()

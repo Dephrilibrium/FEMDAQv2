@@ -15,6 +15,8 @@ namespace Instrument.LogicalLayer.SubClasses
 
         public SubMeasurementTimer(int interval, bool oneShot = true)
         {
+            if (interval < 0) throw new ArgumentOutOfRangeException(string.Format("SubMeasurementTimer does not accept negative numbers - interval: {0} < 0", interval));
+
             _timer = new Timer(interval); // Contains guard-clause for negative numbers
             _timer.AutoReset = !oneShot;
             _timer.Elapsed += (sender, args) => IsElapsed = true;

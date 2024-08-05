@@ -41,6 +41,8 @@ namespace Instrument.LogicalLayer
                 PowerDownSource();
                 _device.Dispose();
             }
+
+            InfoBlock.Dispose();
         }
 
 
