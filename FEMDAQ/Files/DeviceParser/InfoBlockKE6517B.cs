@@ -9,7 +9,7 @@ using Keithley;
 namespace Files.Parser
 {
 
-    class InfoBlockKE6517B : InfoBlockInterface
+    class InfoBlockKE6517B : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }

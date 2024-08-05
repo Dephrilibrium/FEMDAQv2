@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Files.Parser
 {
-    public class InfoBlockPiCam : InfoBlockInterface
+    public class InfoBlockPiCam : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public IpParser Ip { get; private set; }

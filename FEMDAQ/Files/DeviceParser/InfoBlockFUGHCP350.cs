@@ -12,7 +12,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 namespace Files.Parser
 {
 
-    public class InfoBlockFUGHCP350 : InfoBlockInterface
+    public class InfoBlockFUGHCP350 : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }

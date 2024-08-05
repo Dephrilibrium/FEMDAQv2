@@ -8,7 +8,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Files.Parser
 {
-    public class InfoBlockMOVE1250 : InfoBlockInterface
+    public class InfoBlockMOVE1250 : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public ComParser ComPort { get; private set; }

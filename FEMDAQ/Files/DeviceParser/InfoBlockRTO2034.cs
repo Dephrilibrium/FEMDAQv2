@@ -8,7 +8,7 @@ using System.Drawing;
 
 namespace Files.Parser
 {
-    public class InfoBlockRTO2034 : InfoBlockInterface
+    public class InfoBlockRTO2034 : InfoBlock
     {
         public CommonParser CommonWaveform { get; private set; }
         public CommonParser CommonFft { get; private set; }

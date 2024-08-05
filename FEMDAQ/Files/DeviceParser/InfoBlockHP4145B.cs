@@ -5,7 +5,7 @@ using FEMDAQ.StaticHelper;
 
 namespace Files.Parser
 {
-    public class InfoBlockHP4145B : InfoBlockInterface
+    public class InfoBlockHP4145B : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }

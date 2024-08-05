@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+
+using Instrument.LogicalLayer.SubClasses;
+
 namespace Instrument.LogicalLayer
 {
     public class KE6485Layer : InstrumentLogicalLayer
@@ -27,6 +30,10 @@ namespace Instrument.LogicalLayer
             DeviceType = infoStructure.DeviceType;
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
+
+            // nSubMeasurementsDone = 0; // Done multiple times during Measure()
+            _subMeasTimer = new SubMeasurementTimer(InfoBlock.Gauge.deltatimeSubMeasurements);
+
 
             XResults = new List<List<double>>();
             YResults = new List<double>();
@@ -80,7 +87,14 @@ namespace Instrument.LogicalLayer
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
         public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
-        public GaugeMeasureInstantly InstantMeasurement { get { return InfoBlock.Gauge.MeasureInstantly; } }
+        public GaugeMeasureInstantly InstantMeasurement => InfoBlock.Gauge.MeasureInstantly;
+
+        public int nSubMeasurements => InfoBlock.Gauge.nSubMeasurements;
+        public int nSubMeasurementsDone { get; private set; }
+        public int deltatimeSubMeasurements => InfoBlock.Gauge.deltatimeSubMeasurements; 
+        private SubMeasurementTimer _subMeasTimer = null;
+        private bool _subMeasTimerElapsed = false;
+
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
         #endregion
 

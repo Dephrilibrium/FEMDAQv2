@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Files.Parser
 {
-    public class InfoBlockDMM7510 : InfoBlockInterface
+    public class InfoBlockDMM7510 : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }

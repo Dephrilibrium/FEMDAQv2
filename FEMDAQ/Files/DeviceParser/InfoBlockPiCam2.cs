@@ -9,7 +9,7 @@ using Renci.SshNet.Compression;
 
 namespace Files.Parser
 {
-    public class InfoBlockPiCam2 : InfoBlockInterface
+    public class InfoBlockPiCam2 : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public IpParser Ip { get; private set; }

@@ -10,7 +10,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Files.Parser
 {
-    public class InfoBlockWavGen33511B : InfoBlockInterface
+    public class InfoBlockWavGen33511B : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }

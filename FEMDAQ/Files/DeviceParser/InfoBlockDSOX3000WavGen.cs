@@ -13,7 +13,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Files.Parser
 {
-    public class InfoBlockDSOX3000WavGen : InfoBlockInterface
+    public class InfoBlockDSOX3000WavGen : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public UsbParser Usb { get; private set; }

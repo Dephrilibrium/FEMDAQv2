@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Files.Parser
 {
-    public interface InfoBlockInterface
+    public interface InfoBlock
     {
         void Dispose();
     }

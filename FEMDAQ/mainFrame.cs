@@ -90,12 +90,14 @@ namespace FEMDAQ
 
             GlobalVariables.MainFrame = this; // Provide mainframe via static "GlobalVariables" class
 
-            var splashScreen = new SplashScreenFrame();
-            splashScreen.Show();
+            //var splashScreen = new SplashScreenFrame();
+            //splashScreen.Show();
 
 
             //OpenIni(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
             //OpenSweep(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\default.swp");
+
+            OpenIni(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\_Test-INI.ini");
         }
 
 

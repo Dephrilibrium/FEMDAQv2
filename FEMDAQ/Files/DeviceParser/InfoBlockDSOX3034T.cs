@@ -11,7 +11,7 @@ using RohdeSchwarz.RsScope;
 
 namespace Files.Parser
 {
-    public class InfoBlockDSOX3034T : InfoBlockInterface
+    public class InfoBlockDSOX3034T : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public UsbParser Usb { get; private set; }

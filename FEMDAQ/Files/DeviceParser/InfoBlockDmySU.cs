@@ -12,7 +12,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 namespace Files.Parser
 {
 
-    public class InfoBlockDmySU : InfoBlockInterface
+    public class InfoBlockDmySU : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public SourceParser Source { get; private set; }

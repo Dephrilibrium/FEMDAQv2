@@ -17,8 +17,8 @@ namespace Files.Parser
     public class GaugeParser
     {
         public GaugeMeasureInstantly MeasureInstantly { get; private set; }
-        public int nSubMeasurements;
-        public int deltatimeSubMeasurements;
+        public int nSubMeasurements { get; private set; }
+        public int deltatimeSubMeasurements { get; private set; }
         public double Range { get; private set; }
         public double Nplc { get; private set; }
 

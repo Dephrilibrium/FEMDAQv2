@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Files.Parser
 {
-    class InfoBlockSR785 : InfoBlockInterface
+    class InfoBlockSR785 : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }

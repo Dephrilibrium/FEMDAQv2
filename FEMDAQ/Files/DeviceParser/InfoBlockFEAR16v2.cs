@@ -30,7 +30,7 @@ namespace Files.Parser
     }
 
 
-    public class InfoBlockFEAR16v2 : InfoBlockInterface
+    public class InfoBlockFEAR16v2 : InfoBlock
     {
         private int _amountOfChannels { get; set; }
         public CommonParser Common { get; private set; }

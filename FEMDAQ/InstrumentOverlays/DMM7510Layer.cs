@@ -72,7 +72,7 @@ namespace Instrument.LogicalLayer
                     _chart.DeleteSeries(seriesName);
             _seriesNames.Clear();
 
-            InfoBlock.Dispose();
+
         }
 
 

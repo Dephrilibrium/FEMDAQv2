@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Files.Parser
 {
-    public class InfoBlockVD9x : InfoBlockInterface
+    public class InfoBlockVD9x : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public ComParser ComPort { get; private set; }

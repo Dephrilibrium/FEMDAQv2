@@ -8,7 +8,7 @@ using System.Drawing;
 namespace Files.Parser
 {
 
-    public class InfoBlockKE6485 : InfoBlockInterface
+    public class InfoBlockKE6485 : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }

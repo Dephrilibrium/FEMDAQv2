@@ -7,7 +7,7 @@ using System.Drawing;
 namespace Files.Parser
 {
 
-    public class InfoBlockDmyMU : InfoBlockInterface
+    public class InfoBlockDmyMU : InfoBlock
     {
         public CommonParser Common { get; private set; }
         public GaugeParser Gauge { get; private set; }
