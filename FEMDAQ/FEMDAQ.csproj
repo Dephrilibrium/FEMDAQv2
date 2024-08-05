@@ -246,6 +246,7 @@
     <Compile Include="Files\DeviceParser\InfoBlockSR785.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockDSOX3000WavGen.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockVD9x.cs" />
+    <Compile Include="Files\Interfaces\InfoBlockInterface.cs" />
     <Compile Include="Files\SpecialParser\InfoBlockSweepInfo.cs" />
     <Compile Include="Files\SpecialParser\InfoBlockToolInfo.cs" />
     <Compile Include="Files\SubParser\CommonParser.cs" />

@@ -30,6 +30,12 @@ namespace Files.Parser
         }
 
 
+        public void Dispose()
+        {
+
+        }
+
+
 
         private void ParseIp(string info)
         {

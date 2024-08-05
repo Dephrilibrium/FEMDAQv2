@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Files.Parser
 {
-    public class InfoBlockKE6487
+    public class InfoBlockKE6487 : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }
@@ -38,6 +38,14 @@ namespace Files.Parser
                 AutoZero = false;
             else
                 AutoZero = bool.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+        }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Gpib.Dispose();
+            Source.Dispose();
+            Gauge.Dispose();
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Files.Parser
 {
-    public class InfoBlockPiCam
+    public class InfoBlockPiCam : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public IpParser Ip { get; private set; }
@@ -114,6 +114,14 @@ namespace Files.Parser
             ParsePictureInterval(infoBlock);
 
             ParseAutoWhiteBalance(infoBlock);
+        }
+
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Ip.Dispose();
+            Gauge.Dispose();
         }
 
 

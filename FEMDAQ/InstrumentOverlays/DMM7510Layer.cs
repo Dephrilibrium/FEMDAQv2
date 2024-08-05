@@ -65,11 +65,14 @@ namespace Instrument.LogicalLayer
             if (_device != null)
                 _device.Dispose();
 
+
             ClearResults();
             if (_chart != null)
                 foreach (var seriesName in _seriesNames)
                     _chart.DeleteSeries(seriesName);
             _seriesNames.Clear();
+
+            InfoBlock.Dispose();
         }
 
 

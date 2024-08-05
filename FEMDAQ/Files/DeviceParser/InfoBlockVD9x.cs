@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Files.Parser
 {
-    public class InfoBlockVD9x
+    public class InfoBlockVD9x : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public ComParser ComPort { get; private set; }
@@ -29,6 +29,13 @@ namespace Files.Parser
 
             //lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "Baudrate");
             //Baudrate = (int)ParseHelper.ParseDoubleValueFromLineInfo(lineInfo);
+        }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            ComPort.Dispose();
+            Gauge.Dispose();
         }
     }
 }

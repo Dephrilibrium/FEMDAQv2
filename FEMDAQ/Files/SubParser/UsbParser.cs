@@ -18,6 +18,12 @@ namespace Files.Parser
             ParseUsbAddress(StringHelper.FindStringWhichStartsWith(infoBlock, "Usb="));
         }
 
+        public void Dispose()
+        {
+
+        }
+
+
         private void ParseUsbAddress(string lineInfo)
         {
             USBAddress = ParseHelper.ParseStringValueFromLineInfo(lineInfo);

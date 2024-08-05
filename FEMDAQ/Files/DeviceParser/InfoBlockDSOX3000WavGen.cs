@@ -9,10 +9,11 @@ using FEMDAQ.StaticHelper;
 
 using Ivi.Driver.Interop;
 using Agilent.AgInfiniiVision.Interop;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Files.Parser
 {
-    public class InfoBlockDSOX3000WavGen
+    public class InfoBlockDSOX3000WavGen : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public UsbParser Usb { get; private set; }
@@ -45,6 +46,14 @@ namespace Files.Parser
 
             ParseInvertOutput(StringHelper.FindStringWhichStartsWith(infoBlock, "InvertOutput="));
         }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Usb.Dispose();
+            Source.Dispose();
+        }
+
 
 
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Files.Parser
 {
-    public class InfoBlockDMM7510
+    public class InfoBlockDMM7510 : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }
@@ -40,6 +40,13 @@ namespace Files.Parser
                 AutoZero = false;
             else
                 AutoZero = bool.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+        }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Gpib.Dispose();
+            Gauge.Dispose();
         }
     }
 }

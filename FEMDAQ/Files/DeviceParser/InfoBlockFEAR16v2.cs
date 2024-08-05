@@ -5,6 +5,8 @@ using FEMDAQ.StaticHelper;
 using System.Drawing;
 using Instrument.LogicalLayer;
 using System.IO;
+using RohdeSchwarz.RsScope;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Files.Parser
 {
@@ -28,7 +30,7 @@ namespace Files.Parser
     }
 
 
-    public class InfoBlockFEAR16v2
+    public class InfoBlockFEAR16v2 : InfoBlockInterface
     {
         private int _amountOfChannels { get; set; }
         public CommonParser Common { get; private set; }
@@ -91,6 +93,17 @@ namespace Files.Parser
             //                   lineInfo == "SHORT" ? IntegrationTime.Short : IntegrationTime.Medium);
 
             //ParseCompliance(infoBlock);
+        }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            ComPort.Dispose();
+            for (int iChADC = 0; iChADC < _amountOfChannels; iChADC++)
+            {
+                CurrFlowChannels[iChADC].chartInfo.Dispose();
+                UDropFETChannels[iChADC].chartInfo.Dispose();
+            }
         }
 
         private void parseRequestDelay(IEnumerable<string> infoBlock)

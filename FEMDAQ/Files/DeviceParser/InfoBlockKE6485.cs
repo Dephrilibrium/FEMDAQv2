@@ -1,4 +1,5 @@
 ﻿using FEMDAQ.StaticHelper;
+using RohdeSchwarz.RsScope;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,7 +8,7 @@ using System.Drawing;
 namespace Files.Parser
 {
 
-    public class InfoBlockKE6485
+    public class InfoBlockKE6485 : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }
@@ -36,6 +37,13 @@ namespace Files.Parser
                 AutoZero= false;
             else
                 AutoZero = bool.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+        }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Gpib.Dispose();
+            Gauge.Dispose();
         }
     }
 }

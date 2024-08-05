@@ -7,10 +7,11 @@ using System.Drawing;
 // own usings
 using Ivi.Driver.Interop;
 using Agilent.AgInfiniiVision.Interop;
+using RohdeSchwarz.RsScope;
 
 namespace Files.Parser
 {
-    public class InfoBlockDSOX3034T
+    public class InfoBlockDSOX3034T : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public UsbParser Usb { get; private set; }
@@ -57,6 +58,13 @@ namespace Files.Parser
             ParseTriggerSource(StringHelper.FindStringWhichStartsWith(infoBlock, "TriggerSource="));
             ParseTriggerMode(StringHelper.FindStringWhichStartsWith(infoBlock, "TriggerMode="));
             ParseTriggerType(StringHelper.FindStringWhichStartsWith(infoBlock, "TriggerType="));
+        }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Usb.Dispose();
+            Gauge.Dispose();
         }
 
 

@@ -2,6 +2,7 @@
 using Instrument.LogicalLayer;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Files.Parser
 {
@@ -16,17 +17,35 @@ namespace Files.Parser
     public class GaugeParser
     {
         public GaugeMeasureInstantly MeasureInstantly { get; private set; }
+        public int nSubMeasurements;
+        public int deltatimeSubMeasurements;
         public double Range { get; private set; }
         public double Nplc { get; private set; }
 
 
-        public GaugeParser(IEnumerable<string> infoBlock, string measureInstantlyToken = "MeasureInstantly=", string yRangeToken = "Range=", string nplcToken = "Nplc=")
+        public GaugeParser(IEnumerable<string> infoBlock,
+                        string measureInstantlyToken = "MeasureInstantly=",
+                        string nSubMeasurementsToken = "nSubMeasurements",
+                        string deltatimeSubMeasurementsToken = "deltatimeSubmeasurements",
+                        string yRangeToken = "Range=", string nplcToken = "Nplc="
+            )
         {
             if (infoBlock == null) throw new ArgumentNullException("infoBlock");
 
             ParseMeasureInstantly(StringHelper.FindStringWhichStartsWith(infoBlock, measureInstantlyToken));
+            Parse_nSubMeasurements(StringHelper.FindStringWhichStartsWith(infoBlock, nSubMeasurementsToken));
+            Parse_deltatimeSubMeasurements(StringHelper.FindStringWhichStartsWith(infoBlock, deltatimeSubMeasurementsToken));
+            if (nSubMeasurements <= 1)
+                deltatimeSubMeasurements = 0;
+
             ParseRange(StringHelper.FindStringWhichStartsWith(infoBlock, yRangeToken));
             ParseNplc(StringHelper.FindStringWhichStartsWith(infoBlock, nplcToken));
+        }
+
+
+
+        public void Dispose()
+        {
         }
 
 
@@ -39,6 +58,33 @@ namespace Files.Parser
                 return; // Ignore range
             }
             MeasureInstantly = (GaugeMeasureInstantly)ParseHelper.ParseDoubleValueFromLineInfo(info);
+        }
+
+
+
+        private void Parse_nSubMeasurements(string info)
+        {
+            if (info == null)
+            {
+                nSubMeasurements = 1; // Default = 1 datapoint
+                return; // Ignore the rest
+            }
+            nSubMeasurements= (int)ParseHelper.ParseDoubleValueFromLineInfo(info);
+            if (nSubMeasurements <= 0)
+                nSubMeasurements = 1;
+        }
+
+
+
+        private void Parse_deltatimeSubMeasurements(string info)
+        {
+            if (info == null)
+            {
+                deltatimeSubMeasurements = 0; // Default
+                return; // Ignore the rest
+
+            }
+            deltatimeSubMeasurements = (int)ParseHelper.ParseDoubleValueFromLineInfo(info);
         }
 
 

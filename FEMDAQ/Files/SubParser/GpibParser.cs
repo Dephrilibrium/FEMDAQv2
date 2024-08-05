@@ -19,6 +19,12 @@ namespace Files.Parser
             ParseGpibAddress(StringHelper.FindStringWhichStartsWith(infoBlock, "GpibAddr="));
         }
 
+        public void Dispose()
+        {
+
+        }
+
+
 
 
         private void ParseGpibAddress(string info)

@@ -18,6 +18,12 @@ namespace Files.Parser
             ParseBaudRate(StringHelper.FindStringWhichStartsWith(infoBlock, "Baudrate="));
         }
 
+        public void Dispose()
+        {
+
+        }
+
+
 
 
         private void ParseComPort(string info)

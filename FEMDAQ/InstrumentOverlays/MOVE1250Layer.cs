@@ -31,7 +31,7 @@ namespace Instrument.LogicalLayer
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + (cName == null || cName == "" ? DeviceType : cName);
 
-            _device = new MOVE1250(InfoBlock.Com.ComPort, 300, 7, StopBits.Two, Parity.None, 2000, InfoBlock.ResponseTime);
+            _device = new MOVE1250(InfoBlock.ComPort.ComPort, 300, 7, StopBits.Two, Parity.None, 2000, InfoBlock.ResponseTime);
             if (_device == null) throw new NullReferenceException("MOVE1250 device couldn't be generated.");
             CommunicationPhy = InstrumentCommunicationPHY.COMPort;
         }

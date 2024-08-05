@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Files.Parser
 {
-    class InfoBlockSR785
+    class InfoBlockSR785 : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }
@@ -160,6 +160,13 @@ namespace Files.Parser
                 }
             }
 
+        }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Gpib.Dispose();
+            Gauge.Dispose();
         }
     }
 }

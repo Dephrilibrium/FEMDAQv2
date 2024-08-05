@@ -9,7 +9,7 @@ using Renci.SshNet.Compression;
 
 namespace Files.Parser
 {
-    public class InfoBlockPiCam2
+    public class InfoBlockPiCam2 : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public IpParser Ip { get; private set; }
@@ -127,6 +127,14 @@ namespace Files.Parser
                 CompressSuppressParents = 1;
             else
                 CompressSuppressParents = uint.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
+        }
+
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Ip.Dispose();
+            Gauge.Dispose();
         }
 
 

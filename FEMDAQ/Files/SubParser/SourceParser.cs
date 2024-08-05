@@ -21,6 +21,11 @@ namespace Files.Parser
             ParseCompliance(StringHelper.FindStringWhichStartsWith(infoBlock, complianceToken));
         }
 
+        public void Dispose()
+        {
+
+        }
+
 
 
         private void ParseSourceNode(string info)

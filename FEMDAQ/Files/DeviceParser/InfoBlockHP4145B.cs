@@ -5,7 +5,7 @@ using FEMDAQ.StaticHelper;
 
 namespace Files.Parser
 {
-    public class InfoBlockHP4145B
+    public class InfoBlockHP4145B : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }
@@ -45,7 +45,16 @@ namespace Files.Parser
         }
 
 
-        
+        public void Dispose()
+        {
+            Common.Dispose();
+            Gpib.Dispose();
+            Source.Dispose();
+            Gauge.Dispose();
+        }
+
+
+
         private void ParseSMUChannel(IEnumerable<string> infoBlock)
         {
             var blockIdentifier = StringHelper.FindStringWhichStartsWith(infoBlock, "[Dev");

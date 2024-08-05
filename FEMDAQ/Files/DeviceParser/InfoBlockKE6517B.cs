@@ -9,7 +9,7 @@ using Keithley;
 namespace Files.Parser
 {
 
-    class InfoBlockKE6517B
+    class InfoBlockKE6517B : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public GpibParser Gpib { get; private set; }
@@ -58,6 +58,14 @@ namespace Files.Parser
                 return KE6517B_MeasurementType.Resistance;
             else // Current (default)
                 return KE6517B_MeasurementType.Current;
+        }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Gpib.Dispose();
+            Source.Dispose();
+            Gauge.Dispose();
         }
     }
 }

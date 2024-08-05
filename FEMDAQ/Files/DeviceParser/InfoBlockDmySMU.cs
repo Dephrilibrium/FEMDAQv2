@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Files.Parser
 {
-    public class InfoBlockDmySMU
+    public class InfoBlockDmySMU : InfoBlockInterface
     {
         public CommonParser Common { get; private set; }
         public SourceParser Source { get; private set; }
@@ -29,6 +29,13 @@ namespace Files.Parser
             LowerBound = ParseHelper.ParseDoubleValueFromLineInfo(lineInfo);
             lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "UpperBound=");
             UpperBound = ParseHelper.ParseDoubleValueFromLineInfo(lineInfo);
+        }
+
+        public void Dispose()
+        {
+            Common.Dispose();
+            Source.Dispose();
+            Gauge.Dispose();
         }
     }
 }

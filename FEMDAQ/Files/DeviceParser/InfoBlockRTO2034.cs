@@ -8,7 +8,7 @@ using System.Drawing;
 
 namespace Files.Parser
 {
-    public class InfoBlockRTO2034
+    public class InfoBlockRTO2034 : InfoBlockInterface
     {
         public CommonParser CommonWaveform { get; private set; }
         public CommonParser CommonFft { get; private set; }
@@ -28,7 +28,7 @@ namespace Files.Parser
         public Slope TriggerSlope { get; private set; }
         public int ReadWaveform { get; private set; }
         public bool UpdateDisplay { get; private set; }
-        
+
         // FFT-Settings
         public RTO2034MathWindow MathWindow { get; private set; }
         public bool TriggerOnFFT { get; private set; }
@@ -69,7 +69,7 @@ namespace Files.Parser
             if (lineInfo == null)
                 TriggerLevel = 0;
             else
-               TriggerLevel = ParseHelper.ParseDoubleValueFromLineInfo(lineInfo);
+                TriggerLevel = ParseHelper.ParseDoubleValueFromLineInfo(lineInfo);
 
             ParseTriggerSource(StringHelper.FindStringWhichStartsWith(infoBlock, "TriggerSource="));
 
@@ -86,7 +86,7 @@ namespace Files.Parser
             else
                 UpdateDisplay = bool.Parse(ParseHelper.ParseStringValueFromLineInfo(lineInfo));
 
-            if(ReadWaveform != 0) // Create only when waveform is used!
+            if (ReadWaveform != 0) // Create only when waveform is used!
                 CommonWaveform = new CommonParser(infoBlock, "WaveformChartIdentifier=", null, "WaveformCustomName=", "WaveformChartColor=");
 
             lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "UseFFTOnMathWindow=");
@@ -127,6 +127,15 @@ namespace Files.Parser
 
                 ParseWindowType(StringHelper.FindStringWhichStartsWith(infoBlock, "WindowType="));
             }
+        }
+
+
+        public void Dispose()
+        {
+            CommonWaveform.Dispose();
+            CommonFft.Dispose();
+            Ip.Dispose();
+            Gauge.Dispose();
         }
 
 
@@ -285,7 +294,7 @@ namespace Files.Parser
         private void ParseWindowType(string info)
         {
             var stringValue = ParseHelper.ParseStringValueFromLineInfo(info.ToUpper());
-            switch(stringValue)
+            switch (stringValue)
             {
                 case "RECT":
                 case "RECTANGLE":

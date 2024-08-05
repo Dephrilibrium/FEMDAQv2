@@ -37,6 +37,10 @@ namespace Files.Parser
                 throw new FormatException("There are more charts than measure-curves for [" + DeviceIdentifier + "|" + DeviceType + "] (Customname: " + CustomName + "). (DrawnOvers < ChartIdentifiers)\r\n\r\nPlease correct your settings and try again.");
         }
 
+        public void Dispose()
+        {
+
+        }
 
         private void ParseDevice(string info)
         {
