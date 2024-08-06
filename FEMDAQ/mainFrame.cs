@@ -98,6 +98,7 @@ namespace FEMDAQ
             //OpenSweep(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\default.swp");
 
             OpenIni(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\_Test-INI.ini");
+            OpenSweep(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\_SubMeas.swp");
         }
 
 

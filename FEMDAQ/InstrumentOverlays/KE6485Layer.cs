@@ -8,6 +8,9 @@ using System.Text;
 
 
 using Instrument.LogicalLayer.SubClasses;
+using NationalInstruments.Restricted;
+using System.Diagnostics.Eventing.Reader;
+using System.Reflection;
 
 namespace Instrument.LogicalLayer
 {
@@ -35,8 +38,8 @@ namespace Instrument.LogicalLayer
             _subMeasTimer = new SubMeasurementTimer(InfoBlock.Gauge.deltatimeSubMeasurements);
 
 
-            XResults = new List<List<double>>();
-            YResults = new List<double>();
+            XResults = new List<List<List<double>>>(DrawnOverIdentifiers.Count);
+            YResults = new List<List<double>>();
 
             _device = new KE6485.KE6485(InfoBlock.Gpib.GpibBoardNumber, (byte)InfoBlock.Gpib.GpibPrimaryAdress, (byte)InfoBlock.Gpib.GpibSecondaryAdress);
             if (_device == null) throw new NullReferenceException("KE6485 device couldn't be generated.");
@@ -45,7 +48,7 @@ namespace Instrument.LogicalLayer
             if (DrawnOverIdentifiers != null)
             {
                 foreach (var drawnOver in DrawnOverIdentifiers)
-                    XResults.Add(new List<double>());
+                    XResults.Add(new List<List<double>>());
             }
 
             if (InfoBlock.Common.ChartIdentifiers != null)
@@ -83,8 +86,8 @@ namespace Instrument.LogicalLayer
 
 
         #region Getter/Setter
-        public List<List<double>> XResults { get; private set; }
-        public List<double> YResults { get; private set; }
+        public List<List<List<double>>> XResults { get; private set; }
+        public List<List<double>> YResults { get; private set; }
         public string DeviceIdentifier { get; private set; }
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
@@ -93,7 +96,7 @@ namespace Instrument.LogicalLayer
 
         public int nSubMeasurements => InfoBlock.Gauge.nSubMeasurements;
         public int nSubMeasurementsDone { get; private set; }
-        public int deltatimeSubMeasurements => InfoBlock.Gauge.deltatimeSubMeasurements; 
+        public int deltatimeSubMeasurements => InfoBlock.Gauge.deltatimeSubMeasurements;
         private SubMeasurementTimer _subMeasTimer = null;
         private bool _subMeasTimerElapsed = false;
 
@@ -155,15 +158,57 @@ namespace Instrument.LogicalLayer
 
             double[] drawnOver = GetDrawnOver(DrawnOverIdentifiers);
 
-            lock (XResults)
+            // Temporary capture lists for the submeasurement --> Is assigned at the end to X- and YResults!
+            //XResults looks like:
+            // XResults[DrawnOverKey][GlobalDatapoint][SubDatapoints]
+            // --> XCaptured[DrawnOverKey][SubDatapoints]
+            List<double> yCaptured = new List<double>(nSubMeasurementsDone);
+            List<List<double>> xCaptured = new List<List<double>>(DrawnOverIdentifiers.Count); // This list is for the different types of drawnOver (time, devXY, etc...). the individual lists contain then the submeasurement datapoints!
+            for (var _nDrawnOver = 0; _nDrawnOver < DrawnOverIdentifiers.Count; _nDrawnOver++) // Add drawnOver-Lists for the SubMeasurement-Datapoints
+                xCaptured.Add(new List<double>(nSubMeasurements)); // This is the submeasure-list
+
+            for (nSubMeasurementsDone = 0; nSubMeasurementsDone < nSubMeasurements; nSubMeasurementsDone++)
             {
-                lock (YResults)
+                // Start Timer to not have "Interval-Time + Measurement-Time" (of the device)
+                _subMeasTimer.ResetElapsed();
+                _subMeasTimer.Start();
+
+                //lock (XResults)
+                //{
+                //    lock (YResults)
+                //    {
+                var current = _device.GetCurrent();
+                yCaptured.Add(current);
+                var _tmpCurrentDrawnOver = 0.0;
+                for (var _nDrawnOver = 0; _nDrawnOver < DrawnOverIdentifiers.Count; _nDrawnOver++)
                 {
-                    var current = _device.GetCurrent();
-                    YResults.Add(current);
-                    for (var index = 0; index < DrawnOverIdentifiers.Count; index++)
-                        XResults[index].Add(drawnOver[index]);
+                    if (DrawnOverIdentifiers[_nDrawnOver] == "Time")                                                      // If current drawnOver is is time (only time vary due to submeasurements!)
+                        _tmpCurrentDrawnOver = drawnOver[_nDrawnOver] + nSubMeasurementsDone * (deltatimeSubMeasurements / 1000); //  adjust global timestamp --> drawnOver + nSubmeasurements * Interval[ms] / 1000[ms/s] = [s]
+                    else                                                                                            // otherwise
+                        _tmpCurrentDrawnOver = drawnOver[_nDrawnOver];                                                            //  take the raw drawnOver-Value
+
+                    xCaptured[_nDrawnOver].Add(_tmpCurrentDrawnOver); // All drawnOver for the datapoint
+
+                    //XResults[_nSubDatapoint].Add(drawnOver[_nSubDatapoint]);
                 }
+
+                //    }
+                //}
+
+                while (!_subMeasTimer.IsElapsed)
+                    ; // Wait
+                      //_subMeasTimer.Stop(); // Timer = One-Shot-Timer
+            }
+
+            // Assign captured datapoints to X- and YResults
+            lock (XResults)            
+            {
+                for (var _nDrawnOver = 0; _nDrawnOver < DrawnOverIdentifiers.Count; _nDrawnOver++) // Add drawnOver-Lists for the SubMeasurement-Datapoints
+                    XResults[_nDrawnOver].Add(xCaptured[_nDrawnOver]);
+            }
+            lock (YResults)
+            {
+                YResults.Add(yCaptured);
             }
         }
 
@@ -187,23 +232,39 @@ namespace Instrument.LogicalLayer
                 return; // Do nothing
 
 
+            // *.dat fileheader!
             var deviceName = string.Format("{0}_{1}",
                                            InfoBlock.Common.DeviceIdentifier,
                                            (InfoBlock.Common.CustomName == null ? InfoBlock.Common.DeviceType : InfoBlock.Common.CustomName)
                                            );
             var output = new StringBuilder("# Device: [" + deviceName + "]\n");
+            // Column-Description
             output.Append("# ");
             foreach (var drawnOver in DrawnOverIdentifiers)
-                output.Append(drawnOver + ", ");
-            output.AppendLine("Y");
+                for(var _nSubDatapoint = 0; _nSubDatapoint < nSubMeasurements; _nSubDatapoint++ )
+                    output.Append(string.Format("{0}_{1}, ", drawnOver, _nSubDatapoint + 1));
+
+            for (var _nSubDatapoint = 0; _nSubDatapoint < nSubMeasurements; _nSubDatapoint++)
+                if (_nSubDatapoint < (nSubMeasurements - 1))
+                    output.Append(string.Format("Y_{0}, ", _nSubDatapoint + 1));
+                else
+                    output.AppendLine(string.Format("Y_{0}", _nSubDatapoint + 1));
+
             output.AppendLine("# Range: " + InfoBlock.Gauge.Range.ToString());
             output.AppendLine("# NPLC: " + InfoBlock.Gauge.Nplc.ToString());
 
             for (var line = 0; line < YResults.Count; line++)
             {
+                // X-Datapoints (column for each DrawnOver and their submeasurements
                 for (var xIndex = 0; xIndex < XResults.Count; xIndex++)
-                    output.Append(XResults[xIndex][line] + ", ");
-                output.AppendLine(YResults[line].ToString());
+                    for (var _nSubDatapoint = 0; _nSubDatapoint < nSubMeasurements; _nSubDatapoint++)
+                        output.Append(XResults[xIndex][line][_nSubDatapoint] + ", ");
+
+                for (var _nSubDatapoint = 0; _nSubDatapoint < nSubMeasurements; _nSubDatapoint++)
+                    if (_nSubDatapoint < (nSubMeasurements-1))
+                        output.Append(YResults[line][_nSubDatapoint].ToString() + ", ");
+                    else
+                        output.AppendLine(YResults[line][_nSubDatapoint].ToString());
             }
             var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
             var fileWriter = new StreamWriter(filename, false);
@@ -264,19 +325,20 @@ namespace Instrument.LogicalLayer
                 return;
 
             int lastLine;
-            double lastYVal;
+            List<double> lastYVals;
             lock (YResults)
             {
                 lastLine = YResults.Count - 1;
                 if (lastLine < 0) // Actual is no value measured
                     return;
-                lastYVal = YResults[lastLine];
+                lastYVals = YResults[lastLine];
             }
 
             lock (XResults)
             {
                 for (var xRowIndex = 0; xRowIndex < _seriesNames.Count; xRowIndex++)
-                    _chart.AddXY(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVal);
+                    //_chart.AddXY(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVals);
+                    _chart.AddXYSet(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVals);
             }
         }
         #endregion
