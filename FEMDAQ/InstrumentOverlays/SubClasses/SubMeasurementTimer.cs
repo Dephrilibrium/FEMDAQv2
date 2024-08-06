@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Instrument.LogicalLayer.SubClasses
 {
@@ -17,9 +18,12 @@ namespace Instrument.LogicalLayer.SubClasses
         {
             if (interval < 0) throw new ArgumentOutOfRangeException(string.Format("SubMeasurementTimer does not accept negative numbers - interval: {0} < 0", interval));
 
-            _timer = new Timer(interval); // Contains guard-clause for negative numbers
-            _timer.AutoReset = !oneShot;
-            _timer.Elapsed += (sender, args) => IsElapsed = true;
+            if (interval > 0)
+            {
+                _timer = new Timer(interval); // Contains guard-clause for negative numbers
+                _timer.AutoReset = !oneShot;
+                _timer.Elapsed += (sender, args) => IsElapsed = true;
+            }
 
             IsElapsed = false;
         }
@@ -29,8 +33,23 @@ namespace Instrument.LogicalLayer.SubClasses
             if (_timer != null) { _timer.Dispose(); }
         }
 
-        public void Start() => _timer.Start();
-        public void Stop() => _timer.Stop();
+        public void Start()
+        {
+            if (_timer == null)
+            {
+                IsElapsed = true;
+                return;
+            }
+
+            _timer.Start();
+        }
+        public void Stop()
+        {
+            if(_timer != null)
+                return;
+
+            _timer.Stop();
+        }
 
         public void ResetElapsed() => IsElapsed = false;
     }
