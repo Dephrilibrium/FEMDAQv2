@@ -324,6 +324,7 @@
     <Compile Include="SplashScreen\SplashScreen.Designer.cs">
       <DependentUpon>SplashScreen.cs</DependentUpon>
     </Compile>
+    <Compile Include="InstrumentOverlays\SubClasses\ResultListsHelper.cs" />
     <Compile Include="StaticHelper\DeriveFromObject.cs" />
     <Compile Include="Files\iniContent.cs" />
     <Compile Include="Files\DeviceParser\InfoBlockKE6487.cs" />

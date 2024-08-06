@@ -37,7 +37,7 @@ namespace FEMDAQ
         private ManualResetEvent _measureManagerTaskWakeSignal;
         private CancellationTokenSource _measureManagerTaskCancellation;
         private CancellationTokenSource _measureTaskCancellation;
-        private GaugeMeasureInstantly _measureAtActual;
+        private GaugeMeasureInstantly _measureAtActual; // Used for sources-setup by setting an out-of-range value (non-valid member of GaugeMeasureInstantly-Enumeration)
         private bool _setSources = false;
 
         // Device threads
@@ -389,11 +389,14 @@ namespace FEMDAQ
                     if (_setSources) // On cycle-start setup the source
                         device.SetSourceValues(OperationStatus.SweepLineIndexInProgress);
 
-                    measureAtActual = _measureAtActual; // Create copy
-                    device.Measure(GetDrawnOver, measureAtActual);
+                    if (Enum.IsDefined(typeof(GaugeMeasureInstantly), _measureAtActual)) // !!! ATTENTION !!! There exists measureAtActual and _measureAtActual
+                    {
+                        measureAtActual = _measureAtActual; // Create copy
+                        device.Measure(GetDrawnOver, measureAtActual);
 
-                    if (measureAtActual == GaugeMeasureInstantly.CycleEnd)
-                        Dispatcher.BeginInvoke(new Action(device.UpdateGraph));
+                        if (measureAtActual == GaugeMeasureInstantly.CycleEnd)
+                            Dispatcher.BeginInvoke(new Action(device.UpdateGraph));
+                    }
                 }
             }
 

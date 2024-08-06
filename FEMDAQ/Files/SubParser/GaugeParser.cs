@@ -35,8 +35,8 @@ namespace Files.Parser
             ParseMeasureInstantly(StringHelper.FindStringWhichStartsWith(infoBlock, measureInstantlyToken));
             Parse_nSubMeasurements(StringHelper.FindStringWhichStartsWith(infoBlock, nSubMeasurementsToken));
             Parse_deltatimeSubMeasurements(StringHelper.FindStringWhichStartsWith(infoBlock, deltatimeSubMeasurementsToken));
-            if (nSubMeasurements <= 1)
-                deltatimeSubMeasurements = 0;
+            if (nSubMeasurements <= 1)          // When only one datapoint is requested
+                deltatimeSubMeasurements = 0;   //  turn off delay (submeastimer-class does not use an internal timer then!)
 
             ParseRange(StringHelper.FindStringWhichStartsWith(infoBlock, yRangeToken));
             ParseNplc(StringHelper.FindStringWhichStartsWith(infoBlock, nplcToken));

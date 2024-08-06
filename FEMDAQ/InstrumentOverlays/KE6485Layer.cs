@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
-
-using Instrument.LogicalLayer.SubClasses;
 using NationalInstruments.Restricted;
 using System.Diagnostics.Eventing.Reader;
 using System.Reflection;
+
+using Instrument.LogicalLayer.SubClasses;
+
 
 namespace Instrument.LogicalLayer
 {
@@ -33,9 +33,9 @@ namespace Instrument.LogicalLayer
             DeviceType = infoStructure.DeviceType;
             var cName = InfoBlock.Common.CustomName;
             DeviceName = DeviceIdentifier + "|" + (cName == null || cName == "" ? DeviceType : cName);
-
             // nSubMeasurementsDone = 0; // Done multiple times during Measure()
             _subMeasTimer = new SubMeasurementTimer(InfoBlock.Gauge.deltatimeSubMeasurements);
+
 
 
             XResults = new List<List<List<double>>>(DrawnOverIdentifiers.Count);
@@ -169,7 +169,7 @@ namespace Instrument.LogicalLayer
 
             for (nSubMeasurementsDone = 0; nSubMeasurementsDone < nSubMeasurements; nSubMeasurementsDone++)
             {
-                // Start Timer to not have "Interval-Time + Measurement-Time" (of the device)
+                // Start Timer here to not have "Interval-Time + Measurement-Time" (of the device)
                 _subMeasTimer.ResetElapsed();
                 _subMeasTimer.Start();
 
@@ -276,16 +276,35 @@ namespace Instrument.LogicalLayer
 
         public void ClearResults()
         {
-            if (XResults != null)
-                foreach (var xResult in XResults)
-                    xResult.Clear();
+            ResultListsHelper.ClearArbitraryNestedResultList(XResults);
+            ResultListsHelper.ClearArbitraryNestedResultList(YResults);
+            //if (XResults != null)
+            //{
+            //    foreach (var x1Result in XResults)
+            //    {
+            //        foreach (var x2Result in x1Result)
+            //        {
+            //            x2Result.Clear();
+            //        }
+            //        x1Result.Clear();
+            //    }   
+            //    XResults.Clear();
+            //}
 
-            if (YResults != null)
-                YResults.Clear();
+
+            //if (YResults != null)
+            //{
+            //    foreach (var y1Result in XResults)
+            //        y1Result.Clear();
+            //    YResults.Clear();
+            //}
 
             if (_chart != null)
-                foreach (var seriesName in _seriesNames)
-                    _chart.ClearXY(seriesName);
+            { 
+                foreach (var s1SeriesName in _seriesNames)
+                    _chart.ClearXY(s1SeriesName);
+            }
+            ResultListsHelper.ClearArbitraryNestedResultList(_seriesNames);
         }
         #endregion
 

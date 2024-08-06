@@ -9,6 +9,10 @@ using System.Text;
 using HaumOTH;
 using System.Threading;
 
+
+using Instrument.LogicalLayer.SubClasses;
+using System.Security.AccessControl;
+
 namespace Instrument.LogicalLayer
 {
     internal enum FEAR16v2MeasurementChannelType
@@ -42,8 +46,6 @@ namespace Instrument.LogicalLayer
         public const string CurrFlowRequestString = "CF";
         public const string FETUDropRequestString = "UD";
 
-        public int RequestDelay_ms; // Delays the request of the measurement data by this time [ms]
-
 
         public FEAR16v2Layer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
         {
@@ -60,13 +62,16 @@ namespace Instrument.LogicalLayer
             if (_device == null) throw new NullReferenceException("FEAR16v2 device couldn't be generated.");
             CommunicationPhy = InstrumentCommunicationPHY.COMPort; // Via USB -> FT232
 
-            
+
             _device.ChangeAdcNMeanPoints(InfoBlock.AdcGeneralSettings.AdcNMean);
             _device.ChangeAdcMDeltaTime(InfoBlock.AdcGeneralSettings.AdcMDelta);
 
+            // nSubMeasurementsDone = 0; // Done multiple times during Measure()
+            _subMeasTimer = new SubMeasurementTimer(InfoBlock.AdcGeneralSettings.deltatimeSubMeasurements);
+
             // Make empty result-lists
-            XResults = new List<List<List<List<double>>>>(_device.AmountOfChannels);
-            YResults = new List<List<List<double>>>(_device.AmountOfChannels);
+            XResults = new List<List<List<List<List<double>>>>>(_device.AmountOfChannels);
+            YResults = new List<List<List<List<double>>>>(_device.AmountOfChannels);
 
             //for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             //{
@@ -86,16 +91,18 @@ namespace Instrument.LogicalLayer
             List<Color> chColors = null;
             List<string> chDrawnOver = null;
             string chTypeStr = null;
+
+            // XResults[Channels][CF/UD][drawnOver][SubMeasDP]
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
-                XResults.Add(new List<List<List<double>>>((int)FEAR16v2MeasurementChannelType.TypeCount));
-                YResults.Add(new List<List<double>>((int)FEAR16v2MeasurementChannelType.TypeCount));
+                XResults.Add(new List<List<List<List<double>>>>((int)FEAR16v2MeasurementChannelType.TypeCount));
+                YResults.Add(new List<List<List<double>>>((int)FEAR16v2MeasurementChannelType.TypeCount));
                 _seriesNames.Add(new List<List<string>>());
 
                 for (int chType = 0; chType <= (int)FEAR16v2MeasurementChannelType.UD; chType++)
                 {
-                    XResults[iCh].Add(new List<List<double>>());
-                    YResults[iCh].Add(new List<double>());
+                    XResults[iCh].Add(new List<List<List<double>>>());
+                    YResults[iCh].Add(new List<List<double>>());
                     _seriesNames[iCh].Add(new List<string>());
 
                     if (chType == (int)FEAR16v2MeasurementChannelType.CF)
@@ -132,14 +139,14 @@ namespace Instrument.LogicalLayer
                             }
 
                             for (var iDrawnOver = 0; iDrawnOver < chDrawnOver.Count; iDrawnOver++)
-                                XResults[iCh][chType].Add(new List<double>());
+                                XResults[iCh][chType].Add(new List<List<double>>());
                         }
                     }
                 }
             }
             _chart = chart;
 
-            RequestDelay_ms = 100; // Default = 100ms
+            //RequestDelay_ms = 100; // Already setup by InfoBlockFEAR16v2
         }
 
         public void Dispose()
@@ -151,6 +158,15 @@ namespace Instrument.LogicalLayer
             }
 
             InfoBlock.Dispose();
+
+            if (_chart != null && _seriesNames != null)
+            {
+                foreach (var s1SeriesName in _seriesNames)
+                    foreach (var s2SeriesName in s1SeriesName)
+                        foreach (var s3SeriesName in s2SeriesName)
+                            _chart.ClearXY(s3SeriesName);
+            }
+            ResultListsHelper.DisposeArbitraryResultList(_seriesNames);
         }
 
 
@@ -160,10 +176,19 @@ namespace Instrument.LogicalLayer
         public string DeviceType { get; private set; }
         public string DeviceName { get; private set; }
         public InstrumentCommunicationPHY CommunicationPhy { get; private set; }
-        public List<List<List<List<double>>>> XResults { get; private set; }
+        public List<List<List<List<List<double>>>>> XResults { get; private set; }
         //public List<List<double>> yResults { get; private set; }
-        public List<List<List<double>>> YResults { get; private set; }
+        public List<List<List<List<double>>>> YResults { get; private set; }
         public GaugeMeasureInstantly InstantMeasurement { get { return GaugeMeasureInstantly.CycleEnd; } }
+
+        public int nSubMeasurements => InfoBlock.AdcGeneralSettings.nSubMeasurements;
+        public int nSubMeasurementsDone { get; private set; }
+        public int deltatimeSubMeasurements => InfoBlock.AdcGeneralSettings.deltatimeSubMeasurements;
+        private SubMeasurementTimer _subMeasTimer = null;
+
+        public int RequestDelay_ms => InfoBlock.AdcGeneralSettings.RequestDelay_ms; // Delays the request of the measurement data by this time [ms]
+
+
         public List<string> DrawnOverIdentifiers { get { return InfoBlock.Common.ChartDrawnOvers; } }
         #endregion
 
@@ -219,48 +244,125 @@ namespace Instrument.LogicalLayer
             atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.UD] = false;
 
 
-            // Mark the requested channels and channeltypes
-            for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
-            {
-                for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
-                {
-                    if (adcInfoBlocks[iChType][iCh].MeasureInstantly != MeasureCycle)
-                        continue;
+            // XResults[Channels][CF/UD][drawnOver][GlobalDatapoints][SubMeasDatapoints]
+            // --> x/yCapture[Channels][CF/UD][drawnOver][SubMeasDP]
+            var xCapture = new List<List<List<List<double>>>>(_device.AmountOfChannels);
+            var yCapture = new List<List<List<double>>>(_device.AmountOfChannels);
 
-                    adcChnls[iChType][iCh].Requested = true;
-                    atLeastOneRequest[iChType] = true;
+            bool hasValues2Copy = false;
+            for (nSubMeasurementsDone = 0; nSubMeasurementsDone < nSubMeasurements; nSubMeasurementsDone++)
+            {
+                // Start Timer here to not have "Interval-Time + Measurement-Time" (of the device)
+                _subMeasTimer.ResetElapsed();
+                _subMeasTimer.Start();
+
+
+                // Mark the requested channels and channeltypes
+                for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
+                {
+                    for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
+                    {
+                        if (adcInfoBlocks[iChType][iCh].MeasureInstantly != MeasureCycle)
+                            continue;
+
+                        adcChnls[iChType][iCh].Requested = true;
+                        atLeastOneRequest[iChType] = true;
+                        hasValues2Copy = true;
+                    }
+                }
+
+
+                if (RequestDelay_ms > 0) // Delay request if a waiting time is given!
+                    Thread.Sleep(RequestDelay_ms);
+
+                // Run the measurements if at least one channel is requested
+                if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.CF])
+                    _device.MeasureUFETDropRequests();
+
+                if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.UD])
+                    _device.MeasureCurrentFlowRequests();
+
+
+                // Put the results into the result-lists
+                for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
+                {
+                    if (nSubMeasurementsDone == 0) // Create nested list for first SubMeas-Datapoint
+                    {
+                        xCapture.Add(new List<List<List<double>>>((int)FEAR16v2MeasurementChannelType.TypeCount));
+                        yCapture.Add(new List<List<double>>((int)FEAR16v2MeasurementChannelType.TypeCount));
+                    }
+
+                    for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
+                    {
+                        if (nSubMeasurementsDone == 0) // Create nested list for first SubMeas-Datapoint
+                        {
+                            xCapture[iCh].Add(new List<List<double>>());       // Nested Lists can have variable length!        
+                            yCapture[iCh].Add(new List<double>(nSubMeasurements));
+                        }
+
+                        if (adcChnls[iChType][iCh].NewValAvailable)
+                        {
+                            List<string> drawnOverIdentifiers = null;
+                            drawnOverIdentifiers = adcInfoBlocks[iChType][iCh].chartInfo.ChartDrawnOvers;
+
+                            double[] drawnOver = null;
+                            drawnOver = GetDrawnOver(adcInfoBlocks[iChType][iCh].chartInfo.ChartDrawnOvers);
+
+
+                            //lock (XResults[iCh][iChType])
+                            //{
+                            //    lock (YResults[iCh][iChType])
+                            //    {
+                            //        //YResults[iCh][iChType].Add(adcChnls[iChType][iCh].Value);
+                            //        //for (var iDrawnOver = 0; iDrawnOver < drawnOver.Length; iDrawnOver++)
+                            //        //    XResults[iCh][iChType][iDrawnOver].Add(drawnOver[iDrawnOver]);
+                            //    }
+                            //}
+                            yCapture[iCh][iChType].Add(adcChnls[iChType][iCh].Value);
+
+                            //var _tmpCurrentDrawnOver = 0.0;
+                            for (var _nDrawnOver = 0; _nDrawnOver < drawnOverIdentifiers.Count; _nDrawnOver++) // Take drawnOver of channel! Not the global one of InfoBlock.Gauge!
+                            {
+                                if (nSubMeasurementsDone == 0) // Create nested list for first SubMeas-Datapoint
+                                {
+                                    xCapture[iCh][iChType].Add(new List<double>(nSubMeasurements));       // Nested Lists can have variable length!        
+                                }
+
+                                /////// Not necessary as FEAR re-captures drawnOver!
+                                //if (adcInfoBlocks[iChType][iCh].chartInfo.ChartDrawnOvers[_nDrawnOver] == "Time")                               // If current drawnOver is is time (only time vary due to submeasurements!)
+                                //    _tmpCurrentDrawnOver = drawnOver[_nDrawnOver] + nSubMeasurementsDone * (deltatimeSubMeasurements / 1000);   //  adjust global timestamp --> drawnOver + nSubmeasurements * Interval[ms] / 1000[ms/s] = [s]
+                                //else                                                                                                            // otherwise
+                                //_tmpCurrentDrawnOver = drawnOver[_nDrawnOver];                                                              //  take the raw drawnOver-Value
+
+                                xCapture[iCh][iChType][_nDrawnOver].Add(drawnOver[_nDrawnOver]);
+                            }
+
+                        }
+                    }
                 }
             }
-
-            if (RequestDelay_ms > 0) // Delay request if a waiting time is given!
-                Thread.Sleep(RequestDelay_ms);
-
-            // Run the measurements if at least one channel is requested
-            if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.CF])
-                _device.MeasureUFETDropRequests();
-
-            if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.UD])
-                _device.MeasureCurrentFlowRequests();
-
-
-            // Put the results into the result-lists
-            for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
+            if (hasValues2Copy)
             {
-                for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
+                hasValues2Copy = false;
+                lock (XResults)
                 {
-                    if(adcChnls[iChType][iCh].NewValAvailable)
+                    lock (YResults)
                     {
-                        double[] drawnOver = null;
-                        drawnOver = GetDrawnOver(adcInfoBlocks[iChType][iCh].chartInfo.ChartDrawnOvers);
-
-
-                        lock (XResults[iCh][iChType])
+                        List<string> drawnOverIdentifiers = null;
+                        for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
                         {
-                            lock (YResults[iCh][iChType])
+                            for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
                             {
-                                YResults[iCh][iChType].Add(adcChnls[iChType][iCh].Value);
-                                for (var iDrawnOver = 0; iDrawnOver < drawnOver.Length; iDrawnOver++)
-                                    XResults[iCh][iChType][iDrawnOver].Add(drawnOver[iDrawnOver]);
+                                if (adcInfoBlocks[iChType][iCh].MeasureInstantly != MeasureCycle) // Skip if Ch is unused or not requested!
+                                    continue;
+
+                                drawnOverIdentifiers = adcInfoBlocks[iChType][iCh].chartInfo.ChartDrawnOvers;
+                                for (var _nDrawnOver = 0; _nDrawnOver < drawnOverIdentifiers.Count; _nDrawnOver++) // Take drawnOver of channel! Not the global one of InfoBlock.Gauge!
+                                {
+                                    XResults[iCh][iChType][_nDrawnOver].Add(xCapture[iCh][iChType][_nDrawnOver]);
+                                }
+
+                                YResults[iCh][iChType].Add(yCapture[iCh][iChType]);
                             }
                         }
                     }
@@ -288,7 +390,7 @@ namespace Instrument.LogicalLayer
 
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
-                for(int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
+                for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
                 {
                     var chnlNfo = chnlNfoList[iChType][iCh]; // Get current infoBlock
 
@@ -331,29 +433,32 @@ namespace Instrument.LogicalLayer
 
         public void ClearResults()
         {
-            if (XResults != null)
-            {
-                foreach (var xxxResult in XResults)
-                    foreach (var xxResult in xxxResult)
-                        foreach (var xResult in xxResult)
-                            xResult.Clear();
-            }
+            ResultListsHelper.ClearArbitraryNestedResultList(XResults);
+            ResultListsHelper.ClearArbitraryNestedResultList(YResults);
+            //if (XResults != null)
+            //{
+            //    foreach(var x1Result in XResults)
+            //        foreach (var x2Result in x1Result)
+            //            foreach (var x3Result in x2Result)
+            //                foreach (var x4Result in x3Result)
+            //                    x4Result.Clear();
+            //}
 
-            if (YResults != null)
-            {
-                foreach (var yyResult in YResults)
-                    foreach (var yResult in yyResult)
-                        yResult.Clear();
-            }
+            //if (YResults != null)
+            //{
+            //    foreach (var y1Result in YResults)
+            //        foreach (var y2Result in y1Result)
+            //            foreach(var y3Result in y2Result)
+            //                y3Result.Clear();
+            //}
 
-            if(_chart !=  null)
+            if (_chart != null && _seriesNames != null)
             {
-                foreach (var ssserName in _seriesNames)
-                    foreach (var sserName in ssserName)
-                        foreach (var serName in sserName)
-                            _chart.ClearXY(serName);
+                foreach (var s1SeriesName in _seriesNames)
+                    foreach (var s2SeriesName in s1SeriesName)
+                        foreach (var s3SeriesName in s2SeriesName)
+                            _chart.ClearXY(s3SeriesName);
             }
-
         }
         #endregion
 
@@ -462,7 +567,7 @@ namespace Instrument.LogicalLayer
         #region UI
         public void UpdateGraph()
         {
-            for(int iCh = 0; iCh <_device.AmountOfChannels;iCh++)
+            for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
                 for (int iChType = 0; iChType < (int)FEAR16v2MeasurementChannelType.TypeCount; iChType++)
                 {
@@ -472,18 +577,18 @@ namespace Instrument.LogicalLayer
                     int iLastEntry;
                     double lastYVal;
 
-                    lock(YResults)
+                    lock (YResults)
                     {
                         iLastEntry = YResults[iCh][iChType].Count - 1;
                         if (iLastEntry < 0)
                             continue;
-                        lastYVal = YResults[iCh][iChType][iLastEntry];
+                        //lastYVal = YResults[iCh][iChType][iLastEntry];
                     }
 
-                    lock(XResults)
+                    lock (XResults)
                     {
-                        for (int iChart = 0; iChart < _seriesNames[iCh][iChType].Count; iChart++)
-                            _chart.AddXY(_seriesNames[iCh][iChType][iChart], XResults[iCh][iChType][iChart][iLastEntry], lastYVal);
+                        //for (int iChart = 0; iChart < _seriesNames[iCh][iChType].Count; iChart++)
+                        //    _chart.AddXY(_seriesNames[iCh][iChType][iChart], XResults[iCh][iChType][iChart][iLastEntry], lastYVal);
                     }
                 }
             }

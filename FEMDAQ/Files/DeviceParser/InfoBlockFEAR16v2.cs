@@ -25,8 +25,11 @@ namespace Files.Parser
 
     public class FEAR16ADCGeneralSettings
     {
-        public uint AdcNMean = 4;
-        public uint AdcMDelta = 25;
+        public uint AdcNMean = 10;
+        public uint AdcMDelta = 10;         // [ms]
+        public int RequestDelay_ms = 100; // default: AdcNMean * AdcMDelta = RequestDelay_ms
+        public int nSubMeasurements = 1;
+        public int deltatimeSubMeasurements = 0; // [ms]
     }
 
 
@@ -40,7 +43,6 @@ namespace Files.Parser
         public List<FEAR16DACChannel> CurrCtrlChannels { get; private set; }
         public List<FEAR16ADCChannel> CurrFlowChannels { get; private set; }
         public List<FEAR16ADCChannel> UDropFETChannels { get; private set; }
-        public int RequestDelay_ms { get; private set; }
 
         // Devicespecific
         //public Channel SMUChannel { get; private set; }
@@ -111,12 +113,12 @@ namespace Files.Parser
             var lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "RequestDelay=");
             if (lineInfo == null)
             {
-                RequestDelay_ms = 100; // Default = 100ms
+                AdcGeneralSettings.RequestDelay_ms = 100; // Default = 100ms
                 return;
             }
             
             lineInfo = ParseHelper.ParseStringValueFromLineInfo(lineInfo).ToUpper();
-            RequestDelay_ms = int.Parse(lineInfo);
+            AdcGeneralSettings.RequestDelay_ms = int.Parse(lineInfo);
         }
 
         private void ParseChannelNum(IEnumerable<string> infoBlock, int iCh)
@@ -187,6 +189,20 @@ namespace Files.Parser
             lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "AdcMDelta=");
             lineInfo = ParseHelper.ParseStringValueFromLineInfo(lineInfo).ToUpper();
             AdcGeneralSettings.AdcMDelta = uint.Parse(lineInfo);
+
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "nSubMeasurements=");
+            lineInfo = ParseHelper.ParseStringValueFromLineInfo(lineInfo).ToUpper();
+            AdcGeneralSettings.nSubMeasurements = int.Parse(lineInfo);
+            if (AdcGeneralSettings.nSubMeasurements <= 1) // value <= 1 --> Only one datapoint!
+                AdcGeneralSettings.nSubMeasurements = 1;
+
+            lineInfo = StringHelper.FindStringWhichStartsWith(infoBlock, "deltatimeSubmeasurements=");
+            lineInfo = ParseHelper.ParseStringValueFromLineInfo(lineInfo).ToUpper();
+            AdcGeneralSettings.deltatimeSubMeasurements = int.Parse(lineInfo);
+            if (AdcGeneralSettings.nSubMeasurements <= 1)        // When only one datapoint is requested
+                AdcGeneralSettings.deltatimeSubMeasurements = 0; //  turn off delay (submeastimer-class does not use an internal timer then!)
+
         }
     }
 }
