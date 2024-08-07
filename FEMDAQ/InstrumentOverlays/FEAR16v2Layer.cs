@@ -409,16 +409,34 @@ namespace Instrument.LogicalLayer
                         var output = new StringBuilder("# Device: [" + deviceName + "]\n");
                         output.Append("# ");
                         foreach (var drawnOver in chnlNfo.chartInfo.ChartDrawnOvers)
-                            output.Append(drawnOver + ", ");
-                        output.AppendLine("Y");
+                            for(int nSubMeasDP = 1; nSubMeasDP <= nSubMeasurements; nSubMeasDP++)
+                                output.Append(string.Format("{0}_{1}, ", drawnOver, nSubMeasDP));
+
+                        for (int nSubMeasDP = 1; nSubMeasDP <= nSubMeasurements; nSubMeasDP++)
+                            if (nSubMeasDP < nSubMeasurements)
+                                output.Append(string.Format("Y_{0}, ", nSubMeasDP));
+                            else
+                                output.AppendLine(string.Format("Y_{0}", nSubMeasDP));
+
                         output.AppendLine(@"# Range: %.4f"); // Currently fixed range, but using the finest (ca. 300µV!)
                         output.AppendLine(@"# Average: 1"); // Has no mean function until now!
 
                         for (var line = 0; line < chnlY.Count; line++)
                         {
+                            // Append X-Values
                             for (var xRow = 0; xRow < chnlX.Count; xRow++)
-                                output.Append(Convert.ToString(chnlX[xRow][line]) + ", ");
-                            output.AppendLine(Convert.ToString(chnlY[line]));
+                                for (int nSubMeasDP = 0; nSubMeasDP < nSubMeasurements; nSubMeasDP++)
+                                    output.Append(string.Format("{0}, ", chnlX[xRow][line][nSubMeasDP]));
+                                    //output.Append(string.Format("{0}, ", Convert.ToString(chnlX[xRow][line][nSubMeasDP]) + ", ");
+
+                            // Append Y-Values
+                            for (int nSubMeasDP = 0; nSubMeasDP < nSubMeasurements; nSubMeasDP++)
+                                if (nSubMeasDP < (nSubMeasurements-1))
+                                    output.Append(string.Format("{0}, ", chnlY[line][nSubMeasDP]));
+                                    // output.Append(string.Format("{0}, ", Convert.ToString(chnlY[line][nSubMeasDP])));
+                                else
+                                    output.AppendLine(string.Format("{0}", chnlY[line][nSubMeasDP]));
+                                    //output.AppendLine(Convert.ToString(chnlY[line][nSubMeasDP]));
                         }
                         var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
                         var fileWriter = new StreamWriter(filename, false);
@@ -575,20 +593,21 @@ namespace Instrument.LogicalLayer
                         continue;
 
                     int iLastEntry;
-                    double lastYVal;
+                    List<double> lastYVal;
 
                     lock (YResults)
                     {
                         iLastEntry = YResults[iCh][iChType].Count - 1;
                         if (iLastEntry < 0)
                             continue;
-                        //lastYVal = YResults[iCh][iChType][iLastEntry];
-                    }
+                        lastYVal = YResults[iCh][iChType][iLastEntry];
 
-                    lock (XResults)
-                    {
-                        //for (int iChart = 0; iChart < _seriesNames[iCh][iChType].Count; iChart++)
-                        //    _chart.AddXY(_seriesNames[iCh][iChType][iChart], XResults[iCh][iChType][iChart][iLastEntry], lastYVal);
+                        lock (XResults)
+                        {
+                            for (int iChart = 0; iChart < _seriesNames[iCh][iChType].Count; iChart++)
+                                _chart.AddXYSet(_seriesNames[iCh][iChType][iChart], XResults[iCh][iChType][iChart][iLastEntry], lastYVal);
+                            //_chart.AddXY(_seriesNames[iCh][iChType][iChart], XResults[iCh][iChType][iChart][iLastEntry], lastYVal);
+                        }
                     }
                 }
             }

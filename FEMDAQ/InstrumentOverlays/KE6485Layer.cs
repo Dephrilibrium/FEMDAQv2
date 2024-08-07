@@ -241,14 +241,14 @@ namespace Instrument.LogicalLayer
             // Column-Description
             output.Append("# ");
             foreach (var drawnOver in DrawnOverIdentifiers)
-                for(var _nSubDatapoint = 0; _nSubDatapoint < nSubMeasurements; _nSubDatapoint++ )
-                    output.Append(string.Format("{0}_{1}, ", drawnOver, _nSubDatapoint + 1));
+                for(var _nSubDatapoint = 1; _nSubDatapoint <= nSubMeasurements; _nSubDatapoint++ )
+                    output.Append(string.Format("{0}_{1}, ", drawnOver, _nSubDatapoint));
 
-            for (var _nSubDatapoint = 0; _nSubDatapoint < nSubMeasurements; _nSubDatapoint++)
-                if (_nSubDatapoint < (nSubMeasurements - 1))
-                    output.Append(string.Format("Y_{0}, ", _nSubDatapoint + 1));
+            for (var _nSubDatapoint = 1; _nSubDatapoint <= nSubMeasurements; _nSubDatapoint++)
+                if (_nSubDatapoint < nSubMeasurements)
+                    output.Append(string.Format("Y_{0}, ", _nSubDatapoint));
                 else
-                    output.AppendLine(string.Format("Y_{0}", _nSubDatapoint + 1));
+                    output.AppendLine(string.Format("Y_{0}", _nSubDatapoint));
 
             output.AppendLine("# Range: " + InfoBlock.Gauge.Range.ToString());
             output.AppendLine("# NPLC: " + InfoBlock.Gauge.Nplc.ToString());
