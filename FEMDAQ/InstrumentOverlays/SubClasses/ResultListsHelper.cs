@@ -11,6 +11,9 @@ namespace Instrument.LogicalLayer.SubClasses
     {
         public static void DisposeArbitraryResultList(IList list)
         {
+            if (list == null)
+                return;
+
             foreach (var item in list)
             {
                 if (item is IList nestedList)
@@ -20,32 +23,52 @@ namespace Instrument.LogicalLayer.SubClasses
         }
 
 
-        public static void ClearArbitraryNestedResultList(IList list)
+        public static void ClearArbitraryNestedResultList<T>(IList list)
         {
+            if (list == null)
+                return;
+
+            if (list is T)
+            {
+                list.Clear();
+                return;
+            }
+
             foreach (var item in list)
             {
-                if (item is IList nestedList)
-                            ClearArbitraryNestedResultList(nestedList);
+                if (item is IList nestedList) // If its more-dimensional (List<List...), call recursive
+                    ClearArbitraryNestedResultList<T>(nestedList);
             }
         }
 
 
 
 
-        public static IList CreatePreinitializedResultList<T>(int[] capacities, int dimensions)
-        {
-            if (dimensions >= capacities.Length - 1)
-                return new List<T>(capacities[dimensions]);
+        //public static List<object> CreatePreallocatedResultList<T>(int[] capacities, IList ListToAppend)
+        //{
+        //    var iCurrentDimension = capacities.Length - 1;
+        //    // Erstelle die aktuelle Liste mit der angegebenen Kapazität
+        //    var list = new List<T>(capacities[iCurrentDimension]);
 
-            var aktuelleListe = new List<IList>(capacities[dimensions]);
+        //    // Wenn die aktuelle Tiefe die letzte Dimension ist, fülle die Liste mit Standardwerten
+        //    if (iCurrentDimension == capacities.Length - 1)
+        //    {
+        //        for (int i = 0; i < capacities[iCurrentDimension]; i++)
+        //        {
+        //            list.Add(default(T));
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // Andernfalls, fülle die Liste rekursiv mit tieferen Listen
+        //        for (int i = 0; i < capacities[iCurrentDimension]; i++)
+        //        {
+        //            list.Add(CreatePreallocatedResultList<T>(capacities));
+        //        }
+        //    }
 
-            for (int i = 0; i < capacities[dimensions]; i++)
-            {
-                aktuelleListe.Add(CreatePreinitializedResultList<T>(capacities, dimensions + 1));
-            }
-
-            return aktuelleListe;
-        }
+        //    return list;
+        //}
     }
 
 }

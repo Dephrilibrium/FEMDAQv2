@@ -276,35 +276,39 @@ namespace Instrument.LogicalLayer
 
         public void ClearResults()
         {
-            ResultListsHelper.ClearArbitraryNestedResultList(XResults);
-            ResultListsHelper.ClearArbitraryNestedResultList(YResults);
-            //if (XResults != null)
-            //{
-            //    foreach (var x1Result in XResults)
-            //    {
-            //        foreach (var x2Result in x1Result)
-            //        {
-            //            x2Result.Clear();
-            //        }
-            //        x1Result.Clear();
-            //    }   
-            //    XResults.Clear();
-            //}
-
-
-            //if (YResults != null)
-            //{
-            //    foreach (var y1Result in XResults)
-            //        y1Result.Clear();
-            //    YResults.Clear();
-            //}
-
+            // List<List<double>> are the lists containing the global and submeasurement datapoints
+            ResultListsHelper.ClearArbitraryNestedResultList<List<List<double>>>(XResults);
+            ResultListsHelper.ClearArbitraryNestedResultList<List<List<double>>>(YResults);
+            /**************
+             * Old code - Can be removed after further ResultListHelper-Tests
+             * //if (XResults != null)
+             * //{
+             * //    foreach (var x1Result in XResults)
+             * //    {
+             * //        foreach (var x2Result in x1Result)
+             * //        {
+             * //            x2Result.Clear();
+             * //        }
+             * //        x1Result.Clear();
+             * //    }   
+             * //    XResults.Clear();
+             * //}
+             * 
+             * 
+             * //if (YResults != null)
+             * //{
+             * //    foreach (var y1Result in XResults)
+             * //        y1Result.Clear();
+             * //    YResults.Clear();
+             * //}
+             * 
+            *******************************/
             if (_chart != null)
             { 
                 foreach (var s1SeriesName in _seriesNames)
                     _chart.ClearXY(s1SeriesName);
             }
-            ResultListsHelper.ClearArbitraryNestedResultList(_seriesNames);
+            //ResultListsHelper.ClearArbitraryNestedResultList<List<string>>(_seriesNames);
         }
         #endregion
 
@@ -350,14 +354,14 @@ namespace Instrument.LogicalLayer
                 lastLine = YResults.Count - 1;
                 if (lastLine < 0) // Actual is no value measured
                     return;
-                lastYVals = YResults[lastLine];
-            }
 
-            lock (XResults)
-            {
-                for (var xRowIndex = 0; xRowIndex < _seriesNames.Count; xRowIndex++)
-                    //_chart.AddXY(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVals);
-                    _chart.AddXYSet(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVals);
+                lastYVals = YResults[lastLine];
+                lock (XResults)
+                {
+                    for (var xRowIndex = 0; xRowIndex < _seriesNames.Count; xRowIndex++)
+                        //_chart.AddXY(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVals);
+                        _chart.AddXYSet(_seriesNames[xRowIndex], XResults[xRowIndex][lastLine], lastYVals);
+                }
             }
         }
         #endregion

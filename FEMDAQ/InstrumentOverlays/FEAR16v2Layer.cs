@@ -8,6 +8,7 @@ using System.IO;
 using System.Text;
 using HaumOTH;
 using System.Threading;
+//using System.Diagnostics;  // Contains "StopWatch"-Class
 
 
 using Instrument.LogicalLayer.SubClasses;
@@ -250,6 +251,7 @@ namespace Instrument.LogicalLayer
             var yCapture = new List<List<List<double>>>(_device.AmountOfChannels);
 
             bool hasValues2Copy = false;
+
             for (nSubMeasurementsDone = 0; nSubMeasurementsDone < nSubMeasurements; nSubMeasurementsDone++)
             {
                 // Start Timer here to not have "Interval-Time + Measurement-Time" (of the device)
@@ -340,6 +342,9 @@ namespace Instrument.LogicalLayer
                         }
                     }
                 }
+                while (!_subMeasTimer.IsElapsed)
+                    ; // Wait
+                      //_subMeasTimer.Stop(); // Timer = One-Shot-Timer
             }
             if (hasValues2Copy)
             {
@@ -409,7 +414,7 @@ namespace Instrument.LogicalLayer
                         var output = new StringBuilder("# Device: [" + deviceName + "]\n");
                         output.Append("# ");
                         foreach (var drawnOver in chnlNfo.chartInfo.ChartDrawnOvers)
-                            for(int nSubMeasDP = 1; nSubMeasDP <= nSubMeasurements; nSubMeasDP++)
+                            for (int nSubMeasDP = 1; nSubMeasDP <= nSubMeasurements; nSubMeasDP++)
                                 output.Append(string.Format("{0}_{1}, ", drawnOver, nSubMeasDP));
 
                         for (int nSubMeasDP = 1; nSubMeasDP <= nSubMeasurements; nSubMeasDP++)
@@ -427,16 +432,16 @@ namespace Instrument.LogicalLayer
                             for (var xRow = 0; xRow < chnlX.Count; xRow++)
                                 for (int nSubMeasDP = 0; nSubMeasDP < nSubMeasurements; nSubMeasDP++)
                                     output.Append(string.Format("{0}, ", chnlX[xRow][line][nSubMeasDP]));
-                                    //output.Append(string.Format("{0}, ", Convert.ToString(chnlX[xRow][line][nSubMeasDP]) + ", ");
+                            //output.Append(string.Format("{0}, ", Convert.ToString(chnlX[xRow][line][nSubMeasDP]) + ", ");
 
                             // Append Y-Values
                             for (int nSubMeasDP = 0; nSubMeasDP < nSubMeasurements; nSubMeasDP++)
-                                if (nSubMeasDP < (nSubMeasurements-1))
+                                if (nSubMeasDP < (nSubMeasurements - 1))
                                     output.Append(string.Format("{0}, ", chnlY[line][nSubMeasDP]));
-                                    // output.Append(string.Format("{0}, ", Convert.ToString(chnlY[line][nSubMeasDP])));
+                                // output.Append(string.Format("{0}, ", Convert.ToString(chnlY[line][nSubMeasDP])));
                                 else
                                     output.AppendLine(string.Format("{0}", chnlY[line][nSubMeasDP]));
-                                    //output.AppendLine(Convert.ToString(chnlY[line][nSubMeasDP]));
+                            //output.AppendLine(Convert.ToString(chnlY[line][nSubMeasDP]));
                         }
                         var filename = folderPath + "\\" + filePrefix + deviceName + ".dat";
                         var fileWriter = new StreamWriter(filename, false);
@@ -451,25 +456,30 @@ namespace Instrument.LogicalLayer
 
         public void ClearResults()
         {
-            ResultListsHelper.ClearArbitraryNestedResultList(XResults);
-            ResultListsHelper.ClearArbitraryNestedResultList(YResults);
-            //if (XResults != null)
-            //{
-            //    foreach(var x1Result in XResults)
-            //        foreach (var x2Result in x1Result)
-            //            foreach (var x3Result in x2Result)
-            //                foreach (var x4Result in x3Result)
-            //                    x4Result.Clear();
-            //}
-
-            //if (YResults != null)
-            //{
-            //    foreach (var y1Result in YResults)
-            //        foreach (var y2Result in y1Result)
-            //            foreach(var y3Result in y2Result)
-            //                y3Result.Clear();
-            //}
-
+            // List<List<double>> are the lists containing the global and submeasurement datapoints
+            ResultListsHelper.ClearArbitraryNestedResultList<List<List<double>>>(XResults);
+            ResultListsHelper.ClearArbitraryNestedResultList<List<List<double>>>(YResults);
+            /**************
+             * Old code - Can be removed after further ResultListHelper-Tests
+             * //if (XResults != null)
+             * //{
+             * //    foreach(var x1Result in XResults)
+             * //        foreach (var x2Result in x1Result)
+             * //            foreach (var x3Result in x2Result)
+             * //                foreach (var x4Result in x3Result)
+             * //                    x4Result.Clear();
+             * //}
+             * 
+             * //if (YResults != null)
+             * //{
+             * //    foreach (var y1Result in YResults)
+             * //        foreach (var y2Result in y1Result)
+             * //            foreach(var y3Result in y2Result)
+             * //                y3Result.Clear();
+             * //}
+             * 
+            *******************************/
+            // Global and submeasurement datapoints are assigned to the same seriesname --> List<string> instead of List<List<string>>
             if (_chart != null && _seriesNames != null)
             {
                 foreach (var s1SeriesName in _seriesNames)
@@ -477,6 +487,7 @@ namespace Instrument.LogicalLayer
                         foreach (var s3SeriesName in s2SeriesName)
                             _chart.ClearXY(s3SeriesName);
             }
+            //ResultListsHelper.ClearArbitraryNestedResultList<List<string>>(_seriesNames);
         }
         #endregion
 
