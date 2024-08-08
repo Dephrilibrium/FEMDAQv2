@@ -103,8 +103,8 @@ namespace Files.Parser
             ComPort.Dispose();
             for (int iChADC = 0; iChADC < _amountOfChannels; iChADC++)
             {
-                CurrFlowChannels[iChADC].chartInfo.Dispose();
-                UDropFETChannels[iChADC].chartInfo.Dispose();
+                if (CurrFlowChannels[iChADC].chartInfo != null) { CurrFlowChannels[iChADC].chartInfo.Dispose(); }
+                if (UDropFETChannels[iChADC].chartInfo != null) { UDropFETChannels[iChADC].chartInfo.Dispose(); }
             }
         }
 
