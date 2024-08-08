@@ -256,7 +256,7 @@ namespace Instrument.LogicalLayer
             {
                 // Start Timer here to not have "Interval-Time + Measurement-Time" (of the device)
                 _subMeasTimer.ResetElapsed();
-                _subMeasTimer.Start();
+                _subMeasTimer.Start(); // One-Shot-Timer!
 
 
                 // Mark the requested channels and channeltypes
@@ -342,9 +342,13 @@ namespace Instrument.LogicalLayer
                         }
                     }
                 }
-                while (!_subMeasTimer.IsElapsed)
-                    ; // Wait
-                      //_subMeasTimer.Stop(); // Timer = One-Shot-Timer
+
+                if (nSubMeasurementsDone < (nSubMeasurements - 1)) // Is there a next submeasurement-datapoint?
+                    while (!_subMeasTimer.IsElapsed)               // If yes, then await the subMeas-interval
+                        ; // Wait
+                else                      // When measured the last subMeas-datapoint
+                    _subMeasTimer.Stop(); // Stop (one-shot) timer precautionary to avoid unwanted effects for next global measurement-interval
+
             }
             if (hasValues2Copy)
             {

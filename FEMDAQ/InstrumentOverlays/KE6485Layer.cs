@@ -162,8 +162,8 @@ namespace Instrument.LogicalLayer
             //XResults looks like:
             // XResults[DrawnOverKey][GlobalDatapoint][SubDatapoints]
             // --> XCaptured[DrawnOverKey][SubDatapoints]
-            List<double> yCaptured = new List<double>(nSubMeasurementsDone);
-            List<List<double>> xCaptured = new List<List<double>>(DrawnOverIdentifiers.Count); // This list is for the different types of drawnOver (time, devXY, etc...). the individual lists contain then the submeasurement datapoints!
+            var yCaptured = new List<double>(nSubMeasurementsDone);
+            var xCaptured = new List<List<double>>(DrawnOverIdentifiers.Count); // This list is for the different types of drawnOver (time, devXY, etc...). the individual lists contain then the submeasurement datapoints!
             for (var _nDrawnOver = 0; _nDrawnOver < DrawnOverIdentifiers.Count; _nDrawnOver++) // Add drawnOver-Lists for the SubMeasurement-Datapoints
                 xCaptured.Add(new List<double>(nSubMeasurements)); // This is the submeasure-list
 
@@ -195,13 +195,15 @@ namespace Instrument.LogicalLayer
                 //    }
                 //}
 
-                while (!_subMeasTimer.IsElapsed)
-                    ; // Wait
-                      //_subMeasTimer.Stop(); // Timer = One-Shot-Timer
+                if (nSubMeasurementsDone < (nSubMeasurements - 1)) // Is there a next submeasurement-datapoint?
+                    while (!_subMeasTimer.IsElapsed)               // If yes, then await the subMeas-interval
+                        ; // Wait
+                else                      // When measured the last subMeas-datapoint
+                    _subMeasTimer.Stop(); // Stop (one-shot) timer precautionary to avoid unwanted effects for next global measurement-interval
             }
 
             // Assign captured datapoints to X- and YResults
-            lock (XResults)            
+            lock (XResults)
             {
                 for (var _nDrawnOver = 0; _nDrawnOver < DrawnOverIdentifiers.Count; _nDrawnOver++) // Add drawnOver-Lists for the SubMeasurement-Datapoints
                     XResults[_nDrawnOver].Add(xCaptured[_nDrawnOver]);
@@ -241,7 +243,7 @@ namespace Instrument.LogicalLayer
             // Column-Description
             output.Append("# ");
             foreach (var drawnOver in DrawnOverIdentifiers)
-                for(var _nSubDatapoint = 1; _nSubDatapoint <= nSubMeasurements; _nSubDatapoint++ )
+                for (var _nSubDatapoint = 1; _nSubDatapoint <= nSubMeasurements; _nSubDatapoint++)
                     output.Append(string.Format("{0}_{1}, ", drawnOver, _nSubDatapoint));
 
             for (var _nSubDatapoint = 1; _nSubDatapoint <= nSubMeasurements; _nSubDatapoint++)
@@ -261,7 +263,7 @@ namespace Instrument.LogicalLayer
                         output.Append(XResults[xIndex][line][_nSubDatapoint] + ", ");
 
                 for (var _nSubDatapoint = 0; _nSubDatapoint < nSubMeasurements; _nSubDatapoint++)
-                    if (_nSubDatapoint < (nSubMeasurements-1))
+                    if (_nSubDatapoint < (nSubMeasurements - 1))
                         output.Append(YResults[line][_nSubDatapoint].ToString() + ", ");
                     else
                         output.AppendLine(YResults[line][_nSubDatapoint].ToString());
@@ -304,7 +306,7 @@ namespace Instrument.LogicalLayer
              * 
             *******************************/
             if (_chart != null)
-            { 
+            {
                 foreach (var s1SeriesName in _seriesNames)
                     _chart.ClearXY(s1SeriesName);
             }
