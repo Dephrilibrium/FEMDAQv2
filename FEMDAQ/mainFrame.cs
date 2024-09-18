@@ -90,15 +90,15 @@ namespace FEMDAQ
 
             GlobalVariables.MainFrame = this; // Provide mainframe via static "GlobalVariables" class
 
-            var splashScreen = new SplashScreenFrame();
-            splashScreen.Show();
+            //var splashScreen = new SplashScreenFrame();
+            //splashScreen.Show();
 
 
             //OpenIni(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
             //OpenSweep(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\default.swp");
 
-            //OpenIni(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\_Test-INI.ini");
-            //OpenSweep(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\_SubMeas.swp");
+            OpenIni(@"Z:\_FEMDAQ V2 for Measurement\Hausi\_FEAR-Kanalabgleich\Grid-Reg\FEAR-Abgleich Ch1-4 6517, NMEAN=1, MDELT=100 - FullRange.ini");
+            OpenSweep(@"Z:\_FEMDAQ V2 for Measurement\Hausi\_FEAR-Kanalabgleich\Grid-Reg\swp Infinite - 1000V 50VS @ IMax=9V.swp");
         }
 
 

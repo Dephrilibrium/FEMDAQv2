@@ -18,8 +18,8 @@ namespace Instrument.LogicalLayer
 {
     internal enum FEAR16v2MeasurementChannelType
     {
-        CF = 0, // Currentflow ([C]urrent[F]low)
-        UD = 1, // FET Voltagedrop (FET [UD]rop)
+        Shnt = 0, // Shunt-Current ([Sh]u[nt])
+        Drop = 1, // FET Voltagedrop ([Drop])
         TypeCount = 2 // Amount of channel-values
     }
 
@@ -43,9 +43,9 @@ namespace Instrument.LogicalLayer
         //private List<List<string>> _seriesNames;
         private List<List<List<string>>> _seriesNames;
 
-        public const string CurrCtrlRequestString = "CC";
-        public const string CurrFlowRequestString = "CF";
-        public const string FETUDropRequestString = "UD";
+        public const string CurrCtrlRequestString = "CTRL"; // Note! GetDrawnOver uses "ToUpper()" on the given argument for request-type
+        public const string CurrFlowRequestString = "SHNT"; // Note! GetDrawnOver uses "ToUpper()" on the given argument for request-type
+        public const string FETUDropRequestString = "DROP"; // Note! GetDrawnOver uses "ToUpper()" on the given argument for request-type
 
 
         public FEAR16v2Layer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
@@ -93,27 +93,27 @@ namespace Instrument.LogicalLayer
             List<string> chDrawnOver = null;
             string chTypeStr = null;
 
-            // XResults[Channels][CF/UD][drawnOver][SubMeasDP]
+            // XResults[Channels][Shnt/Drop][drawnOver][SubMeasDP]
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
                 XResults.Add(new List<List<List<List<double>>>>((int)FEAR16v2MeasurementChannelType.TypeCount));
                 YResults.Add(new List<List<List<double>>>((int)FEAR16v2MeasurementChannelType.TypeCount));
                 _seriesNames.Add(new List<List<string>>());
 
-                for (int chType = 0; chType <= (int)FEAR16v2MeasurementChannelType.UD; chType++)
+                for (int chType = 0; chType <= (int)FEAR16v2MeasurementChannelType.Drop; chType++)
                 {
                     XResults[iCh].Add(new List<List<List<double>>>());
                     YResults[iCh].Add(new List<List<double>>());
                     _seriesNames[iCh].Add(new List<string>());
 
-                    if (chType == (int)FEAR16v2MeasurementChannelType.CF)
+                    if (chType == (int)FEAR16v2MeasurementChannelType.Shnt)
                     {
-                        currentADCChannel = InfoBlock.CurrFlowChannels[iCh];
+                        currentADCChannel = InfoBlock.ShuntCurrChannels[iCh];
                         chTypeStr = CurrFlowRequestString; // CurrentFlow request string
                     }
-                    else if (chType == (int)FEAR16v2MeasurementChannelType.UD)
+                    else if (chType == (int)FEAR16v2MeasurementChannelType.Drop)
                     {
-                        currentADCChannel = InfoBlock.UDropFETChannels[iCh];
+                        currentADCChannel = InfoBlock.DropVoltChannels[iCh];
                         chTypeStr = FETUDropRequestString; // FET Voltage Drop request string
                     }
 
@@ -129,7 +129,7 @@ namespace Instrument.LogicalLayer
                             //yResults[iCh].Add(new List<double>());
                             for (var index = 0; index < chIdents.Count; index++)
                             {
-                                //_seriesNames[iCh].Add(string.Format("{0}CF{1}-C{2}",
+                                //_seriesNames[iCh].Add(string.Format("{0}Shnt{1}-C{2}",
                                 _seriesNames[iCh][chType].Add(string.Format("{0}-{1}{2}-C{3}",
                                                            DeviceName,
                                                            chTypeStr,
@@ -233,20 +233,20 @@ namespace Instrument.LogicalLayer
         {
             // Combine structures for following iterations
             var adcInfoBlocks = new List<FEAR16ADCChannel>[(int)FEAR16v2MeasurementChannelType.TypeCount];
-            adcInfoBlocks[(int)FEAR16v2MeasurementChannelType.CF] = InfoBlock.CurrFlowChannels;
-            adcInfoBlocks[(int)FEAR16v2MeasurementChannelType.UD] = InfoBlock.UDropFETChannels;
+            adcInfoBlocks[(int)FEAR16v2MeasurementChannelType.Shnt] = InfoBlock.ShuntCurrChannels;
+            adcInfoBlocks[(int)FEAR16v2MeasurementChannelType.Drop] = InfoBlock.DropVoltChannels;
 
             var adcChnls = new List<FEAR16v2ChannelRequest>[(int)FEAR16v2MeasurementChannelType.TypeCount];
-            adcChnls[(int)FEAR16v2MeasurementChannelType.CF] = _device.CurrFlowChannels;
-            adcChnls[(int)FEAR16v2MeasurementChannelType.UD] = _device.UFETDropChannels;
+            adcChnls[(int)FEAR16v2MeasurementChannelType.Shnt] = _device.CurrFlowChannels;
+            adcChnls[(int)FEAR16v2MeasurementChannelType.Drop] = _device.UFETDropChannels;
 
             var atLeastOneRequest = new bool[(int)FEAR16v2MeasurementChannelType.TypeCount];
-            atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.CF] = false;
-            atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.UD] = false;
+            atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.Shnt] = false;
+            atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.Drop] = false;
 
 
-            // XResults[Channels][CF/UD][drawnOver][GlobalDatapoints][SubMeasDatapoints]
-            // --> x/yCapture[Channels][CF/UD][drawnOver][SubMeasDP]
+            // XResults[Channels][Shnt/Drop][drawnOver][GlobalDatapoints][SubMeasDatapoints]
+            // --> x/yCapture[Channels][Shnt/Drop][drawnOver][SubMeasDP]
             var xCapture = new List<List<List<List<double>>>>(_device.AmountOfChannels);
             var yCapture = new List<List<List<double>>>(_device.AmountOfChannels);
 
@@ -278,10 +278,10 @@ namespace Instrument.LogicalLayer
                     Thread.Sleep(RequestDelay_ms);
 
                 // Run the measurements if at least one channel is requested
-                if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.CF])
+                if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.Shnt])
                     _device.MeasureUFETDropRequests();
 
-                if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.UD])
+                if (atLeastOneRequest[(int)FEAR16v2MeasurementChannelType.Drop])
                     _device.MeasureCurrentFlowRequests();
 
 
@@ -394,8 +394,8 @@ namespace Instrument.LogicalLayer
 
 
             List<FEAR16ADCChannel>[] chnlNfoList = new List<FEAR16ADCChannel>[(int)FEAR16v2MeasurementChannelType.TypeCount];
-            chnlNfoList[(int)FEAR16v2MeasurementChannelType.CF] = InfoBlock.CurrFlowChannels;
-            chnlNfoList[(int)FEAR16v2MeasurementChannelType.UD] = InfoBlock.UDropFETChannels;
+            chnlNfoList[(int)FEAR16v2MeasurementChannelType.Shnt] = InfoBlock.ShuntCurrChannels;
+            chnlNfoList[(int)FEAR16v2MeasurementChannelType.Drop] = InfoBlock.DropVoltChannels;
 
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {

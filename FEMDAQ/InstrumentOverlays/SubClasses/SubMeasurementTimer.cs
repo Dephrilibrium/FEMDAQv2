@@ -45,7 +45,7 @@ namespace Instrument.LogicalLayer.SubClasses
         }
         public void Stop()
         {
-            if(_timer != null)
+            if(_timer == null)
                 return;
 
             _timer.Stop();

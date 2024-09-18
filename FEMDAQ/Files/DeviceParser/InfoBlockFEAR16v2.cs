@@ -41,8 +41,8 @@ namespace Files.Parser
         public ComParser ComPort { get; private set; }
         public FEAR16ADCGeneralSettings AdcGeneralSettings { get; private set; }
         public List<FEAR16DACChannel> CurrCtrlChannels { get; private set; }
-        public List<FEAR16ADCChannel> CurrFlowChannels { get; private set; }
-        public List<FEAR16ADCChannel> UDropFETChannels { get; private set; }
+        public List<FEAR16ADCChannel> ShuntCurrChannels { get; private set; }
+        public List<FEAR16ADCChannel> DropVoltChannels { get; private set; }
 
         // Devicespecific
         //public Channel SMUChannel { get; private set; }
@@ -63,16 +63,29 @@ namespace Files.Parser
             //ChChartCommons = new List<CommonParser>(_amountOfChannels);
             // Make Ctrl and Gauge lists and fill with instances
             CurrCtrlChannels = new List<FEAR16DACChannel>(_amountOfChannels);
-            CurrFlowChannels = new List<FEAR16ADCChannel>(_amountOfChannels);
-            UDropFETChannels = new List<FEAR16ADCChannel>(_amountOfChannels);
+            ShuntCurrChannels = new List<FEAR16ADCChannel>(_amountOfChannels);
+            DropVoltChannels = new List<FEAR16ADCChannel>(_amountOfChannels);
 
+
+            int detectedChEntries = 0;
             for (int iCh = 0; iCh < _amountOfChannels; iCh++)
             {
                 CurrCtrlChannels.Add(new FEAR16DACChannel());
-                CurrFlowChannels.Add(new FEAR16ADCChannel());
-                UDropFETChannels.Add(new FEAR16ADCChannel());
+                ShuntCurrChannels.Add(new FEAR16ADCChannel());
+                DropVoltChannels.Add(new FEAR16ADCChannel());
                 ParseChannelNum(infoBlock, iCh);
+
+                if (CurrCtrlChannels[iCh].SourceNode != -1 || ShuntCurrChannels[iCh].MeasureInstantly != GaugeMeasureInstantly.Disabled || DropVoltChannels[iCh].MeasureInstantly != GaugeMeasureInstantly.Disabled)
+                    detectedChEntries++;
             }
+
+            if (detectedChEntries <= 0)
+                throw new ArgumentException("InfoBlockParser-FEAR16v2: No valid channel-entries found! (" + ComPort.ComPort + ")\n\n" +
+                                            "!!! Note !!! \nINI-Keys changed recently:\n" + 
+                                            "Ch<x>CC -> Ch<x>Ctrl\n" + 
+                                            "Ch<x>Shnt -> Ch<x>Shnt\n" +
+                                            "Ch<x>Drop -> Ch<x>Drop");
+
 
             AdcGeneralSettings = new FEAR16ADCGeneralSettings();
             parseADCGeneralSettings(infoBlock);
@@ -103,8 +116,8 @@ namespace Files.Parser
             ComPort.Dispose();
             for (int iChADC = 0; iChADC < _amountOfChannels; iChADC++)
             {
-                if (CurrFlowChannels[iChADC].chartInfo != null) { CurrFlowChannels[iChADC].chartInfo.Dispose(); }
-                if (UDropFETChannels[iChADC].chartInfo != null) { UDropFETChannels[iChADC].chartInfo.Dispose(); }
+                if (ShuntCurrChannels[iChADC].chartInfo != null) { ShuntCurrChannels[iChADC].chartInfo.Dispose(); }
+                if (DropVoltChannels[iChADC].chartInfo != null) { DropVoltChannels[iChADC].chartInfo.Dispose(); }
             }
         }
 
@@ -127,10 +140,10 @@ namespace Files.Parser
             //string lineValue;
             string chBase = string.Format("Ch{0}", iCh);
 
-            parseControlChannel(infoBlock, chBase+"CC", CurrCtrlChannels[iCh]);
+            parseControlChannel(infoBlock, chBase+"Ctrl", CurrCtrlChannels[iCh]);
 
-            parseMeasurementChannel(infoBlock, chBase + "CF", CurrFlowChannels[iCh]);
-            parseMeasurementChannel(infoBlock, chBase + "UD", UDropFETChannels[iCh]);
+            parseMeasurementChannel(infoBlock, chBase + "Shnt", ShuntCurrChannels[iCh]);
+            parseMeasurementChannel(infoBlock, chBase + "Drop", DropVoltChannels[iCh]);
         }
 
  

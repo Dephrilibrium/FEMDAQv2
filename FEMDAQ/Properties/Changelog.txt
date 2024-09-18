@@ -4,6 +4,7 @@ XX.YY.ZZZZ: V2.2.8.7
 Feature:
 Bugfix:
 Misc.:
+ - Renamed options of FEARv2 to more generic names (CF --> Shnt and UDrp --> Drop)
 
 
 18.03.2024: V2.2.8.6
