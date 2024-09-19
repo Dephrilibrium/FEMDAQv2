@@ -19,8 +19,8 @@ namespace FEMDAQ
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            Application.ThreadException += new ThreadExceptionEventHandler(CatchUnhandledException);
+            //Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            //Application.ThreadException += new ThreadExceptionEventHandler(CatchUnhandledException);
 
             mainFrame = new FEMDAQ();
             Application.Run(mainFrame);

@@ -3,6 +3,7 @@
 XX.YY.ZZZZ: V2.2.8.7
 Feature:
 Bugfix:
+ - Fixed a check which ensures absolute values on logarithmic axes! (HaumChart.cs)
 Misc.:
  - Renamed options of FEARv2 to more generic names (CF --> Shnt and UDrp --> Drop)
 

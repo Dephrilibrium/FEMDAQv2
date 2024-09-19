@@ -15,6 +15,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -90,15 +92,15 @@ namespace FEMDAQ
 
             GlobalVariables.MainFrame = this; // Provide mainframe via static "GlobalVariables" class
 
-            //var splashScreen = new SplashScreenFrame();
-            //splashScreen.Show();
+            var splashScreen = new SplashScreenFrame();
+            splashScreen.Show();
 
 
             //OpenIni(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\default.ini");
             //OpenSweep(@"Z:\Hausladen\Programs\FEMDAQ_V2\Debug\default.swp");
 
-            OpenIni(@"Z:\_FEMDAQ V2 for Measurement\Hausi\_FEAR-Kanalabgleich\Grid-Reg\FEAR-Abgleich Ch1-4 6517, NMEAN=1, MDELT=100 - FullRange.ini");
-            OpenSweep(@"Z:\_FEMDAQ V2 for Measurement\Hausi\_FEAR-Kanalabgleich\Grid-Reg\swp Infinite - 1000V 50VS @ IMax=9V.swp");
+            //OpenIni(@"Z:\_FEMDAQ V2 for Measurement\Hausi\240918 BA Const IIon\Messungen\_INI - Activation (CathReg).ini");
+            //OpenSweep(@"Z:\_FEMDAQ V2 for Measurement\Hausi\240918 BA Const IIon\Messungen\_swp VSwp - -150_-350V_-5VS, IMax=9.00.swp");
         }
 
 

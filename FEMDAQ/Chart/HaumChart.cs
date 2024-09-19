@@ -443,10 +443,12 @@ namespace HaumChart
             for (var valIndex = 0; valIndex < XValues.Length; valIndex++)
             {
                 // Range check for values
-                EnsureDoubleInDecimalRange(ref XValues[valIndex], area.AxisX.IsLogarithmic);
-                EnsureDoubleInDecimalRange(ref XValues[valIndex], area.AxisY.IsLogarithmic);
+                EnsureDoubleInDecimalRange(ref XValues[valIndex], area.AxisX.IsLogarithmic); // Takes also care about absolute values if axis is logarithmic
+                EnsureDoubleInDecimalRange(ref YValues[valIndex], area.AxisY.IsLogarithmic);
 
-                // Add point
+                //// Add point
+                //var xToAdd = area.AxisX.IsLogarithmic ? Math.Abs(XValues[valIndex]) : XValues[valIndex];
+                //var yToAdd = area.AxisY.IsLogarithmic ? Math.Abs(YValues[valIndex]) : YValues[valIndex];
                 series.Points.AddXY(XValues[valIndex], YValues[valIndex]);
             }
         }
