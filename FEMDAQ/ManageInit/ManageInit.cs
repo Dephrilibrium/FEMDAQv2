@@ -55,8 +55,9 @@ namespace FEMDAQ.Initialization
                     device = new PiCamLayer(devInfoStructure, chart);
                     break;
 
-                case "PiCam2":
-                    device = new PiCam2Layer(devInfoStructure, chart);
+                case "PiCam2": // Legacy device-type name
+                case "PyCam2":
+                    device = new PyCam2Layer(devInfoStructure, chart);
                     break;
 
                 case "DMM7510":

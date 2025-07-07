@@ -1,4 +1,4 @@
-﻿namespace FEMDAQ.Instrumentwindows.PiCam2Statuswindow
+﻿namespace FEMDAQ.Instrumentwindows.PyCam2Statuswindow
 {
     partial class PyCam2Statuswindow
     {

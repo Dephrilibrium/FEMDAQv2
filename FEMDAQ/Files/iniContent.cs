@@ -132,7 +132,8 @@ namespace Files
                             deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockPiCam(infoBlock));
                             break;
 
-                        case "PiCam2":
+                        case "PiCam2": // Legacy device-type name
+                        case "PyCam2":
                             deviceParameterStructure = new DeviceInfoStructure(splitIdentifier[0], splitIdentifier[1], new InfoBlockPiCam2(infoBlock));
                             break;
 

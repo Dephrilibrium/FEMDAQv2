@@ -567,13 +567,13 @@ namespace Instrument.LogicalLayer
             for (int iCh = 0; iCh < _device.AmountOfChannels; iCh++)
             {
                 _sweep.Add(new List<double>());
-
+                
                 if (InfoBlock.CurrCtrlChannels[iCh].SourceNode >= 0)
                 {
                     var sourceNode = CurrCtrlRequestString + Convert.ToString(InfoBlock.CurrCtrlChannels[iCh].SourceNode);
                     //_sweep.Add(new List<double>());
                     _sweep[iCh] = AssignSweep.Assign(sweep, sourceNode);
-                    if (_sweep == null) throw new Exception("Can't find " + sourceNode + " in sweep-file.");
+                    if (_sweep[iCh] == null) throw new Exception("Can't find " + sourceNode + " in sweep-file.\nNOTE: HeaderColumn \"CC\" is depreciated and has changed to \"CTRL\".");
 
                     // Check range of values
                     for (int iValue = 0; iValue < _sweep[iCh].Count; iValue++)

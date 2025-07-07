@@ -10,21 +10,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FEMDAQ.Instrumentwindows.PiCam2Statuswindow
+namespace FEMDAQ.Instrumentwindows.PyCam2Statuswindow
 {
     public partial class PyCam2Statuswindow : Form
     {
-        private PiCam2Layer _picam2 = null;
+        private PyCam2Layer _picam2 = null;
         public int LPad { get; set; } // Default = 22 -> Constructor
 
-        public PyCam2Statuswindow(PiCam2Layer PiCam2Overlay)
+        public PyCam2Statuswindow(PyCam2Layer PiCam2Overlay)
         {
             InitializeComponent();
 
             _picam2 = PiCam2Overlay;
             LPad = 22;
             UpdateActiveDownloadsToolstrip();
-            this.Text = string.Format("PiCam2 Status of {0}@{1}:{2}", _picam2.InfoBlock.Ip.Username, _picam2.InfoBlock.Ip.IP, _picam2.InfoBlock.Ip.Port);
+            this.Text = string.Format("PyCam2 Status of {0}@{1}:{2}", _picam2.InfoBlock.Ip.Username, _picam2.InfoBlock.Ip.IP, _picam2.InfoBlock.Ip.Port);
         }
 
 

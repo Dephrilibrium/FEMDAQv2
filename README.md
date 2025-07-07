@@ -33,7 +33,7 @@ For a few devices there are already witten some drivers:
 - Network devices:
   - RTO2034.cs
   - PiCam.cs
-  - PiCam2.cs
+  - PyCam2.cs
 
 
 

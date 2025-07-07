@@ -17,7 +17,7 @@ namespace Instrument.LogicalLayer
         private HaumChart.HaumChart _chart;
         private List<string> _seriesNames;
 
-
+        
 
         public KE6487Layer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
         {

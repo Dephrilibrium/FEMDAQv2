@@ -38,7 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vs64B6.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vsCB23.tmp\Debug\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -49,7 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vs64B6.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vsCB23.tmp\Release\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -58,14 +58,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>..\Debug\</OutputPath>
-    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vs64B6.tmp\x64\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vsCB23.tmp\x64\Debug\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>..\Debug\</OutputPath>
-    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vs64B6.tmp\x64\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\UHV\AppData\Local\Temp\vsCB23.tmp\x64\Release\</IntermediateOutputPath>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -207,8 +207,8 @@
     <Compile Include="..\..\FEMDAQ-DeviceDrivers\NetDevs\PiCam.cs">
       <Link>Instruments\PiCam.cs</Link>
     </Compile>
-    <Compile Include="..\..\FEMDAQ-DeviceDrivers\NetDevs\PiCam2.cs">
-      <Link>Instruments\PiCam2.cs</Link>
+    <Compile Include="..\..\FEMDAQ-DeviceDrivers\NetDevs\PyCam2.cs">
+      <Link>Instruments\PyCam2.cs</Link>
     </Compile>
     <Compile Include="..\..\FEMDAQ-DeviceDrivers\Serial_Devs\FEAR16v2.cs">
       <Link>Instruments\FEAR16v2.cs</Link>
@@ -266,13 +266,13 @@
     <Compile Include="Files\SubParser\IpParser.cs" />
     <Compile Include="Files\SubParser\SourceParser.cs" />
     <Compile Include="Files\SubParser\UsbParser.cs" />
-    <Compile Include="Instrumentwindows\PiCam2Statuswindow.cs">
+    <Compile Include="Instrumentwindows\PyCam2Statuswindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Instrumentwindows\PiCam2Statuswindow.Designer.cs">
-      <DependentUpon>PiCam2Statuswindow.cs</DependentUpon>
+    <Compile Include="Instrumentwindows\PyCam2Statuswindow.Designer.cs">
+      <DependentUpon>PyCam2Statuswindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="InstrumentOverlays\PiCam2Layer.cs" />
+    <Compile Include="InstrumentOverlays\PyCam2Layer.cs" />
     <Compile Include="InstrumentOverlays\PiCamLayer.cs" />
     <Compile Include="InstrumentOverlays\DMM7510Layer.cs" />
     <Compile Include="InstrumentOverlays\DmyMULayer.cs" />
@@ -375,8 +375,8 @@
     <EmbeddedResource Include="Chart\HaumChart.resx">
       <DependentUpon>HaumChart.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Instrumentwindows\PiCam2Statuswindow.resx">
-      <DependentUpon>PiCam2Statuswindow.cs</DependentUpon>
+    <EmbeddedResource Include="Instrumentwindows\PyCam2Statuswindow.resx">
+      <DependentUpon>PyCam2Statuswindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="JobQueue\JobQueueFrame.resx">
       <DependentUpon>JobQueueFrame.cs</DependentUpon>
@@ -422,6 +422,7 @@
     <None Include="_Klassendiagramme\MainFrame.cd" />
     <None Include="_Klassendiagramme\SpecialParser.cd" />
     <None Include="_Klassendiagramme\SubParser.cd" />
+    <None Include="_Klassendiagramme\WrapperClasses.cd" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Chart\Pinned16.png" />

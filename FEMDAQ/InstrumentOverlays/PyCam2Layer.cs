@@ -12,15 +12,15 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using FEMDAQ.Instrumentwindows.PiCam2Statuswindow;
+using FEMDAQ.Instrumentwindows.PyCam2Statuswindow;
 using FEMDAQ;
 
 namespace Instrument.LogicalLayer
 {
-    public class PiCam2Layer : InstrumentLogicalLayer
+    public class PyCam2Layer : InstrumentLogicalLayer
     {
         public InfoBlockPiCam2 InfoBlock { get; private set; }
-        private PiCam2 _device;
+        private PyCam2 _device;
         //private HaumChart.HaumChart _chart;
         //private List<string> _seriesNames;
 
@@ -37,7 +37,7 @@ namespace Instrument.LogicalLayer
         //// Log-Vars
         //private int _padding = 45;
 
-        public PiCam2Layer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
+        public PyCam2Layer(DeviceInfoStructure infoStructure, HaumChart.HaumChart chart)
         {
             //_device.
             if (infoStructure == null) throw new ArgumentNullException("infoStructure");
@@ -59,7 +59,7 @@ namespace Instrument.LogicalLayer
                 _statWin.LPad = 22;
                 _statWin.Owner = GlobalVariables.MainFrame;
                 _statWin.Show();
-                _statWin.OverrideLog("!!! ATTENTION !!!\nThis log is only for your information and therefore NOT saved.\nIf you want to have a full and detailed log, use the PiCam2's logger functionality!\n\n\n"
+                _statWin.OverrideLog("!!! ATTENTION !!!\nThis log is only for your information and therefore NOT saved.\nIf you want to have a full and detailed log, use the PyCam2's logger functionality!\n\n\n"
                                      , false);
                 _statWin.Append2Log("Creating PyCam2 instance.");
 
@@ -92,7 +92,7 @@ namespace Instrument.LogicalLayer
                 _statWin.Append2Log(string.Format("- PicsPerET: {0}", InfoBlock.PicsPerShutterSpeed));
 
                 try
-                { _device = new PiCam2(InfoBlock.Ip.IP, InfoBlock.Ip.Port, InfoBlock.Ip.Username, InfoBlock.Ip.Password, InfoBlock.PyCamScriptPath); }
+                { _device = new PyCam2(InfoBlock.Ip.IP, InfoBlock.Ip.Port, InfoBlock.Ip.Username, InfoBlock.Ip.Password, InfoBlock.PyCamScriptPath); }
                 catch (Exception e) { throw new Exception("Can't create PiCam:\n\nAdditional Info:\n" + e.Message); }
 
                 CommunicationPhy = InstrumentCommunicationPHY.Ethernet;
